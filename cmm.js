@@ -1,3 +1,5 @@
+ #!/usr/bin/env node
+ 
 var fs = require("fs");
 var jison = require("jison");
 var readline = require('readline');
