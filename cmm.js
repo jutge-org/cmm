@@ -14,9 +14,17 @@ var rl = readline.createInterface({
     output: process.stdout,
     terminal: false
 });
+
 process.stdout.write(">>> ");
+
 rl.on('line', function(line){
-    var instr = exec(line);
-    console.log(instr);
-    process.stdout.write(">>> ");
+    try {
+        var instr = exec(line);
+        console.log(instr);
+    } catch(err) {
+        console.error(err.message);
+    }
+    finally {
+        process.stdout.write(">>> ");
+    }
 });
