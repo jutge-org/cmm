@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ghastgar/C--/issues"
   },
-  "homepage": "https://github.com/ghastgar/C--#readme"
+  "homepage": "https://github.com/ghastgar/C--#readme",
+  "dependencies": {
+    "jison": "^0.4.17"
+  }
 }
