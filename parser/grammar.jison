@@ -22,6 +22,7 @@
 "}"                                         return '}'
 "("                                         return '('
 ")"                                         return ')'
+","                                         return ','
 "int"                                       return 'INT'
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
@@ -44,61 +45,63 @@
 
 %left 'PLUS' 'MINUS'
 %left 'MUL' 'DIV'
-%left UMINUS
+%left UNARY
 
 %start prog
 
 %% /* language grammar */
 
-
 prog
-    : stmt EOF
-        { return $1; } /* to print the tree: typeof console !== 'undefined' ? console.log($1) : print($1); */
+    : block_instr EOF
+        // { return $1; } /* to print the tree: typeof console !== 'undefined' ? console.log($1) : print($1); */
     ;
 
-stmt
-    : statement line ';'
-        {$$ = new yy.AstNode('STMT-LINE', [$1, $2]);}
-    | statement block_if
-        {$$ = new yy.AstNode('STMT-BLCK', [$1, $2]);}
-    | statement block_while
-        {$$ = new yy.AstNode('STMT-BLCK', [$1, $2]);}
-    |
-        {$$ = new yy.AstNode('no-op');}
+block_instr
+    : block_instr instruction ';'
+    | 
     ;
 
-line
-    : assign
+instruction
+    : block_assign
+    | declaration
+    | block_if
+    | block_while
+    ;
+
+block_assign
+    : block_assign ',' assign
+    | assign
     ;
 
 assign
-    : declaration 'EQUAL' expr
-        {$$ = new yy.AstNode(':=', [$1, $2, $4]);}
+    : ID 'EQUAL' expr
     ;
 
 declaration
-    : type 'ID'
-        {$$ = new yy.AstNode('DECL', [$1, $2]);}
+    : type declaration_body
     ;
 
+ declaration_body 
+    : declaration_body ',' assign
+    | declaration_body ',' ID
+    | assign
+    | ID
+    ;
 type
-    : 'INT'
-        {$$ = new yy.AstNode('INT', [$1]);}
-    | 'DOUBLE'
-        {$$ = new yy.AstNode('DOUBLE', [$1]);}
-    | 'CHAR'
-        {$$ = new yy.AstNode('CHAR', [$1]);}
-    | 'STR'
-        {$$ = new yy.AstNode('STR', [$1]);}
+    : INT
+    | DOUBLE
+    | CHAR
+    | STR
     ;
 
 expr
-    : expr 'PLUS' expr
-        {$$ = new yy.AstNode('PLUS', [$1, $3]);}
-    | expr 'MINUS' expr
-        {$$ = new yy.AstNode('MINUS', [$1, $3]);}
-    | expr 'MUL' expr
-        {$$ = new yy.AstNode('MUL', [$1, $3]);}
-    | expr 'DIV' expr
-        {$$ = new yy.AstNode('DIV', [$1, $3]);}
+    : expr PLUS expr
+    | expr MINUS expr
+    | expr MUL expr
+    | expr DIV expr
+    | '(' expr ')'
+    | MINUS expr %prec UNARY
+    | PLUS expr %prec UNARY
+    | NUMBER
+    | ID
     ;

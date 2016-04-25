@@ -18,6 +18,7 @@ var rl = readline.createInterface({
 });
 
 process.stdout.write(">>> ");
+//process.stdout.write(exec("int main() {}"));
 
 rl.on('line', function(line){
     try {
