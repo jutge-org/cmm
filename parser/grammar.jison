@@ -16,6 +16,11 @@
 "<="                                        return '<='
 "!="                                        return '!='
 "=="                                        return '=='
+"+="                                        return '+='
+"-="                                        return '-='
+"*="                                        return '*='
+"/="                                        return '/='
+"%="                                        return '%='
 "="                                         return 'EQUAL'
 ";"                                         return ';'
 "{"                                         return '{'
@@ -43,8 +48,11 @@
 
 /* operator associations and precedence */
 
+%right '+=' '-=' '*=' '/=' '%='
+%left '==' '!='
+%left '<' '>' '<=' '>='
 %left 'PLUS' 'MINUS'
-%left 'MUL' 'DIV'
+%left 'MUL' 'DIV' 'MOD'
 %left UNARY
 
 %start prog
@@ -99,9 +107,21 @@ expr
     | expr MINUS expr
     | expr MUL expr
     | expr DIV expr
+    | expr MOD expr
     | '(' expr ')'
     | MINUS expr %prec UNARY
     | PLUS expr %prec UNARY
+    | expr '<' expr
+    | expr '>' expr
+    | expr '<=' expr
+    | expr '>=' expr
+    | expr '==' expr
+    | expr '!=' expr
+    | expr '+=' expr
+    | expr '-=' expr
+    | expr '*=' expr
+    | expr '/=' expr
+    | expr '%=' expr
     | NUMBER
     | ID
     ;
