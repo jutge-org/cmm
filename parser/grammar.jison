@@ -52,8 +52,17 @@
 %% /* language grammar */
 
 prog
-    : block_instr EOF
+    : block_functions EOF
         // { return $1; } /* to print the tree: typeof console !== 'undefined' ? console.log($1) : print($1); */
+    ;
+
+block_functions
+    : block_functions function
+    | 
+    ;
+
+function
+    : type ID '(' ')' '{' block_instr '}'
     ;
 
 block_instr
