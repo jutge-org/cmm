@@ -4,6 +4,9 @@ var bnf = fs.readFileSync("parser/grammar.jison", "utf8");
 var p = new jison.Parser(bnf);
 var assert = require('chai').assert;
 var expect = require('chai').expect;
+var fs = require('fs');
+
+var EXAMPLES_ROOT = 'examples/'
 
 // Encapsulate a set of 
 // instructions inside a function
@@ -38,6 +41,20 @@ describe('Parser', function() {
     		program += "double foo() {b = 51-c;}"
     		assert.isTrue(p.parse(program));
     	});
+    });
+    describe('example tests', function() {
+        it('should pass test 1', function() {
+            var examplePath = EXAMPLES_ROOT + 'test1.cc' 
+            var example = fs.readFileSync(examplePath, 'utf8').toString();
+
+            var res;
+            try {
+                res = p.parse(example);
+            } catch (e) {
+                res = false;
+            }
+            assert.isTrue(res);
+        });
     });
 });
 
