@@ -8,6 +8,7 @@ module.exports = {
 };
 
 function run_statements(ast) {
+    console.log(ast);
     if (ast.getType() !== 'no-op') {
         run_statements(ast.getChild(0));
         execute_instr(ast.getChild(1));

@@ -66,22 +66,26 @@ prog
 
 block_functions
     : block_functions function
-    | 
+        {$$.push($2);}
+    |
+        {$$ = [];}
     ;
 
 function
     : type ID '(' ')' '{' block_instr '}'
+        {$$ = new yy.AstNode('FUNCTION',[$1,$2,$6]);}
     ;
 
 block_instr
     : block_instr instruction ';'
-        {$$ = new yy.AstNode('INSTR', [$1, $2]);}
+        {$$.push($2);}
     |
-        {$$ = new yy.AstNode('no-instr');}
+        {$$ = [];}
     ;
 
 instruction
     : block_assign
+        //TODO: fer push directament a la llista d'instruccions
     | declaration
     | block_if
     | block_while
@@ -89,13 +93,14 @@ instruction
 
 block_assign
     : block_assign ',' assign
-        {$$ = new yy.AstNode('BLOCK-ASSIG', [$1, $3]);}
+        {$$ = new yy.AstNode('BLOCK-ASSIGN', [$1, $3]);}
     | assign
+        {$$ = new yy.AstNode('BLOCK-ASSIGN', [new yy.AstNode('no-op'), $1]);}
     ;
 
 assign
     : ID 'EQUAL' expr
-        {$$ = new yy.AstNode(':=', [$1, $3]);}
+        {$$ = new yy.AstNode('ASSIGN', [$1, $3]);}
     ;
 
 declaration
@@ -105,13 +110,15 @@ declaration
 
 declaration_body
     : declaration_body ',' assign
-        {$$ = new yy.AstNode('DECL', [$1, $2]);}
-    | declaration_body ',' ID
-        {$$ = new yy.AstNode('DECL', [$1, $2]);}
+        {$$ = new yy.AstNode('DECL', [$1, $3]);}
+    | declaration_body ',' id
+        {$$ = new yy.AstNode('DECL', [$1, $3]);}
     | assign
-    | ID
-        {$$ = new yy.AstNode('ID', [$1]);}
+        {$$ = new yy.AstNode('DECL', [new yy.AstNode('no-op'), $1]);}
+    | id
+        {$$ = new yy.AstNode('DECL', [new yy.AstNode('no-op'), $1]);}
     ;
+
 
 type
     : INT
@@ -147,6 +154,10 @@ expr
     | expr '%=' expr
     | NUMBER
         {$$ = new yy.AstNode('NUMBER', [$1]);}
-    | ID
+    | id
+    ;
+
+id
+    : ID
         {$$ = new yy.AstNode('ID', [$1]);}
     ;
