@@ -6,6 +6,9 @@ var readline = require('readline');
 
 var bnf = fs.readFileSync("parser/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
+var interp = require("./interp/interp");
+
+parser.yy = require("./interp/ast-tree");
 
 function exec(input) {
     return parser.parse(input);
@@ -23,7 +26,8 @@ process.stdout.write(">>> ");
 rl.on('line', function(line){
     try {
         var instr = exec(line);
-        console.log(instr);
+        interp.load(instr);
+        interp.run();
     } catch(err) {
         console.error(err.message);
     }
