@@ -72,7 +72,7 @@ block_functions
     ;
 
 function
-    : type ID '(' ')' '{' block_instr '}'
+    : type id '(' ')' '{' block_instr '}'
         {$$ = new yy.AstNode('FUNCTION',[$1,$2,$6]);}
     ;
 
