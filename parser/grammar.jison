@@ -66,9 +66,9 @@ prog
 
 block_functions
     : block_functions function
-        {$$.push($2);}
+        {$$.addChild($2);}
     |
-        {$$ = [];}
+        {$$ = new yy.AstNode('BLOCK-FUNCTIONS', []);}
     ;
 
 function

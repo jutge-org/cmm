@@ -13,3 +13,7 @@ scope.AstNode.prototype.getType = function () {
 scope.AstNode.prototype.getChild = function(i) {
     return this.children[i];
 };
+
+scope.AstNode.prototype.addChild = function(child) {
+    return this.children.push(child);
+};

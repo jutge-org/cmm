@@ -8,10 +8,17 @@ module.exports = {
 };
 
 function run_statements(ast) {
-    console.log(ast);
-    if (ast.getType() !== 'no-op') {
-        run_statements(ast.getChild(0));
-        execute_instr(ast.getChild(1));
+    //console.log(ast);
+    //console.log(ast.getType());
+    try {
+        var nodeType = ast.getType();        
+        console.log('This node is a ' + nodeType);
+        if (nodeType !== 'no-op') {
+            //run_statements(ast.getChild(0));
+            //execute_instr(ast.getChild(1));
+        }
+    } catch (e) {
+        console.log("I am not an AST node.");
     }
 }
 

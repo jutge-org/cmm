@@ -28,6 +28,7 @@ rl.on('line', function(line){
     try {
         var instr = parse(line);
         console.log(util.inspect(instr, {showHidden: false, depth: null}));
+        console.log('instr.js: ' + instr.getType());
         interp.load(instr);
         interp.run();
     } catch(err) {
