@@ -111,13 +111,13 @@ declaration
 
 declaration_body
     : declaration_body ',' assign
-        {$$ = new yy.AstNode('DECL', [$1, $3]);}
+        {$$.push($3);}
     | declaration_body ',' id
-        {$$ = new yy.AstNode('DECL', [$1, $3]);}
+        {$$.push($3);}
     | assign
-        {$$ = new yy.AstNode('DECL', [new yy.AstNode('no-op'), $1]);}
+        {$$ = [$1];}
     | id
-        {$$ = new yy.AstNode('DECL', [new yy.AstNode('no-op'), $1]);}
+        {$$ = [$1];}
     ;
 
 
