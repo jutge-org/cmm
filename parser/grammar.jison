@@ -32,6 +32,7 @@
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
 "string"                                    return 'STR'
+"cin"                                       return 'CIN'
 "cout"                                      return 'COUT'
 "true"                                      return 'TRUE'
 "false"                                     return 'FALSE'
