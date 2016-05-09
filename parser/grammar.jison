@@ -78,9 +78,9 @@ function
 
 block_instr
     : block_instr instruction ';'
-        {$$.push($2);}
+        {$$.addChild($2);}
     |
-        {$$ = [];}
+        {$$ = new yy.AstNode('BLOCK-INSTRUCTIONS', []);}
     ;
 
 instruction
