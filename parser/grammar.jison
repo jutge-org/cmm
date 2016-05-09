@@ -78,18 +78,42 @@ function
     ;
 
 block_instr
-    : block_instr instruction ';'
+    : block_instr instruction 
         {$$.addChild($2);}
     |
         {$$ = new yy.AstNode('BLOCK-INSTRUCTIONS', []);}
     ;
 
 instruction
-    : block_assign
+    : block_assign ';'
         //TODO: fer push directament a la llista d'instruccions
-    | declaration
-    | block_if
-    | block_while
+    | declaration ';'
+    | if
+    | while
+    ;
+
+if
+    : IF '(' expr ')' instruction_body else
+        {$$ = new yy.AstNode('IF-THEN-ELSE', [$3, $5, $6]);}
+    | IF '(' expr ')' instruction_body 
+        {$$ = new yy.AstNode('IF-THEN', [$3, $5]);}
+    ;
+
+while
+    : WHILE '(' expr ')' instruction_body
+        {$$ = new yy.AstNode('WHILE', [$3, $5]);}
+    ;
+
+else
+    : ELSE instruction_body
+        {$$ = $2;}
+    ;
+
+instruction_body
+    : instruction
+        {$$ = new yy.AstNode('BLOCK-INSTRUCTIONS', [$1]);}
+    | '{' block_instr '}'
+        {$$ = $2;}
     ;
 
 block_assign
