@@ -86,7 +86,6 @@ block_instr
 
 instruction
     : block_assign
-        //TODO: fer push directament a la llista d'instruccions
     | declaration
     | block_if
     | block_while
