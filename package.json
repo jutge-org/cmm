@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ghastgar/C--#readme",
   "dependencies": {
+    "commander": "^2.9.0",
     "jison": "^0.4.17"
   }
 }
