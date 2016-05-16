@@ -2,15 +2,16 @@ var Type = require('./utils').Type;
 var OP = require('./utils').Op;
 var assert = require('assert');
 
-function Data(d, type, value) {
+function Data(a, b) {
     if (arguments.length === 0) {
         this.type = Type.VOID;
-    } else if (arguments.length === 1 && typeof d === "object") {
-        this.type = d.type;
-        this.value = d.value;
+        this.value = undefined;
+    } else if (arguments.length === 1 && typeof a === "object") {
+        this.type = a.type;
+        this.value = a.value;
     } else if (arguments.length === 2) {
-        this.type = type;
-        this.value = value;
+        this.type = a;
+        this.value = b;
     } else {
         throw "Wrong parameters";
     }
