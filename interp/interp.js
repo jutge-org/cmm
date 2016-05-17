@@ -1,48 +1,34 @@
+var assert = require('assert');
+
+var funcName2Tree;
+
 module.exports = {
     load: function(root) {
-        this.root = root;
+        assert.notStrictEqual(root, undefined);
+        mapFunctions(root);
+        // TODO *maybe* preprocess literals
     },
     run: function() {
-        run_statements(this.root);
+        executeFunction("main", null)
     }
 };
 
-function run_statements(ast) {
-    //console.log(ast);
-    //console.log(ast.getType());
-    try {
-        var nodeType = ast.getType();        
-        console.log('This node is a ' + nodeType);
-        if (nodeType !== 'no-op') {
-            //run_statements(ast.getChild(0));
-            //execute_instr(ast.getChild(1));
+function mapFunctions(T) {
+    assert.strictEqual(T.getType(), "BLOCK-FUNCTIONS");
+    funcName2Tree = {};
+    var n = T.getChildCount();
+    for (var i = 0; i < n; ++i) {
+        var subTree = T.getChild(i);
+        assert.strictEqual(subTree.getType(), "FUNCTION");
+        var funcName = subTree.getChild(1).getChild(0);
+        if (funcName2Tree[funcName] !== undefined) {
+            throw "Multiple definitions of function " + funcName;
         }
-    } catch (e) {
-        console.log("I am not an AST node.");
+        funcName2Tree[funcName] = subTree;
     }
 }
 
-function execute_instr(ast) {
-    if (ast.getType() === ':=') {
-        assign(ast);
-    }
-    else {
-        execute_instr(ast.getChild(0));
-        assign(ast.getChild(1));
-    }
-}
-
-function assign(ast) {
-    var ID = ast.getChild(0);
-    var VAL = eval_expr(ast.getChild(1));
+function executeFunction(funcName, args) {
     // TODO
-    console.log(ID);
-    console.log(VAL);
 }
 
-function eval_expr(ast) {
-    switch (ast.getType()) {
-        case 'NUMBER':
-            return Number(ast.getChild(0));
-    }
-}

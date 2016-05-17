@@ -4,11 +4,11 @@ var fs = require("fs");
 var jison = require("jison");
 var readline = require('readline');
 var program = require('commander');
+var util = require('util');
 
 var bnf = fs.readFileSync("parser/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 var interp = require("./interp/interp");
-var util = require('util');
 
 var debug = false,
     file;
