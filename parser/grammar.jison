@@ -4,6 +4,8 @@
 %lex
 %%
 
+"//".*                /* ignore comment */
+"/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
 "*"                                         return 'MUL'
 "/"                                         return 'DIV'
@@ -32,6 +34,7 @@
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
 "string"                                    return 'STR'
+"void"                                      return 'VOID'
 "cin"                                       return 'CIN'
 "cout"                                      return 'COUT'
 "true"                                      return 'TRUE'
@@ -125,6 +128,7 @@ type
     | DOUBLE
     | CHAR
     | STR
+    | VOID
     ;
 
 expr
