@@ -15,11 +15,11 @@ Stack.prototype.popActivationRecord = function() {
 };
 
 Stack.prototype.defineVariable = function(name, value) {
-    var type = this.currentAR[name].getType();
-    if (value.getType() === type) {
+    var data = this.currentAR[name];
+    if (data === undefined) {
         this.currentAR[name] = value;
     } else {
-        throw "Variable " + name + " is already defined as " + type;
+        throw "Variable " + name + " is already defined.";
     }
 };
 
