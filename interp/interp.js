@@ -1,12 +1,21 @@
 var assert = require('assert');
+var util = require('util');
+
+var Stack = require('./stack');
+var Data = require('./data');
+var OP = require('./utils').Op;
+var EL = require('./utils').Element;
 
 var funcName2Tree;
+var stack = new Stack();
 
 module.exports = {
     load: function(root) {
         assert.notStrictEqual(root, undefined);
         mapFunctions(root);
-        // TODO *maybe* preprocess literals
+        assert.notStrictEqual(funcName2Tree["main"], undefined, "Main function must exist");
+        preProcessAST(root);
+        
     },
     run: function() {
         executeFunction("main", null)
@@ -21,14 +30,50 @@ function mapFunctions(T) {
         var subTree = T.getChild(i);
         assert.strictEqual(subTree.getType(), "FUNCTION");
         var funcName = subTree.getChild(1).getChild(0);
-        if (funcName2Tree[funcName] !== undefined) {
-            throw "Multiple definitions of function " + funcName;
-        }
+        assert.strictEqual(funcName2Tree[funcName], undefined, "Multiple definitions of function " + funcName);
         funcName2Tree[funcName] = subTree;
     }
 }
 
-function executeFunction(funcName, args) {
-    // TODO
+function preProcessAST(T) {
+    if (T === null || T === undefined) return;
+    if (T.type === undefined) return;
+    switch (T.getType()) {
+        case EL.INTEGER: T.children[0] = parseInt(T.getChild(0)); break;
+        case EL.REAL:    T.children[0] = parseFloat(T.getChild(0)); break;
+        case 'TYPE-DECL':
+            for(var i = 0; i < T.getChild(1).length; ++i) {
+                preProcessAST(T.getChild(1)[i]);
+            }
+    }
+    var n = T.getChildCount();
+    for (var i = 0; i < n; ++i) preProcessAST(T.getChild(i));
 }
 
+function executeFunction(funcName, args) {
+    var func = funcName2Tree[funcName];
+    assert.notStrictEqual(func, undefined, "Function "+funcName+" not declared");
+    // TODO work with list arguments
+    stack.pushActivationRecord(funcName);
+    var result = executeListInstructions(func.getChild(2));
+    if (result) result = new Data();
+    stack.popActivationRecord();
+    return result;
+}
+
+function executeListInstructions(T) {
+    assert.notStrictEqual(T, undefined);
+    var result; //Data obj
+    var ninstr = T.getChildCount();
+    for (var i = 0; i < ninstr; ++i) {
+        result = executeInstruction(T.getChild(i));
+        if (result !== undefined) return result;
+    }
+    return null;
+}
+
+function executeInstruction(T) {
+    assert.notStrictEqual(T, undefined);
+    var value;
+    
+}

@@ -42,7 +42,8 @@
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
 "while"                                     return 'WHILE'
-[0-9]+("."[0-9]+)?\b                        return 'NUMBER'
+[0-9]+("."[0-9]+)\b                         return 'REAL'
+([1-9][0-9]*|0)                             return 'INTEGER'
 ([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*       return 'ID'
 \"(\\.|[^"])*\"                             return 'STRING'
 <<EOF>>                                     return 'EOF'
@@ -144,20 +145,35 @@ expr
         {$$ = new yy.AstNode('MOD', [$1,$3]);}
     | '(' expr ')'
     | MINUS expr %prec UNARY
+        {$$ = new yy.AstNode('UMINUS', [$2]);}
     | PLUS expr %prec UNARY
+        {$$ = new yy.AstNode('UPLUS', [$2]);}
     | expr '<' expr
+        {$$ = new yy.AstNode('<', [$1,$3]);}
     | expr '>' expr
+        {$$ = new yy.AstNode('>', [$1,$3]);}
     | expr '<=' expr
+        {$$ = new yy.AstNode('<=', [$1,$3]);}
     | expr '>=' expr
+        {$$ = new yy.AstNode('>=', [$1,$3]);}
     | expr '==' expr
+        {$$ = new yy.AstNode('==', [$1,$3]);}
     | expr '!=' expr
+        {$$ = new yy.AstNode('!=', [$1,$3]);}
     | expr '+=' expr
+        {$$ = new yy.AstNode('+=', [$1,$3]);}
     | expr '-=' expr
+        {$$ = new yy.AstNode('-=', [$1,$3]);}
     | expr '*=' expr
+        {$$ = new yy.AstNode('*=', [$1,$3]);}
     | expr '/=' expr
+        {$$ = new yy.AstNode('/=', [$1,$3]);}
     | expr '%=' expr
-    | NUMBER
-        {$$ = new yy.AstNode('NUMBER', [$1]);}
+        {$$ = new yy.AstNode('%=', [$1,$3]);}
+    | REAL
+        {$$ = new yy.AstNode('REAL', [$1]);}
+    | INTEGER
+        {$$ = new yy.AstNode('INTEGER', [$1]);}
     | id
     ;
 

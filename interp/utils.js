@@ -12,4 +12,8 @@ module.exports = {
         DIV: 'DIV',
         MOD: 'MOD'
     }),
+    Element : Object.freeze({
+        INTEGER: 'INTEGER',
+        REAL: 'REAL'
+    })
 };
