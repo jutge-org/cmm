@@ -17,3 +17,7 @@ scope.AstNode.prototype.getChild = function(i) {
 scope.AstNode.prototype.addChild = function(child) {
     return this.children.push(child);
 };
+
+scope.AstNode.prototype.getChildCount = function () {
+    return this.children.length;
+};
