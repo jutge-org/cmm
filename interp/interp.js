@@ -80,7 +80,6 @@ function executeInstruction(T) {
             var type = T.getChild(0);
             var decl = T.getChild(1);
             var declNum = decl.length;
-            console.log(declNum);
             for (var i = 0; i < declNum; ++i) {
                 var atom = decl[i];
                 var varName = atom.getChild(0);
