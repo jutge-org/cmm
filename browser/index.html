@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="lib/bundle.js"></script>
+    <title>C--</title>
+</head>
+<body>
+    <div>
+        <label for="input"></label><textarea id="input" style="width: 574px; height: 344px;"></textarea>
+    </div>
+    <div>
+        <button type="button" id="run">Run code</button>
+    </div>
+</body>
+<script>
+    var button = document.getElementById('run');
+    button.onclick = function() {
+        var raw_program = document.getElementById('input').value;
+        execute(raw_program);
+    }
+</script>
+<script src="lib/handleTabs.js"></script>
+</html>
