@@ -52,7 +52,7 @@ if (file === undefined) {
             interp.load(instr);
             interp.run();
         } catch(err) {
-            console.error(err);
+            console.error(err.stack);
         }
         finally {
             process.stdout.write(">>> ");

@@ -31,4 +31,24 @@ Stack.prototype.getVariable = function (name) {
     return v;
 };
 
+Stack.prototype.setVariable = function (name, data) {
+    console.log(data);
+    console.log(this.currentAR[name]);
+    var v = this.currentAR[name];
+    if (v === undefined) {
+        var msg = "Variable " + name + " not defined";
+        throw new Error(msg);
+    }
+    if (data === undefined) {
+        var msg = "Assignment value not defined";
+        throw new Error(msg);
+    }
+    if (v.type !== data.type) {
+        var msg = "Assignment value type doesn't match variable type";
+        throw new Error(msg);
+    }
+    this.currentAR[name] = data;
+    console.log(name + ' = ' + data.value);
+};
+
 module.exports = Stack;

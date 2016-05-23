@@ -14,6 +14,10 @@ scope.AstNode.prototype.getChild = function(i) {
     return this.children[i];
 };
 
+scope.AstNode.prototype.getChildren = function() {
+    return this.children;
+};
+
 scope.AstNode.prototype.addChild = function(child) {
     return this.children.push(child);
 };

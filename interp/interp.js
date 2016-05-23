@@ -3,6 +3,7 @@ var util = require('util');
 
 var Stack = require('./stack');
 var Data = require('./data');
+var Type = require('./utils').Type;
 var OP = require('./utils').Op;
 var EL = require('./utils').Element;
 
@@ -85,10 +86,18 @@ function executeInstruction(T) {
                 var varName = atom.getChild(0);
                 if (atom.getType() === 'ASSIGN') {
                     value = evaluateExpression(atom.getChild(1));
-                    stack.defineVariable(varName, new Data(type, value));
+                    stack.defineVariable(varName, value);
                 }
-                else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type, undefined));
+                else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type));
             }
+            break;
+        case 'BLOCK-ASSIGN':
+            executeListInstructions(T);
+            break;
+        case 'ASSIGN':
+            var id    = T.getChild(0);
+            var value = evaluateExpression(T.getChild(1));
+            var v = stack.setVariable(id, value);
             break;
         default:
             console.log('Instruction not implemented yet.')
@@ -97,5 +106,7 @@ function executeInstruction(T) {
 
 function evaluateExpression(T) {
     //TODO implement method
-    return -1;
+    // Returns a Data object, that includes 
+    // the type of the evaluated expression
+    return new Data(Type.INT, 1);
 }
