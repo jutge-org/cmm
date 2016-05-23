@@ -90,6 +90,8 @@ function executeInstruction(T) {
                 else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type, undefined));
             }
             break;
+        default:
+            console.log('Instruction not implemented yet.')
     }
 }
 

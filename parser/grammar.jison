@@ -122,9 +122,9 @@ instruction_body
 
 block_assign
     : block_assign ',' assign
-        {$$ = new yy.AstNode('BLOCK-ASSIGN', [$1, $3]);}
+        {$$.addChild($3);}
     | assign
-        {$$ = new yy.AstNode('BLOCK-ASSIGN', [new yy.AstNode('no-op'), $1]);}
+        {$$ = new yy.AstNode('BLOCK-ASSIGN', [$1]);}
     ;
 
 assign
