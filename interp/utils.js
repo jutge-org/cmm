@@ -1,20 +1,25 @@
 module.exports = {
-    Type : Object.freeze({
+    TYPE : Object.freeze({
         VOID: 'VOID',
         INT: 'INT',
         DOUBLE: 'DOUBLE',
-        STRING: 'STRING'
+        STRING: 'STRING',
+        CHAR: 'CHAR',
+        BOOL: 'BOOL'
     }),
-    Op : Object.freeze({
+    OPERATOR : Object.freeze({
         PLUS: 'PLUS',
         MINUS: 'MINUS',
         MUL: 'MUL',
         DIV: 'DIV',
         MOD: 'MOD'
     }),
-    Element : Object.freeze({
-        INTEGER: 'INTEGER',
-        REAL: 'REAL',
-        ID: 'ID'
-    })
+    LITERAL : Object.freeze({
+        INT: 'INT_LIT',
+        DOUBLE: 'DOUBLE_LIT',
+        BOOL: 'BOOL_LIT',
+        CHAR: 'CHAR_LIT',
+        STRING: 'STRING_LIT'
+    }),
+    ID : 'ID'
 };

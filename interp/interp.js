@@ -3,9 +3,11 @@ var util = require('util');
 
 var Stack = require('./stack');
 var Data = require('./data');
-var Type = require('./utils').Type;
-var OP = require('./utils').Op;
-var EL = require('./utils').Element;
+
+var TYPE = require('./utils').TYPE;
+var OPERATOR = require('./utils').OPERATOR;
+var LITERAL = require('./utils').LITERAL;
+var ID = require('./utils').ID;
 
 var funcName2Tree;
 var stack = new Stack();
@@ -14,7 +16,7 @@ module.exports = {
     load: function(root) {
         assert.notStrictEqual(root, undefined);
         mapFunctions(root);
-        assert.notStrictEqual(funcName2Tree["main"], undefined, "Main function must exist");
+        assert.notStrictEqual(funcName2Tree.main, undefined, "Main function must exist");
         preProcessAST(root);
         
     },
@@ -40,8 +42,8 @@ function preProcessAST(T) {
     if (T === null || T === undefined) return;
     if (T.type === undefined) return;
     switch (T.getType()) {
-        case EL.INTEGER: T.children[0] = parseInt(T.getChild(0)); break;
-        case EL.REAL:    T.children[0] = parseFloat(T.getChild(0)); break;
+        case LITERAL.INT: T.children[0] = parseInt(T.getChild(0)); break;
+        case LITERAL.DOUBLE:    T.children[0] = parseFloat(T.getChild(0)); break;
         case 'TYPE-DECL':
             for(var i = 0; i < T.getChild(1).length; ++i) {
                 preProcessAST(T.getChild(1)[i]);
@@ -111,37 +113,37 @@ function evaluateExpression(T) {
     var type = T.getType();
     var v1, v2;
     switch(type) {
-        case OP.PLUS:
+        case OPERATOR.PLUS:
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1+v2;
-        case OP.MINUS:
+        case OPERATOR.MINUS:
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1-v2;
-        case OP.MUL:
+        case OPERATOR.MUL:
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1*v2;
-        case OP.DIV:
+        case OPERATOR.DIV:
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1/v2;
-        case OP.MOD:
+        case OPERATOR.MOD:
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1%v2;
-        case EL.INTEGER:
+        case LITERAL.INT:
             v1 = T.getChild(0);
             return v1;
-        case EL.REAL:
+        case LITERAL.DOUBLE:
             v1 = T.getChild(0);
             return v1;
-        case EL.ID:
+        case ID:
             v1 = stack.getVariable(T.getChild(0));
             return v1.getValue();
     }
     // Returns a Data object, that includes 
     // the type of the evaluated expression
-    return new Data(Type.INT, 1);
+    return new Data(TYPE.INT, 1);
 }

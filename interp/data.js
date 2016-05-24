@@ -1,10 +1,10 @@
-var Type = require('./utils').Type;
-var OP = require('./utils').Op;
+var TYPE = require('./utils').TYPE;
+var OPERATOR = require('./utils').OPERATOR;
 var assert = require('assert');
 
 function Data(a, b) {
     if (arguments.length === 0) {
-        this.type = Type.VOID;
+        this.type = TYPE.VOID;
         this.value = undefined;
     } else if (arguments.length === 1 && typeof a === "object") {
         this.type = a.type;
@@ -22,19 +22,19 @@ Data.prototype.getType = function () {
 };
 
 Data.prototype.isInteger = function () {
-    return this.type === Type.INT;
+    return this.type === TYPE.INT;
 };
 
 Data.prototype.isDouble = function () {
-    return this.type === Type.DOUBLE;
+    return this.type === TYPE.DOUBLE;
 };
 
 Data.prototype.isVoid = function () {
-    return this.type === Type.VOID;
+    return this.type === TYPE.VOID;
 };
 
 Data.prototype.isString = function () {
-    return this.type === Type.STRING;
+    return this.type === TYPE.STRING;
 };
 
 Data.prototype.getValue = function() {
@@ -42,8 +42,8 @@ Data.prototype.getValue = function() {
 };
 
 Data.prototype.setValue = function (type, value) {
-    if (type !== Type.INT && type !== Type.DOUBLE
-        && type !== Type.VOID && type !== Type.STRING) {
+    if (type !== TYPE.INT && type !== TYPE.DOUBLE
+        && type !== TYPE.VOID && type !== TYPE.STRING) {
         throw type + " is not a supported type";
     }
     this.type = type;
@@ -65,22 +65,22 @@ Data.prototype.checkDivZero = function (data) {
 
 // TODO do more and better type checking
 Data.prototype.evaluateArithmetic = function (op, data) {
-    if (this.type === Type.STRING && data.type === Type.STRING) {
+    if (this.type === TYPE.STRING && data.type === TYPE.STRING) {
         switch (op) {
-            case OP.PLUS: this.value += data.value; return;
+            case OPERATOR.PLUS: this.value += data.value; return;
             default: throw "Unsupported operation";
         }
     }
-    if (this.type === Type.VOID || this.type === Type.VOID) {
+    if (this.type === TYPE.VOID || this.type === TYPE.VOID) {
         throw "VOID type does not have any operation";
     }
 
     switch (op) {
-        case OP.PLUS: this.value += data.value; break;
-        case OP.MINUS: this.value -= data.value; break;
-        case OP.MUL: this.value *= data.value; break;
-        case OP.DIV: this.value /= data.value; console.log(this.value); break;
-        case OP.MOD: this.value %= data.value; break;
+        case OPERATOR.PLUS: this.value += data.value; break;
+        case OPERATOR.MINUS: this.value -= data.value; break;
+        case OPERATOR.MUL: this.value *= data.value; break;
+        case OPERATOR.DIV: this.value /= data.value; console.log(this.value); break;
+        case OPERATOR.MOD: this.value %= data.value; break;
         default: throw "Unsupported operation";
     }
 };
@@ -93,7 +93,7 @@ function checkType(data) {
     var type = data.type;
     var value = data.value;
     switch(type) {
-        case Type.INT:
+        case TYPE.INT:
             // Check if it's a real or int, 
             if (value === parseInt(data.value) || value === parseFloat(data.value)) {
                 data.value = parseInt(data.value);

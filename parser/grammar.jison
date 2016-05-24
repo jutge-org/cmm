@@ -33,6 +33,7 @@
 "int"                                       return 'INT'
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
+"bool"                                      return 'BOOL'
 "string"                                    return 'STR'
 "void"                                      return 'VOID'
 "cin"                                       return 'CIN'
@@ -42,10 +43,12 @@
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
 "while"                                     return 'WHILE'
-[0-9]+("."[0-9]+)\b                         return 'REAL'
-([1-9][0-9]*|0)                             return 'INTEGER'
+"true"|"false"                              return 'BOOL_LIT'
+[0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
+([1-9][0-9]*|0)                             return 'INT_LIT'
+\'(\\.|[^'])\'                              return 'CHAR_LIT'
+\"(\\.|[^"])*\"                             return 'STRING_LIT'
 ([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*       return 'ID'
-\"(\\.|[^"])*\"                             return 'STRING'
 <<EOF>>                                     return 'EOF'
 .                                           return 'INVALID'
 
@@ -82,7 +85,7 @@ function
     ;
 
 block_instr
-    : block_instr instruction 
+    : block_instr instruction
         {$$.addChild($2);}
     |
         {$$ = new yy.AstNode('BLOCK-INSTRUCTIONS', []);}
@@ -99,7 +102,7 @@ instruction
 if
     : IF '(' expr ')' instruction_body else
         {$$ = new yy.AstNode('IF-THEN-ELSE', [$3, $5, $6]);}
-    | IF '(' expr ')' instruction_body 
+    | IF '(' expr ')' instruction_body
         {$$ = new yy.AstNode('IF-THEN', [$3, $5]);}
     ;
 
@@ -153,6 +156,7 @@ type
     : INT
     | DOUBLE
     | CHAR
+    | BOOL
     | STR
     | VOID
     ;
@@ -168,7 +172,6 @@ expr
         {$$ = new yy.AstNode('DIV', [$1,$3]);}
     | expr MOD expr
         {$$ = new yy.AstNode('MOD', [$1,$3]);}
-    | '(' expr ')'
     | MINUS expr %prec UNARY
         {$$ = new yy.AstNode('UMINUS', [$2]);}
     | PLUS expr %prec UNARY
@@ -195,11 +198,18 @@ expr
         {$$ = new yy.AstNode('/=', [$1,$3]);}
     | expr '%=' expr
         {$$ = new yy.AstNode('%=', [$1,$3]);}
-    | REAL
-        {$$ = new yy.AstNode('REAL', [$1]);}
-    | INTEGER
-        {$$ = new yy.AstNode('INTEGER', [$1]);}
+    | DOUBLE_LIT
+        {$$ = new yy.AstNode('DOUBLE_LIT', [$1]);}
+    | INT_LIT
+        {$$ = new yy.AstNode('INT_LIT', [$1]);}
+    | CHAR_LIT
+        {$$ = new yy.AstNode('CHAR_LIT', [$1])}
+    | BOOL_LIT
+        {$$ = new yy.AstNode('BOOL_LIT', [$1]);}
+    | STRING_LIT
+        {$$ = new yy.AstNode('STRING_LIT', [$1]);}
     | id
+    | '(' expr ')'
     ;
 
 id
