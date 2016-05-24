@@ -98,8 +98,9 @@ function executeInstruction(T) {
             break;
         case 'ASSIGN':
             var id    = T.getChild(0);
-            var value = evaluateExpression(T.getChild(1));
-            var v = stack.setVariable(id, value);
+            var data = stack.getVariable(id);
+            value = evaluateExpression(T.getChild(1));
+            data.setValue(value);
             break;
         default:
             console.log('Instruction not implemented yet.')

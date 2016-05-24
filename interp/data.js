@@ -41,12 +41,7 @@ Data.prototype.getValue = function() {
     return this.value;
 };
 
-Data.prototype.setValue = function (type, value) {
-    if (type !== Type.INT && type !== Type.DOUBLE
-        && type !== Type.VOID && type !== Type.STRING) {
-        throw type + " is not a supported type";
-    }
-    this.type = type;
+Data.prototype.setValue = function (value) {
     this.value = value;
     checkType(this);
 };
@@ -93,12 +88,15 @@ function checkType(data) {
     var type = data.type;
     var value = data.value;
     switch(type) {
-        case Type.INT:
+        case 'int':
             // Check if it's a real or int, 
-            if (value === parseInt(data.value) || value === parseFloat(data.value)) {
+            if (value == parseInt(data.value) || value == parseFloat(data.value)) {
                 data.value = parseInt(data.value);
-                return true;
-            }
+            } else throw "Wrong type";
+            break;
+        case 'double':
+            if (value !== parseInt(data.value) && value !== parseFloat(data.value))
+                throw "Wrong type";
             break;
     }
 }
