@@ -88,7 +88,7 @@ function executeInstruction(T) {
                     value = evaluateExpression(atom.getChild(1));
                     stack.defineVariable(varName, value);
                 }
-                else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type));
+                else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type, undefined));
             }
             break;
         case 'BLOCK-ASSIGN':
