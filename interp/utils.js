@@ -14,6 +14,7 @@ module.exports = {
     }),
     Element : Object.freeze({
         INTEGER: 'INTEGER',
-        REAL: 'REAL'
+        REAL: 'REAL',
+        ID: 'ID'
     })
 };

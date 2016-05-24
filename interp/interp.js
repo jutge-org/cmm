@@ -86,6 +86,8 @@ function executeInstruction(T) {
                 var varName = atom.getChild(0);
                 if (atom.getType() === 'ASSIGN') {
                     value = evaluateExpression(atom.getChild(1));
+                    // TODO check type and value match right here
+                    value = new Data(type, value);
                     stack.defineVariable(varName, value);
                 }
                 else if (atom.getType() === 'ID') stack.defineVariable(varName, new Data(type, undefined));
@@ -105,7 +107,40 @@ function executeInstruction(T) {
 }
 
 function evaluateExpression(T) {
-    //TODO implement method
+    assert.notStrictEqual(T, undefined);
+    var type = T.getType();
+    var v1, v2;
+    switch(type) {
+        case OP.PLUS:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1+v2;
+        case OP.MINUS:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1-v2;
+        case OP.MUL:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1*v2;
+        case OP.DIV:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1/v2;
+        case OP.MOD:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1%v2;
+        case EL.INTEGER:
+            v1 = T.getChild(0);
+            return v1;
+        case EL.REAL:
+            v1 = T.getChild(0);
+            return v1;
+        case EL.ID:
+            v1 = stack.getVariable(T.getChild(0));
+            return v1.getValue();
+    }
     // Returns a Data object, that includes 
     // the type of the evaluated expression
     return new Data(Type.INT, 1);

@@ -37,18 +37,7 @@ Data.prototype.isString = function () {
     return this.type === Type.STRING;
 };
 
-Data.prototype.getIntegerValue = function () {
-    assert.strictEqual(this.type, Type.INT, "Wrong type");
-    return this.value;
-};
-
-Data.prototype.getDoubleValue = function () {
-    assert.strictEqual(this.type, Type.DOUBLE, "Wrong type");
-    return this.value;
-};
-
-Data.prototype.getStringValue = function () {
-    assert.strictEqual(this.type, Type.STRING, "Wrong type");
+Data.prototype.getValue = function() {
     return this.value;
 };
 
@@ -59,11 +48,13 @@ Data.prototype.setValue = function (type, value) {
     }
     this.type = type;
     this.value = value;
+    checkType(this);
 };
 
 Data.prototype.setData = function (data) {
     this.type = data.type;
     this.value = data.value;
+    checkType(this);
 };
 
 Data.prototype.checkDivZero = function (data) {
@@ -88,7 +79,7 @@ Data.prototype.evaluateArithmetic = function (op, data) {
         case OP.PLUS: this.value += data.value; break;
         case OP.MINUS: this.value -= data.value; break;
         case OP.MUL: this.value *= data.value; break;
-        case OP.DIV: this.value /= data.value; break;
+        case OP.DIV: this.value /= data.value; console.log(this.value); break;
         case OP.MOD: this.value %= data.value; break;
         default: throw "Unsupported operation";
     }
@@ -97,5 +88,19 @@ Data.prototype.evaluateArithmetic = function (op, data) {
 Data.prototype.evaluateRelational = function (op, data) {
     throw "Unimplemented method";
 };
+
+function checkType(data) {
+    var type = data.type;
+    var value = data.value;
+    switch(type) {
+        case Type.INT:
+            // Check if it's a real or int, 
+            if (value === parseInt(data.value) || value === parseFloat(data.value)) {
+                data.value = parseInt(data.value);
+                return true;
+            }
+            break;
+    }
+}
 
 module.exports = Data;
