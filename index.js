@@ -10,7 +10,7 @@ var bnf = fs.readFileSync("parser/grammar.jison", "utf8");
 var parser = new jison.Parser(bnf);
 var interp = require("./interp/interp");
 
-var debug = false,
+var debug = true,
     file;
 
 parser.yy = require("./interp/ast-tree");
@@ -52,7 +52,7 @@ if (file === undefined) {
             interp.load(instr);
             interp.run();
         } catch(err) {
-            console.error(err.stack);
+            console.error(err.stack || err);
         }
         finally {
             process.stdout.write(">>> ");

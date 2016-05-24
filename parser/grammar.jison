@@ -38,8 +38,6 @@
 "void"                                      return 'VOID'
 "cin"                                       return 'CIN'
 "cout"                                      return 'COUT'
-"true"                                      return 'TRUE'
-"false"                                     return 'FALSE'
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
 "while"                                     return 'WHILE'
