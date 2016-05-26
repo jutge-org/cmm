@@ -128,12 +128,6 @@ function executeInstruction(T) {
             value = evaluateExpression(T.getChild(1));
             data.setValue(value);
             break;
-        case 'IF-THEN':
-            var cond = T.getChild(0);
-            if (evaluateExpression(cond)) {
-                return executeListInstructions(T.getChild(1));
-            }
-            break;
         case 'COUT':
             var subT = T.getChild(0);
             var ninstr = subT.getChildCount();
