@@ -130,12 +130,6 @@ function executeInstruction(T) {
             value = evaluateExpression(T.getChild(1));
             data.setValue(value);
             break;
-        case 'IF-THEN':
-            var cond = T.getChild(0);
-            if (evaluateExpression(cond)) {
-                return executeListInstructions(T.getChild(1));
-            }
-            break;
         case 'COUT':
             var subT = T.getChild(0);
             var ninstr = subT.getChildCount();
@@ -147,8 +141,19 @@ function executeInstruction(T) {
             break;
         case 'RETURN':
             return evaluateExpression(T.getChild(0));
+        case 'IF-THEN-ELSE':
+            var negativeNode = T.getChild(2);
+        case 'IF-THEN':
+            var conditionNode = T.getChild(0);
+            var positiveNode = T.getChild(1);
+            var conditionEvaluationResult = evaluateExpression(conditionNode);
+            if (conditionEvaluationResult) {
+                executeListInstructions(positiveNode);
+            } 
+            else if (negativeNode !== undefined) executeListInstructions(negativeNode);
+            break;
         default:
-            throw 'Instruction not implemented yet.';
+            throw 'Instruction ' + T.getType() + ' not implemented yet.';
     }
 }
 
