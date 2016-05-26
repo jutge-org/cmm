@@ -58,9 +58,9 @@ function preProcessAST(T) {
 function executeFunction(funcName, args) {
     var func = funcName2Tree[funcName];
     assert.notStrictEqual(func, undefined, "Function "+funcName+" not declared");
-    // TODO work with list arguments
+    //TODO get function args
     stack.pushActivationRecord(funcName);
-    var result = executeListInstructions(func.getChild(2));
+    var result = executeListInstructions(func.getChild(3));
     if (result) result = new Data();
     stack.popActivationRecord();
     return result;

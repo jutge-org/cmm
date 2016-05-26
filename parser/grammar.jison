@@ -83,10 +83,19 @@ block_functions
     ;
 
 function
-    : type id '(' ')' '{' block_instr '}'
-        {$$ = new yy.AstNode('FUNCTION',[$1,$2,$6]);}
+    : type id '(' arg_list ')' '{' block_instr '}'
+        {$$ = new yy.AstNode('FUNCTION',[$1,$2,$4,$7]);}
     ;
 
+arg_list
+    : arglist ',' arg
+        {$$.addChild($3);}
+    |
+        {$$ = new yy.AstNode('ARG-LIST', []);}
+
+arg
+    : type id;
+        {$$ = new yy.AstNode('ARG', [$1, $2]);}
 block_instr
     : block_instr instruction
         {$$.addChild($2);}
