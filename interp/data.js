@@ -2,6 +2,8 @@ var TYPE = require('./utils').TYPE;
 var OPERATOR = require('./utils').OPERATOR;
 var assert = require('assert');
 
+var checkType = require('./utils').checkType;
+
 function Data(a, b) {
     if (arguments.length === 0) {
         this.type = TYPE.VOID;
@@ -83,22 +85,5 @@ Data.prototype.evaluateArithmetic = function (op, data) {
 Data.prototype.evaluateRelational = function (op, data) {
     throw "Unimplemented method";
 };
-
-function checkType(data) {
-    var type = data.type;
-    var value = data.value;
-    switch(type) {
-        case 'int':
-            // Check if it's a real or int, 
-            if (value == parseInt(data.value) || value == parseFloat(data.value)) {
-                data.value = parseInt(data.value);
-            } else throw "Wrong type - Expected:" + type + " Actual:" + typeof value;
-            break;
-        case 'double':
-            if (value !== parseInt(data.value) && value !== parseFloat(data.value))
-                throw "Wrong type";
-            break;
-    }
-}
 
 module.exports = Data;

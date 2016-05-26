@@ -8,6 +8,7 @@ var TYPE = require('./utils').TYPE;
 var OPERATOR = require('./utils').OPERATOR;
 var LITERAL = require('./utils').LITERAL;
 var ID = require('./utils').ID;
+var checkType = require('./utils').checkType;
 
 var funcName2Tree;
 var stack = new Stack();
@@ -65,7 +66,7 @@ function executeFunction(funcName, args) {
         stack.defineVariable(arg_values[i].id, arg_values[i].data);
     }
     var result = executeListInstructions(func.getChild(3));
-    if (!result) result = new Data();
+    checkType(new Data(func.getChild(0), result));
     stack.popActivationRecord();
     return result;
 }
@@ -127,6 +128,12 @@ function executeInstruction(T) {
             value = evaluateExpression(T.getChild(1));
             data.setValue(value);
             break;
+        case 'IF-THEN':
+            var cond = T.getChild(0);
+            if (evaluateExpression(cond)) {
+                return executeListInstructions(T.getChild(1));
+            }
+            break;
         case 'COUT':
             var subT = T.getChild(0);
             var ninstr = subT.getChildCount();
@@ -139,7 +146,7 @@ function executeInstruction(T) {
         case 'RETURN':
             return evaluateExpression(T.getChild(0));
         default:
-            console.log('Instruction not implemented yet.')
+            throw 'Instruction not implemented yet.';
     }
 }
 
