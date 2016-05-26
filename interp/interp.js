@@ -44,10 +44,12 @@ function preProcessAST(T) {
     switch (T.getType()) {
         case LITERAL.INT: T.children[0] = parseInt(T.getChild(0)); break;
         case LITERAL.DOUBLE:    T.children[0] = parseFloat(T.getChild(0)); break;
+        case LITERAL.BOOL: T.children[0] = (T.getChild(0) === 'true'); break;
         case 'TYPE-DECL':
             for(var i = 0; i < T.getChild(1).length; ++i) {
                 preProcessAST(T.getChild(1)[i]);
             }
+            break;
     }
     var n = T.getChildCount();
     for (var i = 0; i < n; ++i) preProcessAST(T.getChild(i));
@@ -104,6 +106,15 @@ function executeInstruction(T) {
             value = evaluateExpression(T.getChild(1));
             data.setValue(value);
             break;
+        case 'COUT':
+            var subT = T.getChild(0);
+            var ninstr = subT.getChildCount();
+            for (var i = 0; i < ninstr; ++i) {
+                var expr = subT.getChild(i);
+                if (expr === 'endl') process.stdout.write('\n');
+                else process.stdout.write(evaluateExpression(subT.getChild(i)).toString());
+            }
+            break;
         default:
             console.log('Instruction not implemented yet.')
     }
@@ -134,17 +145,44 @@ function evaluateExpression(T) {
             v1 = evaluateExpression(T.getChild(0));
             v2 = evaluateExpression(T.getChild(1));
             return v1%v2;
+        case OPERATOR.GT:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 > v2;
+        case OPERATOR.LT:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 < v2;
+        case OPERATOR.GTE:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 >= v2;
+        case OPERATOR.LTE:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 <= v2;
+        case OPERATOR.EQ:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 === v2;
+        case OPERATOR.NEQ:
+            v1 = evaluateExpression(T.getChild(0));
+            v2 = evaluateExpression(T.getChild(1));
+            return v1 !== v2;
         case LITERAL.INT:
             v1 = T.getChild(0);
             return v1;
         case LITERAL.DOUBLE:
             v1 = T.getChild(0);
             return v1;
+        case LITERAL.STRING:
+            v1 = T.getChild(0);
+            return v1;
+        case LITERAL.BOOL:
+            v1 = T.getChild(0);
+            return v1;
         case ID:
             v1 = stack.getVariable(T.getChild(0));
             return v1.getValue();
     }
-    // Returns a Data object, that includes 
-    // the type of the evaluated expression
-    return new Data(TYPE.INT, 1);
 }

@@ -12,7 +12,13 @@ module.exports = {
         MINUS: 'MINUS',
         MUL: 'MUL',
         DIV: 'DIV',
-        MOD: 'MOD'
+        MOD: 'MOD',
+        LT: '<',
+        GT: '>',
+        LTE: '<=',
+        GTE: '>=',
+        EQ: '==',
+        NEQ: '!='
     }),
     LITERAL : Object.freeze({
         INT: 'INT_LIT',

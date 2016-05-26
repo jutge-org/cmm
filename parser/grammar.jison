@@ -12,6 +12,8 @@
 "-"                                         return 'MINUS'
 "%"                                         return 'MOD'
 "+"                                         return 'PLUS'
+"<<"                                        return '<<'
+">>"                                        return '>>'
 ">"                                         return '>'
 "<"                                         return '<'
 ">="                                        return '>='
@@ -30,6 +32,9 @@
 "("                                         return '('
 ")"                                         return ')'
 ","                                         return ','
+"cin"                                       return 'CIN'
+"cout"                                      return 'COUT'
+"endl"                                      return 'ENDL'
 "int"                                       return 'INT'
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
@@ -95,6 +100,8 @@ instruction
     | declaration ';'
     | if
     | while
+    | cin ';'
+    | cout ';'
     ;
 
 if
@@ -112,6 +119,34 @@ while
 else
     : ELSE instruction_body
         {$$ = $2;}
+    ;
+
+cin
+    : CIN block_cin
+        {$$ = new yy.AstNode('CIN', [$2]);}
+    ;
+
+block_cin
+    : block_cin '>>' expr
+        {$$.addChild($3);}
+    | '>>' expr
+        {$$ = new yy.AstNode('BLOCK-CIN', [$2]);}
+    ;
+
+cout
+    : COUT block_cout
+        {$$ = new yy.AstNode('COUT', [$2]);}
+    ;
+
+block_cout
+    : block_cout '<<' expr
+        {$$.addChild($3);}
+    | block_cout '<<' ENDL
+        {$$.addChild($3);}
+    | '<<' expr
+        {$$ = new yy.AstNode('BLOCK-COUT', [$2]);}
+    | '<<' ENDL
+        {$$ = new yy.AstNode('BLOCK-COUT', [$2]);}
     ;
 
 instruction_body
