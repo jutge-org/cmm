@@ -150,6 +150,13 @@ function executeInstruction(T) {
             } 
             else if (negativeNode !== undefined) executeListInstructions(negativeNode);
             break;
+        case 'WHILE':
+            var conditionNode = T.getChild(0);
+            var positiveNode  = T.getChild(1);
+            while (evaluateExpression(conditionNode)) {
+                executeListInstructions(positiveNode);
+            }
+            break;
         default:
             throw 'Instruction ' + T.getType() + ' not implemented yet.';
     }
