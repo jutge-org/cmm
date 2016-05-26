@@ -92,7 +92,7 @@ function checkType(data) {
             // Check if it's a real or int, 
             if (value == parseInt(data.value) || value == parseFloat(data.value)) {
                 data.value = parseInt(data.value);
-            } else throw "Wrong type";
+            } else throw "Wrong type - Expected:" + type + " Actual:" + typeof value;
             break;
         case 'double':
             if (value !== parseInt(data.value) && value !== parseFloat(data.value))

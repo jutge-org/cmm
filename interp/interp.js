@@ -58,12 +58,33 @@ function preProcessAST(T) {
 function executeFunction(funcName, args) {
     var func = funcName2Tree[funcName];
     assert.notStrictEqual(func, undefined, "Function "+funcName+" not declared");
-    //TODO get function args
+    var arg_values = listArguments(func.getChild(2), args);
     stack.pushActivationRecord(funcName);
+    var narg = arg_values.length;
+    for (var i = 0; i < narg; ++i) {
+        stack.defineVariable(arg_values[i].id, arg_values[i].data);
+    }
     var result = executeListInstructions(func.getChild(3));
-    if (result) result = new Data();
+    if (!result) result = new Data();
     stack.popActivationRecord();
     return result;
+}
+
+function listArguments(fParams, args) {
+    if (args === null) return [];
+    if (args.getChildCount() === 0) return [];
+    if (fParams.getChildCount() !== args.getChildCount()) 
+        throw "Incorrect number of parameters";
+    var n = fParams.getChildCount();
+    var params = [];
+    for (var i = 0; i < n; ++i) {
+        var param = fParams.getChild(i);
+        var arg = args.getChild(i);
+        var data = new Data(param.getChild(0), undefined);
+        data.setValue(evaluateExpression(arg.getChild(0)));
+        params.push({id: param.getChild(1).getChild(0), data: data});
+    }
+    return params;
 }
 
 function executeListInstructions(T) {
@@ -115,6 +136,8 @@ function executeInstruction(T) {
                 else process.stdout.write(evaluateExpression(subT.getChild(i)).toString());
             }
             break;
+        case 'RETURN':
+            return evaluateExpression(T.getChild(0));
         default:
             console.log('Instruction not implemented yet.')
     }
@@ -181,6 +204,10 @@ function evaluateExpression(T) {
         case LITERAL.BOOL:
             v1 = T.getChild(0);
             return v1;
+        case 'FUNCALL':
+            var func_id = T.getChild(0).getChild(0);
+            var params = T.getChild(1);
+            return executeFunction(func_id, params);
         case ID:
             v1 = stack.getVariable(T.getChild(0));
             return v1.getValue();

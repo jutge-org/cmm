@@ -32,6 +32,7 @@
 "("                                         return '('
 ")"                                         return ')'
 ","                                         return ','
+"return"                                    return 'RETURN'
 "cin"                                       return 'CIN'
 "cout"                                      return 'COUT'
 "endl"                                      return 'ENDL'
@@ -88,14 +89,19 @@ function
     ;
 
 arg_list
-    : arglist ',' arg
+    : arg_list ',' arg
         {$$.addChild($3);}
+    | arg
+        {$$ = new yy.AstNode('ARG-LIST', [$1]);}
     |
         {$$ = new yy.AstNode('ARG-LIST', []);}
+    ;
 
 arg
-    : type id;
+    : type id
         {$$ = new yy.AstNode('ARG', [$1, $2]);}
+    ;
+
 block_instr
     : block_instr instruction
         {$$.addChild($2);}
@@ -111,6 +117,32 @@ instruction
     | while
     | cin ';'
     | cout ';'
+    | funcall ';'
+    | return_stmt ';'
+    ;
+
+return_stmt
+    : RETURN expr
+        {$$ = new yy.AstNode('RETURN', [$2]);}
+    ;
+
+funcall
+    : id '(' param_list ')'
+        {$$ = new yy.AstNode('FUNCALL', [$1,$3]);}
+    ;
+
+param_list
+    : param_list ',' param
+        {$$.addChild($3);}
+    | param
+        {$$ = new yy.AstNode('PARAM-LIST', [$1]);}
+    |
+        {$$ = new yy.AstNode('PARAM-LIST', []);}
+    ;
+
+param
+    : expr
+        {$$ = new yy.AstNode('PARAM', [$1]);}
     ;
 
 if
@@ -251,6 +283,7 @@ expr
     | STRING_LIT
         {$$ = new yy.AstNode('STRING_LIT', [$1]);}
     | id
+    | funcall
     | '(' expr ')'
     ;
 
