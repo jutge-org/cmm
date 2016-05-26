@@ -58,6 +58,7 @@ function preProcessAST(T) {
 
 function executeFunction(funcName, args) {
     var func = funcName2Tree[funcName];
+    var funcType = func.getChild(0);
     assert.notStrictEqual(func, undefined, "Function "+funcName+" not declared");
     var arg_values = listArguments(func.getChild(2), args);
     stack.pushActivationRecord(funcName);
@@ -66,8 +67,9 @@ function executeFunction(funcName, args) {
         stack.defineVariable(arg_values[i].id, arg_values[i].data);
     }
     var result = executeListInstructions(func.getChild(3));
-    checkType(new Data(func.getChild(0), result));
     stack.popActivationRecord();
+    if (funcName == "main" && !result) return 0;
+    checkType(new Data(funcType, result));
     return result;
 }
 
