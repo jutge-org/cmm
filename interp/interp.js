@@ -159,6 +159,16 @@ function executeInstruction(T) {
                 executeListInstructions(positiveNode);
             }
             break;
+        case 'FOR':
+            var conditionNode = T.getChild(1);
+            var initInstruction      = T.getChild(0);
+            var recurrentInstruction = T.getChild(2);
+            var loopBody = T.getChild(3);
+            var ex = executeInstruction;
+            for (ex(initInstruction); evaluateExpression(conditionNode); ex(recurrentInstruction)) {
+                executeListInstructions(loopBody);
+            }
+            break;
         default:
             throw 'Instruction ' + T.getType() + ' not implemented yet.';
     }

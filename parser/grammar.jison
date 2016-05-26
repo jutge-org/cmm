@@ -47,6 +47,7 @@
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
 "while"                                     return 'WHILE'
+"for"                                       return 'FOR'
 "true"|"false"                              return 'BOOL_LIT'
 [0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
 ([1-9][0-9]*|0)                             return 'INT_LIT'
@@ -110,15 +111,19 @@ block_instr
     ;
 
 instruction
-    : block_assign ';'
-        //TODO: fer push directament a la llista d'instruccions
-    | declaration ';'
+    : basic_stmt ';'
     | if
     | while
-    | cin ';'
-    | cout ';'
+    | for
     | funcall ';'
     | return_stmt ';'
+    ;
+
+basic_stmt
+    : block_assign 
+    | declaration 
+    | cin 
+    | cout 
     ;
 
 return_stmt
@@ -155,6 +160,11 @@ if
 while
     : WHILE '(' expr ')' instruction_body
         {$$ = new yy.AstNode('WHILE', [$3, $5]);}
+    ;
+
+for
+    : FOR '(' basic_stmt ';' expr ';' basic_stmt ')' instruction_body
+        {$$ = new yy.AstNode('FOR', [$3, $5, $7, $9])}
     ;
 
 else
