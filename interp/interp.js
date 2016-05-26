@@ -138,8 +138,19 @@ function executeInstruction(T) {
             break;
         case 'RETURN':
             return evaluateExpression(T.getChild(0));
+        case 'IF-THEN-ELSE':
+            var negativeNode = T.getChild(2);
+        case 'IF-THEN':
+            var conditionNode = T.getChild(0);
+            var positiveNode = T.getChild(1);
+            var conditionEvaluationResult = evaluateExpression(conditionNode);
+            if (conditionEvaluationResult) {
+                executeListInstructions(positiveNode);
+            } 
+            else if (negativeNode !== undefined) executeListInstructions(negativeNode);
+            break;
         default:
-            console.log('Instruction not implemented yet.')
+            console.log('Instruction '+ T.getType() +' not implemented yet.')
     }
 }
 
