@@ -148,15 +148,17 @@ function executeInstruction(T) {
             var positiveNode = T.getChild(1);
             var conditionEvaluationResult = evaluateExpression(conditionNode);
             if (conditionEvaluationResult) {
-                executeListInstructions(positiveNode);
+                return executeListInstructions(positiveNode);
             } 
-            else if (negativeNode !== undefined) executeListInstructions(negativeNode);
+            else if (negativeNode !== undefined) return executeListInstructions(negativeNode);
             break;
         case 'WHILE':
             var conditionNode = T.getChild(0);
             var positiveNode  = T.getChild(1);
+            var result;
             while (evaluateExpression(conditionNode)) {
-                executeListInstructions(positiveNode);
+                result = executeListInstructions(positiveNode);
+                if (result !== null) return result;
             }
             break;
         case 'FOR':
@@ -165,8 +167,10 @@ function executeInstruction(T) {
             var recurrentInstruction = T.getChild(2);
             var loopBody = T.getChild(3);
             var ex = executeInstruction;
+            var result;
             for (ex(initInstruction); evaluateExpression(conditionNode); ex(recurrentInstruction)) {
-                executeListInstructions(loopBody);
+                result = executeListInstructions(loopBody);
+                if (result !== null) return result;
             }
             break;
         default:
