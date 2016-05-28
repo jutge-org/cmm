@@ -7,6 +7,11 @@
 "//".*                /* ignore comment */
 "/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
+"+="                                        return '+='
+"-="                                        return '-='
+"*="                                        return '*='
+"/="                                        return '/='
+"%="                                        return '%='
 "*"                                         return 'MUL'
 "/"                                         return 'DIV'
 "-"                                         return 'MINUS'
@@ -20,11 +25,6 @@
 "<="                                        return '<='
 "!="                                        return '!='
 "=="                                        return '=='
-"+="                                        return '+='
-"-="                                        return '-='
-"*="                                        return '*='
-"/="                                        return '/='
-"%="                                        return '%='
 "="                                         return 'EQUAL'
 ";"                                         return ';'
 "{"                                         return '{'
@@ -215,8 +215,18 @@ block_assign
     ;
 
 assign
-    : ID 'EQUAL' expr
+    : id 'EQUAL' expr
         {$$ = new yy.AstNode('ASSIGN', [$1, $3]);}
+    | id '+=' expr
+        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('PLUS', [$1,$3])]);}
+    | id '-=' expr
+        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MINUS', [$1,$3])]);}
+    | id '*=' expr
+        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MUL', [$1,$3])]);}
+    | id '/=' expr
+        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('DIV', [$1,$3])]);}
+    | id '%=' expr
+        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MOD', [$1,$3])]);}
     ;
 
 declaration
@@ -272,16 +282,6 @@ expr
         {$$ = new yy.AstNode('==', [$1,$3]);}
     | expr '!=' expr
         {$$ = new yy.AstNode('!=', [$1,$3]);}
-    | expr '+=' expr
-        {$$ = new yy.AstNode('+=', [$1,$3]);}
-    | expr '-=' expr
-        {$$ = new yy.AstNode('-=', [$1,$3]);}
-    | expr '*=' expr
-        {$$ = new yy.AstNode('*=', [$1,$3]);}
-    | expr '/=' expr
-        {$$ = new yy.AstNode('/=', [$1,$3]);}
-    | expr '%=' expr
-        {$$ = new yy.AstNode('%=', [$1,$3]);}
     | DOUBLE_LIT
         {$$ = new yy.AstNode('DOUBLE_LIT', [$1]);}
     | INT_LIT

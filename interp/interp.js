@@ -111,7 +111,7 @@ function executeInstruction(T) {
             var declNum = decl.length;
             for (var i = 0; i < declNum; ++i) {
                 var atom = decl[i];
-                var varName = atom.getChild(0);
+                var varName = atom.getChild(0).getChild(0);
                 if (atom.getType() === 'ASSIGN') {
                     value = evaluateExpression(atom.getChild(1));
                     // TODO check type and value match right here
@@ -125,7 +125,7 @@ function executeInstruction(T) {
             executeListInstructions(T);
             break;
         case 'ASSIGN':
-            var id    = T.getChild(0);
+            var id   = T.getChild(0).getChild(0);
             var data = stack.getVariable(id);
             value = evaluateExpression(T.getChild(1));
             data.setValue(value);
