@@ -243,6 +243,10 @@ function evaluateExpression(T) {
             var func_id = T.getChild(0).getChild(0);
             var params = T.getChild(1);
             return executeFunction(func_id, params);
+        case 'UMINUS':
+            return -evaluateExpression(T.getChild(0));
+        case 'UPLUS':
+            return +evaluateExpression(T.getChild(0));
         case ID:
             v1 = stack.getVariable(T.getChild(0));
             return v1.getValue();
