@@ -303,7 +303,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             initAst = ast.getChild(0)
             conditionAst = ast.getChild(1)
             incrementAst = ast.getChild(2)
-
+            bodyAst = ast.getChild(3)
             checkAndPreprocess initAst, definedVariables, functionId
             conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
 
@@ -311,6 +311,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast conditionAst, conditionType, TYPES.BOOL
 
             checkAndPreprocess incrementAst, definedVariables, functionId
+            checkAndPreprocess bodyAst, definedVariables, functionId
 
             return TYPES.VOID
         when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
