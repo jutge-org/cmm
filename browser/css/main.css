@@ -1,0 +1,14 @@
+.CodeMirror {
+    height: 415px;
+}
+
+.btn-cmm {
+    width: 200px;
+    margin-top: 35px;
+    height: 50px;
+}
+
+#output {
+    overflow: auto;
+    height: 415px;
+}
