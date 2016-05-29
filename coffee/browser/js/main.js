@@ -1508,6 +1508,7 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       }
       return TYPES.VOID;
     case STATEMENTS.CIN:
+      console.log("lol");
       ref4 = ast.getChildren();
       for (m = 0, len3 = ref4.length; m < len3; m++) {
         child = ref4[m];
@@ -1532,7 +1533,7 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
           child.setChild(0, "\n");
         } else {
           type = checkAndPreprocess(child, definedVariables, functionId);
-          if (type !== TYPES.string) {
+          if (type !== TYPES.STRING) {
             child.cast((function() {
               switch (type) {
                 case TYPES.INT:
