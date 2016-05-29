@@ -47,6 +47,9 @@ checkVariableDefined = (id, definedVariables) ->
 
 
 tryToCast = (ast, originType, destType) ->
+    assert originType?
+    assert destType?
+
     if CASTINGS[originType][destType]?
         ast.cast(CASTINGS[originType][destType])
     else
@@ -73,7 +76,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     throw Error.VARIABLE_REDEFINITION.complete('name', id)
                 else
                     definedVariables[id] = type
-                    
+
             return TYPES.VOID
         when NODES.BLOCK_INSTRUCTIONS
             definedVariablesAux = copy definedVariables
@@ -268,6 +271,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             checkAndPreprocess thenBodyAst, definedVariables, functionId
             elseBodyAst = ast.getChild(2)
             checkAndPreprocess elseBodyAst, definedVariables, functionId
+
+            return TYPES.VOID
         when STATEMENTS.WHILE
             # Comprovar/castejar que la condicio es un boolea
             # Comprovar recursivament el cos del while
@@ -286,9 +291,19 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         when STATEMENTS.FOR
             # Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea
             # Comprovar recursivament el cos del for
-
             # Retorna void
 
+            initAst = ast.getChild(0)
+            conditionAst = ast.getChild(1)
+            incrementAst = ast.getChild(2)
+
+            checkAndPreprocess initAst, definedVariables, functionId
+            conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
+
+            if conditionType isnt TYPES.BOOL
+                tryToCast conditionAst, conditionType, TYPES.BOOL
+
+            checkAndPreprocess incrementAst, definedVariables, functionId
 
             return TYPES.VOID
         else # I don't care about its type, but I need to recurse cause it could have children whose types is one of the above

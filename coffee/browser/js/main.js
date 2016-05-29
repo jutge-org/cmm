@@ -1021,39 +1021,39 @@ case 2:/* skip whitespace */
 break;
 case 3:return 48
 break;
-case 4:return 62
+case 4:return 49
 break;
-case 5:return 63
+case 5:return 50
 break;
-case 6:return 61
+case 6:return 51
 break;
-case 7:return 64
+case 7:return 52
 break;
-case 8:return 60
+case 8:return 62
 break;
-case 9:return 44
+case 9:return 63
 break;
-case 10:return 41
+case 10:return 61
 break;
-case 11:return 66
+case 11:return 64
 break;
-case 12:return 65
+case 12:return 60
 break;
-case 13:return 68
+case 13:return 44
 break;
-case 14:return 67
+case 14:return 41
 break;
-case 15:return 70
+case 15:return 66
 break;
-case 16:return 69
+case 16:return 65
 break;
-case 17:return 49
+case 17:return 68
 break;
-case 18:return 50
+case 18:return 67
 break;
-case 19:return 51
+case 19:return 70
 break;
-case 20:return 52
+case 20:return 69
 break;
 case 21:return 47
 break;
@@ -1119,7 +1119,7 @@ case 51:return 'INVALID'
 break;
 }
 },
-rules: [/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\s+)/,/^(?:\+=)/,/^(?:\*)/,/^(?:\/)/,/^(?:-)/,/^(?:%)/,/^(?:\+)/,/^(?:<<)/,/^(?:>>)/,/^(?:>)/,/^(?:<)/,/^(?:>=)/,/^(?:<=)/,/^(?:!=)/,/^(?:==)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:=)/,/^(?:;)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:return\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:endl\b)/,/^(?:int\b)/,/^(?:double\b)/,/^(?:char\b)/,/^(?:bool\b)/,/^(?:string\b)/,/^(?:void\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:true|false\b)/,/^(?:[0-9]+(\.[0-9]+)\b)/,/^(?:([1-9][0-9]*|0))/,/^(?:'(\\.|[^'])')/,/^(?:"(\\.|[^"])*")/,/^(?:([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*)/,/^(?:$)/,/^(?:.)/],
+rules: [/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\s+)/,/^(?:\+=)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:\*)/,/^(?:\/)/,/^(?:-)/,/^(?:%)/,/^(?:\+)/,/^(?:<<)/,/^(?:>>)/,/^(?:>)/,/^(?:<)/,/^(?:>=)/,/^(?:<=)/,/^(?:!=)/,/^(?:==)/,/^(?:=)/,/^(?:;)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:return\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:endl\b)/,/^(?:int\b)/,/^(?:double\b)/,/^(?:char\b)/,/^(?:bool\b)/,/^(?:string\b)/,/^(?:void\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:true|false\b)/,/^(?:[0-9]+(\.[0-9]+)\b)/,/^(?:([1-9][0-9]*|0))/,/^(?:'(\\.|[^'])')/,/^(?:"(\\.|[^"])*")/,/^(?:([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*)/,/^(?:$)/,/^(?:.)/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51],"inclusive":true}}
 });
 return lexer;
@@ -1242,6 +1242,8 @@ checkVariableDefined = function(id, definedVariables) {
 };
 
 tryToCast = function(ast, originType, destType) {
+  assert(originType != null);
+  assert(destType != null);
   if (CASTINGS[originType][destType] != null) {
     return ast.cast(CASTINGS[originType][destType]);
   } else {
@@ -1250,7 +1252,7 @@ tryToCast = function(ast, originType, destType) {
 };
 
 checkAndPreprocess = function(ast, definedVariables, functionId) {
-  var actualLength, argType, bodyAst, castingType, child, conditionAst, conditionType, declarationAst, declarations, definedVariablesAux, elseBodyAst, expectedLength, funcId, i, id, j, k, l, leftAst, len, len1, len2, len3, m, paramList, ref, ref1, ref2, ref3, ref4, rightAst, thenBodyAst, type, typeLeft, typeRight, valueAst, valueType, variableId, variableType;
+  var actualLength, argType, bodyAst, castingType, child, conditionAst, conditionType, declarationAst, declarations, definedVariablesAux, elseBodyAst, expectedLength, funcId, i, id, incrementAst, initAst, j, k, l, leftAst, len, len1, len2, len3, m, paramList, ref, ref1, ref2, ref3, ref4, rightAst, thenBodyAst, type, typeLeft, typeRight, valueAst, valueType, variableId, variableType;
   switch (ast.getType()) {
     case NODES.ID:
       id = ast.getChild(0);
@@ -1309,6 +1311,7 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       }
       break;
     case NODES.ASSIGN:
+      console.log(ast);
       variableId = ast.getChild(0).getChild(0);
       variableType = definedVariables[variableId];
       if (variableType === TYPES.VOID) {
@@ -1429,7 +1432,8 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       thenBodyAst = ast.getChild(1);
       checkAndPreprocess(thenBodyAst, definedVariables, functionId);
       elseBodyAst = ast.getChild(2);
-      return checkAndPreprocess(elseBodyAst, definedVariables, functionId);
+      checkAndPreprocess(elseBodyAst, definedVariables, functionId);
+      return TYPES.VOID;
     case STATEMENTS.WHILE:
       conditionAst = ast.getChild(0);
       conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
@@ -1440,6 +1444,15 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       checkAndPreprocess(bodyAst, definedVariables, functionId);
       return TYPES.VOID;
     case STATEMENTS.FOR:
+      initAst = ast.getChild(0);
+      conditionAst = ast.getChild(1);
+      incrementAst = ast.getChild(2);
+      checkAndPreprocess(initAst, definedVariables, functionId);
+      conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
+      if (conditionType !== TYPES.BOOL) {
+        tryToCast(conditionAst, conditionType, TYPES.BOOL);
+      }
+      checkAndPreprocess(incrementAst, definedVariables, functionId);
       return TYPES.VOID;
     default:
       ref4 = ast.getChildren();
