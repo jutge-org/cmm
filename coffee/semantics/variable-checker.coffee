@@ -3,7 +3,7 @@ assert = require 'assert'
 Ast = require '../parser/ast'
 Error = require '../error'
 
-{ NODES, TYPES, OPERATORS, CASTS, LITERALS } = Ast
+{ NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS } = Ast
 
 CASTINGS = {}
 
@@ -46,17 +46,6 @@ checkVariableDefined = (id, definedVariables) ->
         throw Error.GET_VARIABLE_NOT_DEFINED.complete('name', id)
 
 
-checkDeclaration = (declarationAst, type, definedVariables) ->
-    id =
-        if declarationAst.getType() is NODES.ID
-            declarationAst.getChild(0)
-        else
-            declarationAst.getChild(0).getChild(0)
-    if definedVariables[id]?
-        throw Error.VARIABLE_REDEFINITION.complete('name', id)
-    else
-        definedVariables[id] = type
-
 tryToCast = (ast, originType, destType) ->
     if CASTINGS[originType][destType]?
         ast.cast(CASTINGS[originType][destType])
@@ -74,9 +63,17 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             type = ast.getChild(0)
 
             for declarationAst in declarations
-                checkDeclaration(declarationAst, type, definedVariables)
+                id =
+                    if declarationAst.getType() is NODES.ID
+                        declarationAst.getChild(0)
+                    else
+                        declarationAst.getChild(0).getChild(0)
                 checkAndPreprocess declarationAst, definedVariables, functionId
-
+                if definedVariables[id]?
+                    throw Error.VARIABLE_REDEFINITION.complete('name', id)
+                else
+                    definedVariables[id] = type
+                    
             return TYPES.VOID
         when NODES.BLOCK_INSTRUCTIONS
             definedVariablesAux = copy definedVariables
@@ -85,6 +82,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
         when NODES.FUNCALL
+            # Comprovar que la variable cridada esta definida
             # Comprovar que el id que s'està cridant té realment tipus funció
             # Comprovar/castejar que tots els paràmetres de la crida tenen el tipus que toca
             # Retorna el tipus de la funció
@@ -240,6 +238,59 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     tryToCast(leftAst, typeLeft, typeRight)
 
             return TYPES.BOOL
+        when STATEMENTS.IF_THEN
+            # Comprovar/castejar que la condicio es un boolea
+            # Comprovar recursivament el cos del then
+
+            # Retorna void
+            conditionAst = ast.getChild(0)
+            conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
+
+            if conditionType isnt TYPES.BOOL
+                tryToCast conditionAst, conditionType, TYPES.BOOL
+
+            thenBodyAst = ast.getChild(1)
+            checkAndPreprocess thenBodyAst, definedVariables, functionId
+
+            return TYPES.VOID
+        when STATEMENTS.IF_THEN_ELSE
+            # Comprovar/castejar que la condicio es un boolea
+            # Comprovar recursivament el cos del then i del else
+
+            # Retorna void
+            conditionAst = ast.getChild(0)
+            conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
+
+            if conditionType isnt TYPES.BOOL
+                tryToCast conditionAst, conditionType, TYPES.BOOL
+
+            thenBodyAst = ast.getChild(1)
+            checkAndPreprocess thenBodyAst, definedVariables, functionId
+            elseBodyAst = ast.getChild(2)
+            checkAndPreprocess elseBodyAst, definedVariables, functionId
+        when STATEMENTS.WHILE
+            # Comprovar/castejar que la condicio es un boolea
+            # Comprovar recursivament el cos del while
+
+            # Retorna void
+            conditionAst = ast.getChild(0)
+            conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
+
+            if conditionType isnt TYPES.BOOL
+                tryToCast conditionAst, conditionType, TYPES.BOOL
+
+            bodyAst = ast.getChild(1)
+            checkAndPreprocess bodyAst, definedVariables, functionId
+
+            return TYPES.VOID
+        when STATEMENTS.FOR
+            # Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea
+            # Comprovar recursivament el cos del for
+
+            # Retorna void
+
+
+            return TYPES.VOID
         else # I don't care about its type, but I need to recurse cause it could have children whose types is one of the above
             for child in ast.getChildren() when child instanceof Ast
                 checkAndPreprocess(child, definedVariables, functionId)
@@ -247,27 +298,6 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             return TYPES.VOID
 
     ###
-
-    when STATEMENTS.IF_THEN
-        # Comprovar/castejar que la condicio es un boolea
-        # Comprovar recursivament el cos del then
-
-        # Retorna void
-    when STATEMENTS.IF_THEN_ELSE
-        # Comprovar/castejar que la condicio es un boolea
-        # Comprovar recursivament el cos del then i del else
-
-        # Retorna void
-    when STATEMENTS.WHILE
-        # Comprovar/castejar que la condicio es un boolea
-        # Comprovar recursivament el cos del while
-
-        # Retorna void
-    when STATEMENTS.FOR
-        # Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea
-        # Comprovar recursivament el cos del for
-
-        # Retorna void
     when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
         # Comprovar/castejar que retorna el mateix tipus que el de la funció en la que estem
         # Si la funció en la que estem retorna void sa danar al tanto

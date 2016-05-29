@@ -7,6 +7,11 @@
 "//".*                /* ignore comment */
 "/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
+"+="                                        return '+='
+"-="                                        return '-='
+"*="                                        return '*='
+"/="                                        return '/='
+"%="                                        return '%='
 "*"                                         return 'MUL'
 "/"                                         return 'DIV'
 "-"                                         return 'MINUS'
@@ -20,11 +25,6 @@
 "<="                                        return '<='
 "!="                                        return '!='
 "=="                                        return '=='
-"+="                                        return '+='
-"-="                                        return '-='
-"*="                                        return '*='
-"/="                                        return '/='
-"%="                                        return '%='
 "="                                         return 'EQUAL'
 ";"                                         return ';'
 "{"                                         return '{'
@@ -220,15 +220,15 @@ assign
     : id 'EQUAL' expr
         {$$ = new yy.Ast('ASSIGN', [$1, $3]);}
     | id '+=' expr
-        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('PLUS', [$1,$3])]);}
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
     | id '-=' expr
-        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MINUS', [$1,$3])]);}
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MINUS', [$1,$3])]);}
     | id '*=' expr
-        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MUL', [$1,$3])]);}
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MUL', [$1,$3])]);}
     | id '/=' expr
-        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('DIV', [$1,$3])]);}
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('DIV', [$1,$3])]);}
     | id '%=' expr
-        {$$ = new yy.AstNode('ASSIGN', [$1, new yy.AstNode('MOD', [$1,$3])]);}
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
     ;
 
 declaration

@@ -430,19 +430,19 @@ case 45:
 this.$ = new yy.Ast('ASSIGN', [$$[$0-2], $$[$0]]);
 break;
 case 46:
-this.$ = new yy.AstNode('ASSIGN', [$$[$0-2], new yy.AstNode('PLUS', [$$[$0-2],$$[$0]])]);
+this.$ = new yy.Ast('ASSIGN', [$$[$0-2], new yy.Ast('PLUS', [$$[$0-2],$$[$0]])]);
 break;
 case 47:
-this.$ = new yy.AstNode('ASSIGN', [$$[$0-2], new yy.AstNode('MINUS', [$$[$0-2],$$[$0]])]);
+this.$ = new yy.Ast('ASSIGN', [$$[$0-2], new yy.Ast('MINUS', [$$[$0-2],$$[$0]])]);
 break;
 case 48:
-this.$ = new yy.AstNode('ASSIGN', [$$[$0-2], new yy.AstNode('MUL', [$$[$0-2],$$[$0]])]);
+this.$ = new yy.Ast('ASSIGN', [$$[$0-2], new yy.Ast('MUL', [$$[$0-2],$$[$0]])]);
 break;
 case 49:
-this.$ = new yy.AstNode('ASSIGN', [$$[$0-2], new yy.AstNode('DIV', [$$[$0-2],$$[$0]])]);
+this.$ = new yy.Ast('ASSIGN', [$$[$0-2], new yy.Ast('DIV', [$$[$0-2],$$[$0]])]);
 break;
 case 50:
-this.$ = new yy.AstNode('ASSIGN', [$$[$0-2], new yy.AstNode('MOD', [$$[$0-2],$$[$0]])]);
+this.$ = new yy.Ast('ASSIGN', [$$[$0-2], new yy.Ast('MOD', [$$[$0-2],$$[$0]])]);
 break;
 case 51:
 this.$ = new yy.Ast('DECLARATION', [$$[$0-1], $$[$0]]);
@@ -1019,33 +1019,33 @@ case 1:/* ignore multiline comment */
 break;
 case 2:/* skip whitespace */
 break;
-case 3:return 62
+case 3:return 48
 break;
-case 4:return 63
+case 4:return 62
 break;
-case 5:return 61
+case 5:return 63
 break;
-case 6:return 64
+case 6:return 61
 break;
-case 7:return 60
+case 7:return 64
 break;
-case 8:return 44
+case 8:return 60
 break;
-case 9:return 41
+case 9:return 44
 break;
-case 10:return 66
+case 10:return 41
 break;
-case 11:return 65
+case 11:return 66
 break;
-case 12:return 68
+case 12:return 65
 break;
-case 13:return 67
+case 13:return 68
 break;
-case 14:return 70
+case 14:return 67
 break;
-case 15:return 69
+case 15:return 70
 break;
-case 16:return 48
+case 16:return 69
 break;
 case 17:return 49
 break;
@@ -1119,7 +1119,7 @@ case 51:return 'INVALID'
 break;
 }
 },
-rules: [/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\s+)/,/^(?:\*)/,/^(?:\/)/,/^(?:-)/,/^(?:%)/,/^(?:\+)/,/^(?:<<)/,/^(?:>>)/,/^(?:>)/,/^(?:<)/,/^(?:>=)/,/^(?:<=)/,/^(?:!=)/,/^(?:==)/,/^(?:\+=)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:=)/,/^(?:;)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:return\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:endl\b)/,/^(?:int\b)/,/^(?:double\b)/,/^(?:char\b)/,/^(?:bool\b)/,/^(?:string\b)/,/^(?:void\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:true|false\b)/,/^(?:[0-9]+(\.[0-9]+)\b)/,/^(?:([1-9][0-9]*|0))/,/^(?:'(\\.|[^'])')/,/^(?:"(\\.|[^"])*")/,/^(?:([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*)/,/^(?:$)/,/^(?:.)/],
+rules: [/^(?:\/\/.*)/,/^(?:\/\*(.|\n|\r)*?\*\/)/,/^(?:\s+)/,/^(?:\+=)/,/^(?:\*)/,/^(?:\/)/,/^(?:-)/,/^(?:%)/,/^(?:\+)/,/^(?:<<)/,/^(?:>>)/,/^(?:>)/,/^(?:<)/,/^(?:>=)/,/^(?:<=)/,/^(?:!=)/,/^(?:==)/,/^(?:-=)/,/^(?:\*=)/,/^(?:\/=)/,/^(?:%=)/,/^(?:=)/,/^(?:;)/,/^(?:\{)/,/^(?:\})/,/^(?:\()/,/^(?:\))/,/^(?:,)/,/^(?:return\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:endl\b)/,/^(?:int\b)/,/^(?:double\b)/,/^(?:char\b)/,/^(?:bool\b)/,/^(?:string\b)/,/^(?:void\b)/,/^(?:cin\b)/,/^(?:cout\b)/,/^(?:if\b)/,/^(?:else\b)/,/^(?:while\b)/,/^(?:for\b)/,/^(?:true|false\b)/,/^(?:[0-9]+(\.[0-9]+)\b)/,/^(?:([1-9][0-9]*|0))/,/^(?:'(\\.|[^'])')/,/^(?:"(\\.|[^"])*")/,/^(?:([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*)/,/^(?:$)/,/^(?:.)/],
 conditions: {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51],"inclusive":true}}
 });
 return lexer;
@@ -1173,7 +1173,7 @@ Ast = require('../parser/ast');
 
 
 },{"../error":2,"../parser/ast":4}],8:[function(require,module,exports){
-var Ast, CASTINGS, CASTS, Error, LITERALS, NODES, OPERATORS, SIZE_OF_TYPE, TYPE, TYPES, assert, checkAndPreprocess, checkDeclaration, checkVariableDefined, copy, functions, isIntegral, tryToCast;
+var Ast, CASTINGS, CASTS, Error, LITERALS, NODES, OPERATORS, SIZE_OF_TYPE, STATEMENTS, TYPE, TYPES, assert, checkAndPreprocess, checkVariableDefined, copy, functions, isIntegral, tryToCast;
 
 assert = require('assert');
 
@@ -1181,7 +1181,7 @@ Ast = require('../parser/ast');
 
 Error = require('../error');
 
-NODES = Ast.NODES, TYPES = Ast.TYPES, OPERATORS = Ast.OPERATORS, CASTS = Ast.CASTS, LITERALS = Ast.LITERALS;
+NODES = Ast.NODES, TYPES = Ast.TYPES, OPERATORS = Ast.OPERATORS, CASTS = Ast.CASTS, LITERALS = Ast.LITERALS, STATEMENTS = Ast.STATEMENTS;
 
 CASTINGS = {};
 
@@ -1241,16 +1241,6 @@ checkVariableDefined = function(id, definedVariables) {
   }
 };
 
-checkDeclaration = function(declarationAst, type, definedVariables) {
-  var id;
-  id = declarationAst.getType() === NODES.ID ? declarationAst.getChild(0) : declarationAst.getChild(0).getChild(0);
-  if (definedVariables[id] != null) {
-    throw Error.VARIABLE_REDEFINITION.complete('name', id);
-  } else {
-    return definedVariables[id] = type;
-  }
-};
-
 tryToCast = function(ast, originType, destType) {
   if (CASTINGS[originType][destType] != null) {
     return ast.cast(CASTINGS[originType][destType]);
@@ -1260,7 +1250,7 @@ tryToCast = function(ast, originType, destType) {
 };
 
 checkAndPreprocess = function(ast, definedVariables, functionId) {
-  var actualLength, argType, castingType, child, declarationAst, declarations, definedVariablesAux, expectedLength, funcId, i, id, j, k, l, leftAst, len, len1, len2, len3, m, paramList, ref, ref1, ref2, ref3, ref4, rightAst, type, typeLeft, typeRight, valueAst, valueType, variableId, variableType;
+  var actualLength, argType, bodyAst, castingType, child, conditionAst, conditionType, declarationAst, declarations, definedVariablesAux, elseBodyAst, expectedLength, funcId, i, id, j, k, l, leftAst, len, len1, len2, len3, m, paramList, ref, ref1, ref2, ref3, ref4, rightAst, thenBodyAst, type, typeLeft, typeRight, valueAst, valueType, variableId, variableType;
   switch (ast.getType()) {
     case NODES.ID:
       id = ast.getChild(0);
@@ -1271,8 +1261,13 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       type = ast.getChild(0);
       for (j = 0, len = declarations.length; j < len; j++) {
         declarationAst = declarations[j];
-        checkDeclaration(declarationAst, type, definedVariables);
+        id = declarationAst.getType() === NODES.ID ? declarationAst.getChild(0) : declarationAst.getChild(0).getChild(0);
         checkAndPreprocess(declarationAst, definedVariables, functionId);
+        if (definedVariables[id] != null) {
+          throw Error.VARIABLE_REDEFINITION.complete('name', id);
+        } else {
+          definedVariables[id] = type;
+        }
       }
       return TYPES.VOID;
     case NODES.BLOCK_INSTRUCTIONS:
@@ -1416,6 +1411,36 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
         }
       }
       return TYPES.BOOL;
+    case STATEMENTS.IF_THEN:
+      conditionAst = ast.getChild(0);
+      conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
+      if (conditionType !== TYPES.BOOL) {
+        tryToCast(conditionAst, conditionType, TYPES.BOOL);
+      }
+      thenBodyAst = ast.getChild(1);
+      checkAndPreprocess(thenBodyAst, definedVariables, functionId);
+      return TYPES.VOID;
+    case STATEMENTS.IF_THEN_ELSE:
+      conditionAst = ast.getChild(0);
+      conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
+      if (conditionType !== TYPES.BOOL) {
+        tryToCast(conditionAst, conditionType, TYPES.BOOL);
+      }
+      thenBodyAst = ast.getChild(1);
+      checkAndPreprocess(thenBodyAst, definedVariables, functionId);
+      elseBodyAst = ast.getChild(2);
+      return checkAndPreprocess(elseBodyAst, definedVariables, functionId);
+    case STATEMENTS.WHILE:
+      conditionAst = ast.getChild(0);
+      conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
+      if (conditionType !== TYPES.BOOL) {
+        tryToCast(conditionAst, conditionType, TYPES.BOOL);
+      }
+      bodyAst = ast.getChild(1);
+      checkAndPreprocess(bodyAst, definedVariables, functionId);
+      return TYPES.VOID;
+    case STATEMENTS.FOR:
+      return TYPES.VOID;
     default:
       ref4 = ast.getChildren();
       for (m = 0, len3 = ref4.length; m < len3; m++) {
@@ -1428,27 +1453,6 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
   }
 
   /*
-  
-  when STATEMENTS.IF_THEN
-       * Comprovar/castejar que la condicio es un boolea
-       * Comprovar recursivament el cos del then
-  
-       * Retorna void
-  when STATEMENTS.IF_THEN_ELSE
-       * Comprovar/castejar que la condicio es un boolea
-       * Comprovar recursivament el cos del then i del else
-  
-       * Retorna void
-  when STATEMENTS.WHILE
-       * Comprovar/castejar que la condicio es un boolea
-       * Comprovar recursivament el cos del while
-  
-       * Retorna void
-  when STATEMENTS.FOR
-       * Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea
-       * Comprovar recursivament el cos del for
-  
-       * Retorna void
   when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
        * Comprovar/castejar que retorna el mateix tipus que el de la funció en la que estem
        * Si la funció en la que estem retorna void sa danar al tanto
