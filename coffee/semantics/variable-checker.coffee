@@ -303,7 +303,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             initAst = ast.getChild(0)
             conditionAst = ast.getChild(1)
             incrementAst = ast.getChild(2)
-            bodyAst = ast.getChild(4)
+            bodyAst = ast.getChild(3)
             checkAndPreprocess initAst, definedVariables, functionId
             conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
 
