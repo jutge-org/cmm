@@ -217,8 +217,7 @@ block_assign
     ;
 
 assign
-    : id 'EQUAL' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, $3]);}
+    : declaration_assign
     | id '+=' expr
         {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
     | id '-=' expr
@@ -231,17 +230,22 @@ assign
         {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
     ;
 
+declaration_assign
+    : id 'EQUAL' expr
+        {$$ = new yy.Ast('DECL-ASSIGN', [$1, $3]);}
+    ;
+
 declaration
     : type declaration_body
         {$$ = new yy.Ast('DECLARATION', [$1, $2]);}
     ;
 
 declaration_body
-    : declaration_body ',' assign
+    : declaration_body ',' declaration_assign
         {$$.push($3);}
     | declaration_body ',' id
         {$$.push($3);}
-    | assign
+    | declaration_assign
         {$$ = [$1];}
     | id
         {$$ = [$1];}
