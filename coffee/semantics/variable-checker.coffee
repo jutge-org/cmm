@@ -353,7 +353,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 else
                     type = checkAndPreprocess child, definedVariables, functionId
 
-                    if type isnt TYPES.string
+                    if type isnt TYPES.STRING
                         child.cast(
                             switch type
                                 when TYPES.INT then CASTS.INT2COUT
