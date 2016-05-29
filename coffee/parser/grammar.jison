@@ -131,6 +131,8 @@ basic_stmt
 return_stmt
     : RETURN expr
         {$$ = new yy.Ast('RETURN', [$2]);}
+    | RETURN
+        {$$ = new yy.Ast('RETURN', [])}
     ;
 
 funcall

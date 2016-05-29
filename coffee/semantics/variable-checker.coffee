@@ -66,12 +66,12 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             type = ast.getChild(0)
 
             for declarationAst in declarations
-                id =
-                    if declarationAst.getType() is NODES.ID
-                        declarationAst.getChild(0)
-                    else
-                        declarationAst.getChild(0).getChild(0)
-                checkAndPreprocess declarationAst, definedVariables, functionId
+                if declarationAst.getType() is NODES.ID # No need to check, only an id
+                    id = declarationAst.getChild(0)
+                else
+                    id = declarationAst.getChild(0).getChild(0)
+                    checkAndPreprocess declarationAst, definedVariables, functionId
+
                 if definedVariables[id]?
                     throw Error.VARIABLE_REDEFINITION.complete('name', id)
                 else
@@ -306,6 +306,22 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             checkAndPreprocess incrementAst, definedVariables, functionId
 
             return TYPES.VOID
+        when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
+            # Comprovar/castejar que retorna el mateix tipus que el de la funció en la que estem
+            # Si la funció en la que estem retorna void sa danar al tanto
+
+            # Retorna void
+            if ast.getChildCount() > 0 # return x
+                valueAst = ast.getChild(0)
+                actualType = checkAndPreprocess valueAst, definedVariables, functionId
+            else
+                actualType = TYPES.VOID
+
+            expectedType = functions[functionId].returnType
+            if actualType isnt expectedType
+                tryToCast valueAst, actualType, expectedType
+
+            return TYPES.VOID
         else # I don't care about its type, but I need to recurse cause it could have children whose types is one of the above
             for child in ast.getChildren() when child instanceof Ast
                 checkAndPreprocess(child, definedVariables, functionId)
@@ -313,11 +329,6 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             return TYPES.VOID
 
     ###
-    when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
-        # Comprovar/castejar que retorna el mateix tipus que el de la funció en la que estem
-        # Si la funció en la que estem retorna void sa danar al tanto
-
-        # Retorna void
     when STATEMENTS.CIN
         # Comprovar que tots els fills son ids
         # retorna bool
@@ -373,5 +384,9 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         assert blockInstructionsAst.getType() is NODES.BLOCK_INSTRUCTIONS
         checkAndPreprocess(blockInstructionsAst, definedVariablesAux, functionId)
 
+    if definedVariables.main isnt TYPES.FUNCTION
+        throw Error.MAIN_NOT_DEFINED
+    else if functions.main.returnType isnt TYPES.INT
+        throw Error.INVALID_MAIN_TYPE
 
     ast

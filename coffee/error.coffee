@@ -39,5 +39,8 @@ e "INVALID_CAST", 20, "Cannot cast type <<origin>> to type <<dest>>"
 
 e "NON_INTEGRAL_MODULO", 40, "Both operands to modulo operation must be integrals"
 
+e "MAIN_NOT_DEFINED", 50, "You must define a main function"
+e "INVALID_MAIN_TYPE", 51, "Main must return int"
+
 # Execution errors
 e "GET_VARIABLE_NOT_ASSIGNED", 0, "Cannot get variable <<name>>: hasn't been assigned"

@@ -50,3 +50,5 @@
 * Canviat el node de STR a STRING
 * '(' expr ')' ara retorna com a node el mateix que expr (abans nose q fotia)
 * Afegida instrucció NOP per exemple: if(1); o while(1); tenen al BODY una instruccio filla q es de tipus NOP (realment compila en C++)
+* Ara el return; es permet (return sense valor)
+**********************************RECORDAR QUE SI EL MAIN NO RETORNA RES ALESHORES SE LI HA DE POSAR EL RETURN 0 ***************************************
