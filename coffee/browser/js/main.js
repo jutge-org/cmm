@@ -1532,7 +1532,7 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
           child.setChild(0, "\n");
         } else {
           type = checkAndPreprocess(child, definedVariables, functionId);
-          if (type !== TYPES.string) {
+          if (type !== TYPES.STRING) {
             child.cast((function() {
               switch (type) {
                 case TYPES.INT:
