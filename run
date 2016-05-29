@@ -1,4 +1,4 @@
 #!/bin/sh
-cd coffee/browser
+cd browser
 ./browserify.sh
 firefox index.html
