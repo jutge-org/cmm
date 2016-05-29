@@ -1488,12 +1488,14 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       initAst = ast.getChild(0);
       conditionAst = ast.getChild(1);
       incrementAst = ast.getChild(2);
+      bodyAst = ast.getChild(4);
       checkAndPreprocess(initAst, definedVariables, functionId);
       conditionType = checkAndPreprocess(conditionAst, definedVariables, functionId);
       if (conditionType !== TYPES.BOOL) {
         tryToCast(conditionAst, conditionType, TYPES.BOOL);
       }
       checkAndPreprocess(incrementAst, definedVariables, functionId);
+      checkAndPreprocess(bodyAst, definedVariables, functionId);
       return TYPES.VOID;
     case STATEMENTS.RETURN:
       if (ast.getChildCount() > 0) {
@@ -1508,7 +1510,6 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
       }
       return TYPES.VOID;
     case STATEMENTS.CIN:
-      console.log("lol");
       ref4 = ast.getChildren();
       for (m = 0, len3 = ref4.length; m < len3; m++) {
         child = ref4[m];
