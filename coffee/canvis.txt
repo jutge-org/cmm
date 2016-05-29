@@ -52,3 +52,5 @@
 * Afegida instrucció NOP per exemple: if(1); o while(1); tenen al BODY una instruccio filla q es de tipus NOP (realment compila en C++)
 * Ara el return; es permet (return sense valor)
 **********************************RECORDAR QUE SI EL MAIN NO RETORNA RES ALESHORES SE LI HA DE POSAR EL RETURN 0 ***************************************
+********************************** EL INTERPRET NO S'HA DE PREOCUPAR DELS ENDL, ja es converteix a \n al preproces ******************************
+* Now endl is a node with type ENDL instead of a raw string

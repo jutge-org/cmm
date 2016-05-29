@@ -197,11 +197,11 @@ block_cout
     : block_cout '<<' expr
         {$$.addChild($3);}
     | block_cout '<<' ENDL
-        {$$.addChild($3);}
+        {$$.addChild(new yy.Ast('ENDL', []));}
     | '<<' expr
         {$$ = new yy.Ast('COUT', [$2]);}
     | '<<' ENDL
-        {$$ = new yy.Ast('COUT', [$2]);}
+        {$$ = new yy.Ast('COUT', [new yy.Ast('ENDL', [])]);}
     ;
 
 instruction_body

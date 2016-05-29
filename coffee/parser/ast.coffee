@@ -58,6 +58,7 @@ module.exports = class Ast
             DECL_ASSIGN: 'DECL-ASSIGN'
             ASSIGN: 'ASSIGN'
             PARAM_LIST: 'PARAM-LIST'
+            ENDL: 'ENDL'
         })
 
     @CASTS: Object.freeze({
@@ -73,9 +74,14 @@ module.exports = class Ast
             CHAR2BOOL: 'CHAR2BOOL'
             CHAR2DOUBLE: 'CHAR2DOUBLE'
 
-            BOOL2INT: 'BOOLTOINT'
-            BOOL2DOUBLE: 'BOOLTODOUBLE'
-            BOOL2CHAR: 'BOOLTOCHAR'
+            BOOL2INT: 'BOOL2INT'
+            BOOL2DOUBLE: 'BOOL2DOUBLE'
+            BOOL2CHAR: 'BOOL2CHAR'
+
+            INT2COUT: 'INT2COUT'
+            BOOL2COUT: 'BOOL2COUT'
+            CHAR2COUT: 'CHAR2COUT'
+            DOUBLE2COUT: 'DOUBLE2COUT'
         })
 
     constructor: (@type, @children) ->

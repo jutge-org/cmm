@@ -42,5 +42,10 @@ e "NON_INTEGRAL_MODULO", 40, "Both operands to modulo operation must be integral
 e "MAIN_NOT_DEFINED", 50, "You must define a main function"
 e "INVALID_MAIN_TYPE", 51, "Main must return int"
 
+e "CIN_OF_NON_ID", 60, "cin must be used with variables"
+e "CIN_OF_NON_ASSIGNABLE", 61, "cin variables must be assignable"
+e "CIN_VARIABLE_UNDEFINED", 62, "cannot cin variable <<name>>: undeclared"
+e "COUT_OF_INVALID_TYPE", 63, "invalid cout parameter"
+
 # Execution errors
 e "GET_VARIABLE_NOT_ASSIGNED", 0, "Cannot get variable <<name>>: hasn't been assigned"

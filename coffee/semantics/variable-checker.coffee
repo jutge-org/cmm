@@ -33,7 +33,7 @@ SIZE_OF_TYPE[TYPES.INT] = 32
 SIZE_OF_TYPE[TYPES.DOUBLE] = 64
 
 isIntegral = (type) -> type in [TYPES.INT, TYPES.BOOL, TYPES.CHAR]
-
+isAssignable = (type) -> type not in [TYPES.FUNCTION, TYPES.VOID]
 
 module.exports = @
 
@@ -327,6 +327,43 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             expectedType = functions[functionId].returnType
             if actualType isnt expectedType
                 tryToCast valueAst, actualType, expectedType
+
+            return TYPES.VOID
+        when STATEMENTS.CIN
+            # Comprovar que tots els fills son ids i que tenen tipus assignable
+            # retorna bool
+            for child in ast.getChildren()
+                if child.getType() isnt NODES.ID
+                    throw Error.CIN_OF_NON_ID
+                else
+                    varId = child.getChild(0)
+                    unless definedVariables[varId]?
+                        throw Error.CIN_VARIABLE_UNDEFINED.complete('name', varId)
+                    else unless isAssignable definedVariables[varId]
+                        throw Error.CIN_OF_NON_ASSIGNABLE
+
+            return TYPES.BOOL
+        when STATEMENTS.COUT
+            # Comprovar/castejar que tots els fills siguin strings o endl, que es convertira a "\n" (string)
+            # Retorna void
+            for child in ast.getChildren()
+                if child.getType() is NODES.ENDL
+                    child.setType(TYPES.STRING)
+                    child.setChild(0, "\n")
+                else
+                    type = checkAndPreprocess child, definedVariables, functionId
+
+                    if type isnt TYPES.string
+                        child.cast(
+                            switch type
+                                when TYPES.INT then CASTS.INT2COUT
+                                when TYPES.BOOL then CASTS.BOOL2COUT
+                                when TYPES.CHAR then CASTS.CHAR2COUT
+                                when TYPES.DOUBLE then CASTS.DOUBLE2COUT
+                                else
+                                    throw Error.COUT_OF_INVALID_TYPE
+                        )
+
 
             return TYPES.VOID
         else # I don't care about its type, but I need to recurse cause it could have children whose types is one of the above
