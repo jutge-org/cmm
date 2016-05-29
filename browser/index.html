@@ -1,24 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <script src="lib/bundle.js"></script>
     <title>C--</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <script src="jquery/jquery-2.2.4.js"></script>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="codemirror/codemirror.css">
+    <link rel="stylesheet" href="codemirror/material.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="codemirror/codemirror.js"></script>
+    <script src="codemirror/clike.js"></script>
+    <script src="js/main.js"></script>
 </head>
+
 <body>
-    <div>
-        <label for="input"></label><textarea id="input" style="width: 574px; height: 344px;"></textarea>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-6">
+              <div class="starter-template">
+                <h1>C--</h1>
+                <p class="lead">C++ for the browser</p>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <button class="btn btn-primary btn-cmm" id="compile"> COMPILE </button>
+              <button class="btn btn-primary btn-cmm" id="run"> RUN </button>
+            </div>
+        </div>
+
     </div>
-    <div>
-        <button type="button" id="run">Run code</button>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label for="comment">Code:</label>
+                  <textarea class="form-control cpp" id="code" rows="20"></textarea>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <div class="form-group">
+                  <label for="comment">Output:</label>
+                  <pre id="output">
+                  </pre>
+                </div>
+            </div>
+        </div>
     </div>
+
 </body>
-<script>
-    var button = document.getElementById('run');
-    button.onclick = function() {
-        var raw_program = document.getElementById('input').value;
-        execute(raw_program);
-    }
-</script>
-<script src="lib/handleTabs.js"></script>
+
 </html>

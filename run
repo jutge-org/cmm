@@ -1,0 +1,4 @@
+#!/bin/sh
+cd browser
+./browserify.sh
+firefox index.html

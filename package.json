@@ -17,8 +17,11 @@
   },
   "homepage": "https://github.com/ghastgar/C--#readme",
   "dependencies": {
+    "coffeeify": "^2.0.1",
     "commander": "^2.9.0",
-    "jison": "^0.4.17"
+    "jison": "^0.4.17",
+    "jisonify": "^1.0.4",
+    "shell": "^0.3.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
