@@ -21,8 +21,9 @@ e = (name, code, message) => @[name] = new InterpretationError code, message
 
 # Example of use: error = require './error'; throw error.VARIABLE_ALREADY_DEFINED
 
-# Compilation errors
-# Variables (codes start with 1)
+# TODO: Improve error messages
+# TODO: Organise errors in a better way
+
 e "VARIABLE_REDEFINITION", 10, "Cannot define variable <<name>>: already defined in this scope"
 e "GET_VARIABLE_NOT_DEFINED", 11, "Cannot get variable <<name>>: not defined in this scope"
 e "SET_VARIABLE_NOT_DEFINED", 12, "Cannot set variable <<name>>: not defined in this scope"
