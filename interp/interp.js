@@ -8,7 +8,7 @@ var TYPE = require('./utils').TYPE;
 var OPERATOR = require('./utils').OPERATOR;
 var LITERAL = require('./utils').LITERAL;
 var ID = require('./utils').ID;
-var checkType = require('./utils').checkType;
+var ensureType = require('./utils').ensureType;
 
 var funcName2Tree;
 var stack = new Stack();
@@ -19,7 +19,7 @@ module.exports = {
         mapFunctions(root);
         assert.notStrictEqual(funcName2Tree.main, undefined, "Main function must exist");
         preProcessAST(root);
-        
+
     },
     run: function() {
         executeFunction("main", null)
@@ -69,14 +69,14 @@ function executeFunction(funcName, args) {
     var result = executeListInstructions(func.getChild(3));
     stack.popActivationRecord();
     if (funcName == "main" && !result) return 0;
-    checkType(new Data(funcType, result));
+    ensureType(new Data(funcType, result));
     return result;
 }
 
 function listArguments(fParams, args) {
     if (args === null) return [];
     if (args.getChildCount() === 0) return [];
-    if (fParams.getChildCount() !== args.getChildCount()) 
+    if (fParams.getChildCount() !== args.getChildCount())
         throw "Incorrect number of parameters";
     var n = fParams.getChildCount();
     var params = [];
@@ -149,7 +149,7 @@ function executeInstruction(T) {
             var conditionEvaluationResult = evaluateExpression(conditionNode);
             if (conditionEvaluationResult) {
                 executeListInstructions(positiveNode);
-            } 
+            }
             else if (negativeNode !== undefined) executeListInstructions(negativeNode);
             break;
         case 'WHILE':

@@ -2,9 +2,11 @@ var TYPE = require('./utils').TYPE;
 var OPERATOR = require('./utils').OPERATOR;
 var assert = require('assert');
 
-var checkType = require('./utils').checkType;
+var ensureType = require('./utils').ensureType;
 
 function Data(a, b) {
+    ensureType(this);
+
     if (arguments.length === 0) {
         this.type = TYPE.VOID;
         this.value = undefined;
@@ -39,46 +41,28 @@ Data.prototype.isString = function () {
     return this.type === TYPE.STRING;
 };
 
+Data.prototype.isChar = function() {
+    return this.type === TYPE.CHAR;
+}
+
 Data.prototype.getValue = function() {
     return this.value;
 };
 
 Data.prototype.setValue = function (value) {
     this.value = value;
-    checkType(this);
+    ensureType(this);
 };
 
 Data.prototype.setData = function (data) {
     this.type = data.type;
     this.value = data.value;
-    checkType(this);
+    ensureType(this);
 };
 
 Data.prototype.checkDivZero = function (data) {
     if (data.value === 0) {
         throw "Division by zero";
-    }
-};
-
-// TODO do more and better type checking
-Data.prototype.evaluateArithmetic = function (op, data) {
-    if (this.type === TYPE.STRING && data.type === TYPE.STRING) {
-        switch (op) {
-            case OPERATOR.PLUS: this.value += data.value; return;
-            default: throw "Unsupported operation";
-        }
-    }
-    if (this.type === TYPE.VOID || this.type === TYPE.VOID) {
-        throw "VOID type does not have any operation";
-    }
-
-    switch (op) {
-        case OPERATOR.PLUS: this.value += data.value; break;
-        case OPERATOR.MINUS: this.value -= data.value; break;
-        case OPERATOR.MUL: this.value *= data.value; break;
-        case OPERATOR.DIV: this.value /= data.value; console.log(this.value); break;
-        case OPERATOR.MOD: this.value %= data.value; break;
-        default: throw "Unsupported operation";
     }
 };
 
