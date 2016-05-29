@@ -48,3 +48,4 @@
 * Param deixa de ser un node, hereda el valor de la expressió en questió (sry, no tenia sentit, era un estorb i el param-list ja t'aporta la info)
 * Canviats els nodes de l'Ast que contenien tipus a majúscula
 * Canviat el node de STR a STRING
+* '(' expr ')' ara retorna com a node el mateix que expr (abans nose q fotia)

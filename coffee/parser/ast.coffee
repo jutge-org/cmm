@@ -18,6 +18,8 @@ module.exports = class Ast
             UMINUS: 'UMINUS'
             MUL: 'MUL'
             DIV: 'DIV'
+            DOUBLE_DIV: 'DOUBLE_DIV'
+            INT_DIV: 'INT_DIV'
             MOD: 'MOD'
             LT: '<'
             GT: '>'
@@ -70,9 +72,9 @@ module.exports = class Ast
             CHAR2BOOL: 'CHAR2BOOL'
             CHAR2DOUBLE: 'CHAR2DOUBLE'
 
-            BOOLTOINT: 'BOOLTOINT'
-            BOOLTODOUBLE: 'BOOLTODOUBLE'
-            BOOLTOCHAR: 'BOOLTOCHAR'
+            BOOL2INT: 'BOOLTOINT'
+            BOOL2DOUBLE: 'BOOLTODOUBLE'
+            BOOL2CHAR: 'BOOLTOCHAR'
         })
 
     constructor: (@type, @children) ->
@@ -80,6 +82,8 @@ module.exports = class Ast
         assert Array.isArray(@children)
 
     getType: -> @type
+
+    setType: (@type) ->
 
     cast: (casting) ->
         currentType = @type
@@ -94,5 +98,7 @@ module.exports = class Ast
     getChildren: -> @children
 
     addChild: (child) -> @children.push child
+
+    setChild: (i, value) -> @children[i] = value
 
     getChildCount: -> @children.length

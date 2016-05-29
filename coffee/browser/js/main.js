@@ -134,6 +134,8 @@ e("VOID_DECLARATION", 30, "Cannot declare a variable with type void: variable <<
 
 e("INVALID_CAST", 20, "Cannot cast type <<origin>> to type <<dest>>");
 
+e("NON_INTEGRAL_MODULO", 40, "Both operands to modulo operation must be integrals");
+
 e("GET_VARIABLE_NOT_ASSIGNED", 0, "Cannot get variable <<name>>: hasn't been assigned");
 
 
@@ -164,6 +166,8 @@ module.exports = Ast = (function() {
     UMINUS: 'UMINUS',
     MUL: 'MUL',
     DIV: 'DIV',
+    DOUBLE_DIV: 'DOUBLE_DIV',
+    INT_DIV: 'INT_DIV',
     MOD: 'MOD',
     LT: '<',
     GT: '>',
@@ -213,9 +217,9 @@ module.exports = Ast = (function() {
     CHAR2INT: 'CHAR2INT',
     CHAR2BOOL: 'CHAR2BOOL',
     CHAR2DOUBLE: 'CHAR2DOUBLE',
-    BOOLTOINT: 'BOOLTOINT',
-    BOOLTODOUBLE: 'BOOLTODOUBLE',
-    BOOLTOCHAR: 'BOOLTOCHAR'
+    BOOL2INT: 'BOOLTOINT',
+    BOOL2DOUBLE: 'BOOLTODOUBLE',
+    BOOL2CHAR: 'BOOLTOCHAR'
   });
 
   function Ast(type, children) {
@@ -227,6 +231,10 @@ module.exports = Ast = (function() {
 
   Ast.prototype.getType = function() {
     return this.type;
+  };
+
+  Ast.prototype.setType = function(type) {
+    this.type = type;
   };
 
   Ast.prototype.cast = function(casting) {
@@ -247,6 +255,10 @@ module.exports = Ast = (function() {
 
   Ast.prototype.addChild = function(child) {
     return this.children.push(child);
+  };
+
+  Ast.prototype.setChild = function(i, value) {
+    return this.children[i] = value;
   };
 
   Ast.prototype.getChildCount = function() {
@@ -512,6 +524,9 @@ this.$ = new yy.Ast('BOOL_LIT', [$$[$0]]);
 break;
 case 79:
 this.$ = new yy.Ast('STRING_LIT', [$$[$0]]);
+break;
+case 82:
+this.$ = $$[$0-1]
 break;
 case 83:
 this.$ = new yy.Ast('ID', [$$[$0]]);
@@ -1158,7 +1173,7 @@ Ast = require('../parser/ast');
 
 
 },{"../error":2,"../parser/ast":4}],8:[function(require,module,exports){
-var Ast, CASTINGS, CASTS, Error, NODES, OPERATORS, TYPE, TYPES, assert, checkAndPreprocess, checkDeclaration, checkVariableDefined, copy, functions, tryToCast;
+var Ast, CASTINGS, CASTS, Error, LITERALS, NODES, OPERATORS, SIZE_OF_TYPE, TYPE, TYPES, assert, checkAndPreprocess, checkDeclaration, checkVariableDefined, copy, functions, isIntegral, tryToCast;
 
 assert = require('assert');
 
@@ -1166,7 +1181,7 @@ Ast = require('../parser/ast');
 
 Error = require('../error');
 
-NODES = Ast.NODES, TYPES = Ast.TYPES, OPERATORS = Ast.OPERATORS, CASTS = Ast.CASTS;
+NODES = Ast.NODES, TYPES = Ast.TYPES, OPERATORS = Ast.OPERATORS, CASTS = Ast.CASTS, LITERALS = Ast.LITERALS;
 
 CASTINGS = {};
 
@@ -1197,6 +1212,20 @@ CASTINGS[TYPES.BOOL][TYPES.INT] = CASTS.BOOL2INT;
 CASTINGS[TYPES.BOOL][TYPES.DOUBLE] = CASTS.BOOL2DOUBLE;
 
 CASTINGS[TYPES.BOOL][TYPES.CHAR] = CASTS.BOOL2CHAR;
+
+SIZE_OF_TYPE = {};
+
+SIZE_OF_TYPE[TYPES.BOOL] = 1;
+
+SIZE_OF_TYPE[TYPES.CHAR] = 8;
+
+SIZE_OF_TYPE[TYPES.INT] = 32;
+
+SIZE_OF_TYPE[TYPES.DOUBLE] = 64;
+
+isIntegral = function(type) {
+  return type === TYPES.INT || type === TYPES.BOOL || type === TYPES.CHAR;
+};
 
 module.exports = this;
 
@@ -1231,7 +1260,7 @@ tryToCast = function(ast, originType, destType) {
 };
 
 checkAndPreprocess = function(ast, definedVariables, functionId) {
-  var actualLength, argType, child, declarationAst, declarations, definedVariablesAux, expectedLength, funcId, i, id, j, k, l, len, len1, len2, len3, m, paramList, ref, ref1, ref2, type, valueAst, valueType, variableId, variableType;
+  var actualLength, argType, castingType, child, declarationAst, declarations, definedVariablesAux, expectedLength, funcId, i, id, j, k, l, leftAst, len, len1, len2, len3, m, paramList, ref, ref1, ref2, ref3, ref4, rightAst, type, typeLeft, typeRight, valueAst, valueType, variableId, variableType;
   switch (ast.getType()) {
     case NODES.ID:
       id = ast.getChild(0);
@@ -1296,10 +1325,101 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
         tryToCast(valueAst, valueType, variableType);
       }
       return TYPES.VOID;
+    case LITERALS.DOUBLE:
+      ast.setChild(0, parseFloat(ast.getChild(0)));
+      return TYPES.DOUBLE;
+    case LITERALS.INT:
+      ast.setChild(0, parseInt(ast.getChild(0)));
+      return TYPES.INT;
+    case LITERALS.STRING:
+      return TYPES.STRING;
+    case LITERALS.CHAR:
+      ast.setChild(0, parseFloat(ast.getChild(0)));
+      return TYPES.CHAR;
+    case LITERALS.BOOL:
+      ast.setChild(0, ast.getChild(0) === "true");
+      return TYPES.BOOL;
+    case OPERATORS.PLUS:
+    case OPERATORS.MINUS:
+    case OPERATORS.MUL:
+      leftAst = ast.getChild(0);
+      rightAst = ast.getChild(1);
+      typeLeft = checkAndPreprocess(leftAst, definedVariables, functionId);
+      typeRight = checkAndPreprocess(rightAst, definedVariables, functionId);
+      castingType = (ref2 = TYPES.DOUBLE) === typeLeft || ref2 === typeRight ? TYPES.DOUBLE : TYPES.INT;
+      if (typeLeft !== castingType) {
+        tryToCast(leftAst, typeLeft, castingType);
+      }
+      if (typeRight !== castingType) {
+        tryToCast(rightAst, typeRight, castingType);
+      }
+      return castingType;
+    case OPERATORS.UPLUS:
+    case OPERATORS.UMINUS:
+      type = checkAndPreprocess(ast.getChild(0), definedVariables, functionId);
+      if (type !== TYPES.DOUBLE && type !== TYPES.INT) {
+        tryToCast(ast.getChild(0), type, TYPES.INT);
+        return TYPES.INT;
+      }
+      return type;
+    case OPERATORS.DIV:
+      leftAst = ast.getChild(0);
+      rightAst = ast.getChild(1);
+      typeLeft = checkAndPreprocess(leftAst, definedVariables, functionId);
+      typeRight = checkAndPreprocess(rightAst, definedVariables, functionId);
+      castingType = (ref3 = TYPES.DOUBLE) === typeLeft || ref3 === typeRight ? TYPES.DOUBLE : TYPES.INT;
+      if (typeLeft !== castingType) {
+        tryToCast(leftAst, typeLeft, castingType);
+      }
+      if (typeRight !== castingType) {
+        tryToCast(rightAst, typeRight, castingType);
+      }
+      if (castingType === TYPES.DOUBLE) {
+        ast.setType(OPERATORS.DOUBLE_DIV);
+      } else {
+        ast.setType(OPERATORS.INT_DIV);
+      }
+      return castingType;
+    case OPERATORS.MOD:
+      leftAst = ast.getChild(0);
+      rightAst = ast.getChild(1);
+      typeLeft = checkAndPreprocess(leftAst, definedVariables, functionId);
+      typeRight = checkAndPreprocess(rightAst, definedVariables, functionId);
+      if (!isIntegral(typeLeft)) {
+        throw Error.NON_INTEGRAL_MODULO;
+      }
+      if (!isIntegral(typeRight)) {
+        throw Error.NON_INTEGRAL_MODULO;
+      }
+      if (typeLeft !== TYPES.INT) {
+        tryToCast(leftAst, typeLeft, TYPES.INT);
+      }
+      if (typeRight !== TYPES.INT) {
+        tryToCast(rightAst, typeRight, TYPES.INT);
+      }
+      return TYPES.INT;
+    case OPERATORS.LT:
+    case OPERATORS.GT:
+    case OPERATORS.LTE:
+    case OPERATORS.GTE:
+    case OPERATORS.EQ:
+    case OPERATORS.NEQ:
+      leftAst = ast.getChild(0);
+      rightAst = ast.getChild(1);
+      typeLeft = checkAndPreprocess(leftAst, definedVariables, functionId);
+      typeRight = checkAndPreprocess(rightAst, definedVariables, functionId);
+      if (typeLeft !== typeRight) {
+        if (SIZE_OF_TYPE[typeLeft] > SIZE_OF_TYPE[typeRight]) {
+          tryToCast(rightAst, typeRight, typeLeft);
+        } else {
+          tryToCast(leftAst, typeLeft, typeRight);
+        }
+      }
+      return TYPES.BOOL;
     default:
-      ref2 = ast.getChildren();
-      for (m = 0, len3 = ref2.length; m < len3; m++) {
-        child = ref2[m];
+      ref4 = ast.getChildren();
+      for (m = 0, len3 = ref4.length; m < len3; m++) {
+        child = ref4[m];
         if (child instanceof Ast) {
           checkAndPreprocess(child, definedVariables, functionId);
         }
@@ -1308,82 +1428,7 @@ checkAndPreprocess = function(ast, definedVariables, functionId) {
   }
 
   /*
-  when LITERALS.DOUBLE
-      return TYPES.DOUBLE
-  when LITERALS.INT
-      return TYPES.INT
-  when LITERALS.STRING
-      return TYPES.STRING
-  when LITERALS.CHAR
-      return TYPES.CHAR
-  when LITERALS.BOOL
-      return TYPES.BOOL
-  when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
   
-       * Retorna tipus el dels dos operands igualats
-  when OPERATORS.UPLUS
-       * COmprovar/castejar que el tipus sigui
-       * o bé integral (char castejat a int o int o bool cast a int)
-       * o bé real (double).
-  
-       * Retorna tipus el del operand
-  when OPERATORS.UMINUS
-       * COmprovar/castejar que el tipus sigui
-       * o bé integral (char castejat a int o int o bool cast a int)
-       * o bé real (double).
-  when OPERATORS.DIV
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Es genera una instruccio (sa de canviar el type) DIVREAL si els operands son doubles
-       * o DIVINTEGRAL si els operands son ints
-  
-       * Retorna tipus el dels dos operands igualats (int o double)
-  when OPERATORS.MOD
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * integrals (char castejat a int o int o bool cast a int)
-  
-       * Retorna tipus int
-  when OPERATORS.LT
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
-  when OPERATORS.GT
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
-  when OPERATORS.LTE
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
-  when OPERATORS.GTE
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
-  when OPERATORS.EQ
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
-  when OPERATORS.NEQ
-       * Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-       * o bé integrals (char castejat a int o int o bool cast a int)
-       * o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-  
-       * Retorna tipus bool
   when STATEMENTS.IF_THEN
        * Comprovar/castejar que la condicio es un boolea
        * Comprovar recursivament el cos del then

@@ -303,6 +303,7 @@ expr
     | id
     | funcall
     | '(' expr ')'
+        {$$ = $2}
     ;
 
 id

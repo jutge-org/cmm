@@ -3,7 +3,7 @@ assert = require 'assert'
 Ast = require '../parser/ast'
 Error = require '../error'
 
-{ NODES, TYPES, OPERATORS, CASTS } = Ast
+{ NODES, TYPES, OPERATORS, CASTS, LITERALS } = Ast
 
 CASTINGS = {}
 
@@ -25,6 +25,15 @@ CASTINGS[TYPES.CHAR][TYPES.BOOL] = CASTS.CHAR2BOOL
 CASTINGS[TYPES.BOOL][TYPES.INT] = CASTS.BOOL2INT
 CASTINGS[TYPES.BOOL][TYPES.DOUBLE] = CASTS.BOOL2DOUBLE
 CASTINGS[TYPES.BOOL][TYPES.CHAR] = CASTS.BOOL2CHAR
+
+SIZE_OF_TYPE = {}
+SIZE_OF_TYPE[TYPES.BOOL] = 1
+SIZE_OF_TYPE[TYPES.CHAR] = 8
+SIZE_OF_TYPE[TYPES.INT] = 32
+SIZE_OF_TYPE[TYPES.DOUBLE] = 64
+
+isIntegral = (type) -> type in [TYPES.INT, TYPES.BOOL, TYPES.CHAR]
+
 
 module.exports = @
 
@@ -118,88 +127,127 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast valueAst, valueType, variableType
 
             return TYPES.VOID
+        when LITERALS.DOUBLE
+            ast.setChild(0, parseFloat(ast.getChild(0)))
+            return TYPES.DOUBLE
+        when LITERALS.INT
+            ast.setChild(0, parseInt(ast.getChild(0)))
+            return TYPES.INT
+        when LITERALS.STRING
+            return TYPES.STRING
+        when LITERALS.CHAR
+            ast.setChild(0, parseFloat(ast.getChild(0)))
+            return TYPES.CHAR
+        when LITERALS.BOOL
+            ast.setChild(0, ast.getChild(0) is "true")
+            return TYPES.BOOL
+        when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
+            # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
+            # o bé integrals (char castejat a int o int o bool cast a int)
+            # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
+
+            # Retorna tipus el dels dos operands igualats
+            leftAst = ast.getChild(0)
+            rightAst = ast.getChild(1)
+            typeLeft = checkAndPreprocess leftAst, definedVariables, functionId
+            typeRight = checkAndPreprocess rightAst, definedVariables, functionId
+
+            castingType = if TYPES.DOUBLE in [typeLeft, typeRight] then TYPES.DOUBLE else TYPES.INT
+            if typeLeft isnt castingType
+                tryToCast(leftAst, typeLeft, castingType)
+            if typeRight isnt castingType
+                tryToCast(rightAst, typeRight, castingType)
+
+            return castingType
+        when OPERATORS.UPLUS, OPERATORS.UMINUS
+            # Comprovar/castejar que el tipus sigui
+            # o bé integral (char castejat a int o int o bool cast a int)
+            # o bé real (double).
+
+            # Retorna tipus el del operand
+
+            type = checkAndPreprocess(ast.getChild(0), definedVariables, functionId)
+
+            if type isnt TYPES.DOUBLE and type isnt TYPES.INT
+                tryToCast ast.getChild(0), type, TYPES.INT
+                return TYPES.INT
+            return type
+        when OPERATORS.DIV
+            # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
+            # o bé integrals (char castejat a int o int o bool cast a int)
+            # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
+
+            # Es genera una instruccio (sa de canviar el type) DOUBLE_DIV si els operands son doubles
+            # o INT_DIV si els operands son ints
+
+            # Retorna tipus el dels dos operands igualats (int o double)
+
+            leftAst = ast.getChild(0)
+            rightAst = ast.getChild(1)
+            typeLeft = checkAndPreprocess leftAst, definedVariables, functionId
+            typeRight = checkAndPreprocess rightAst, definedVariables, functionId
+
+            castingType = if TYPES.DOUBLE in [typeLeft, typeRight] then TYPES.DOUBLE else TYPES.INT
+
+            if typeLeft isnt castingType
+                tryToCast(leftAst, typeLeft, castingType)
+            if typeRight isnt castingType
+                tryToCast(rightAst, typeRight, castingType)
+
+            if castingType is TYPES.DOUBLE
+                ast.setType OPERATORS.DOUBLE_DIV
+            else
+                ast.setType OPERATORS.INT_DIV
+
+            return castingType
+        when OPERATORS.MOD
+            # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
+            # integrals (char castejat a int o int o bool cast a int)
+
+            # Retorna tipus int
+            leftAst = ast.getChild(0)
+            rightAst = ast.getChild(1)
+            typeLeft = checkAndPreprocess leftAst, definedVariables, functionId
+            typeRight = checkAndPreprocess rightAst, definedVariables, functionId
+
+            unless isIntegral typeLeft
+                throw Error.NON_INTEGRAL_MODULO
+            unless isIntegral typeRight
+                throw Error.NON_INTEGRAL_MODULO
+
+            if typeLeft isnt TYPES.INT
+                tryToCast(leftAst, typeLeft, TYPES.INT)
+            if typeRight isnt TYPES.INT
+                tryToCast(rightAst, typeRight, TYPES.INT)
+
+            return TYPES.INT
+        when OPERATORS.LT, OPERATORS.GT, OPERATORS.LTE, OPERATORS.GTE, OPERATORS.EQ, OPERATORS.NEQ
+            # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
+            # o bé integrals (char castejat a int o int o bool cast a int)
+            # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
+            # o bé bools
+
+            # Retorna tipus bool
+            leftAst = ast.getChild(0)
+            rightAst = ast.getChild(1)
+            typeLeft = checkAndPreprocess leftAst, definedVariables, functionId
+            typeRight = checkAndPreprocess rightAst, definedVariables, functionId
+
+            if typeLeft isnt typeRight
+                if SIZE_OF_TYPE[typeLeft] > SIZE_OF_TYPE[typeRight]
+                    tryToCast(rightAst, typeRight, typeLeft)
+                else
+                    tryToCast(leftAst, typeLeft, typeRight)
+
+            return TYPES.BOOL
         else # I don't care about its type, but I need to recurse cause it could have children whose types is one of the above
             for child in ast.getChildren() when child instanceof Ast
                 checkAndPreprocess(child, definedVariables, functionId)
 
             return TYPES.VOID
+
     ###
-    when LITERALS.DOUBLE
-        return TYPES.DOUBLE
-    when LITERALS.INT
-        return TYPES.INT
-    when LITERALS.STRING
-        return TYPES.STRING
-    when LITERALS.CHAR
-        return TYPES.CHAR
-    when LITERALS.BOOL
-        return TYPES.BOOL
-    when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
 
-        # Retorna tipus el dels dos operands igualats
-    when OPERATORS.UPLUS
-        # COmprovar/castejar que el tipus sigui
-        # o bé integral (char castejat a int o int o bool cast a int)
-        # o bé real (double).
-
-        # Retorna tipus el del operand
-    when OPERATORS.UMINUS
-        # COmprovar/castejar que el tipus sigui
-        # o bé integral (char castejat a int o int o bool cast a int)
-        # o bé real (double).
-    when OPERATORS.DIV
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Es genera una instruccio (sa de canviar el type) DIVREAL si els operands son doubles
-        # o DIVINTEGRAL si els operands son ints
-
-        # Retorna tipus el dels dos operands igualats (int o double)
-    when OPERATORS.MOD
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # integrals (char castejat a int o int o bool cast a int)
-
-        # Retorna tipus int
-    when OPERATORS.LT
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
-    when OPERATORS.GT
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
-    when OPERATORS.LTE
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
-    when OPERATORS.GTE
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
-    when OPERATORS.EQ
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
-    when OPERATORS.NEQ
-        # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
-        # o bé integrals (char castejat a int o int o bool cast a int)
-        # o bé reals (double). Es casteja de menys tamany a mes sempre, mai al reves
-
-        # Retorna tipus bool
     when STATEMENTS.IF_THEN
         # Comprovar/castejar que la condicio es un boolea
         # Comprovar recursivament el cos del then

@@ -37,5 +37,7 @@ e "VOID_DECLARATION", 30, "Cannot declare a variable with type void: variable <<
 
 e "INVALID_CAST", 20, "Cannot cast type <<origin>> to type <<dest>>"
 
+e "NON_INTEGRAL_MODULO", 40, "Both operands to modulo operation must be integrals"
+
 # Execution errors
 e "GET_VARIABLE_NOT_ASSIGNED", 0, "Cannot get variable <<name>>: hasn't been assigned"
