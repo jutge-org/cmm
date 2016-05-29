@@ -55,6 +55,7 @@ module.exports = class Ast
             ID: 'ID'
             DECLARATION: 'DECLARATION'
             FUNCALL: 'FUNCALL'
+            DECL_ASSIGN: 'DECL-ASSIGN'
             ASSIGN: 'ASSIGN'
             PARAM_LIST: 'PARAM-LIST'
         })

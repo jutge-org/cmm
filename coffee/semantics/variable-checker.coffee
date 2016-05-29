@@ -68,9 +68,13 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             for declarationAst in declarations
                 if declarationAst.getType() is NODES.ID # No need to check, only an id
                     id = declarationAst.getChild(0)
-                else
+                else # Is decl-assign
                     id = declarationAst.getChild(0).getChild(0)
-                    checkAndPreprocess declarationAst, definedVariables, functionId
+                    valueAst = declarationAst.getChild(1)
+                    actualType = checkAndPreprocess valueAst, definedVariables, functionId
+
+                    if type isnt actualType
+                        tryToCast(valueAst, actualType, type)
 
                 if definedVariables[id]?
                     throw Error.VARIABLE_REDEFINITION.complete('name', id)
@@ -128,6 +132,9 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast valueAst, valueType, variableType
 
             return TYPES.VOID
+        when NODES.DECL_ASSIGN
+            valueAst = ast.getChild(1)
+            return checkAndPreprocess valueAst, definedVariables, functionId
         when LITERALS.DOUBLE
             ast.setChild(0, parseFloat(ast.getChild(0)))
             return TYPES.DOUBLE
