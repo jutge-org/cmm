@@ -1,8 +1,8 @@
 assert = require 'assert'
 
 Stack = require './stack'
-instruction = require './instruction'
-Ast = require '../parser'
+Runner = require './runner'
+Ast = require '../parser/ast'
 { NODES } = Ast
 
 module.exports = @
@@ -19,6 +19,7 @@ funcName2Tree = null
     return
 
 @executeFunction = (funcName, args = null) ->
+    console.log ('executing' + funcName)
     assert funcName2Tree.main?
     func = funcName2Tree[funcName]
     assert func?, 'Function ' + funcName + ' not declared'
@@ -28,7 +29,7 @@ funcName2Tree = null
     for { id, value } in arg_values
         Stack.defineVariable id, value
 
-    result = instruction.executeListInstructions func.getChild(3)
+    result = Runner.executeListInstructions func.getChild(3)
     Stack.popActivationRecord()
     # If main function is executed and no result is returned, value 0 is returned
     if funcName is 'main' and not result
