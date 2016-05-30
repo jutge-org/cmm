@@ -10,10 +10,14 @@ module.exports = @
 @evaluateExpression = (T) ->
     assert T?
     switch T.getType()
+        when LITERALS.BOOL
+            T.getChild(0)
+        when LITERALS.INT
+            T.getChild(0)
         when LITERALS.STRING 
-            return T.getChild(0)
+            T.getChild(0)
         when NODES.ID
-            return Stack.getVariable(T.getChild 0).getValue()
+            Stack.getVariable(T.getChild 0).getValue()
         else 
             console.log('Expression evaluation not implemented yet')
             null
