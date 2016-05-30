@@ -23,23 +23,22 @@ outputString = [""]
 executeInstruction = (T) ->
     assert T?
     switch T.getType()
-        when 'TYPE-DECL'
+        when NODES.TYPE_DECL
             type = T.getChild 0
             decl = T.getChild 1
             for atom in decl
                 varName = atom.getChild 0
-                if atom.getType() is 'ASSIGN'
+                if atom.getType() is NODES.ASSIGN
                     value = Eval.evaluateExpression atom.getChild, 1
                     # TODO: Data?
                     value = new Data type value
                     stack.defineVariable varName, value
-                else if atom.getType is 'ID'
+                else if atom.getType is NODES.ID
                     stack.defineVariable(varName, new Data type)
-        when 'BLOCK-ASSIGN'
+        when NODES.BLOCK_ASSIGN
             executeListInstructions T
         when NODES.ASSIGN
             id    = T.getChild 0
-            data  = stack.getVariable id
             value = Eval.evaluateExpression T.getChild 1
             data.setValue value
         when STATEMENTS.COUT

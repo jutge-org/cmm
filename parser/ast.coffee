@@ -50,6 +50,7 @@ module.exports = class Ast
     @NODES: Object.freeze({
             BLOCK_FUNCTIONS: 'BLOCK-FUNCTIONS'
             BLOCK_INSTRUCTIONS: 'BLOCK-INSTRUCTIONS'
+            BLOCK_ASSIGN: 'BLOCK-ASSIGN'
             ARG_LIST: 'ARG-LIST'
             ARG: 'ARG'
             ID: 'ID'
@@ -59,6 +60,7 @@ module.exports = class Ast
             ASSIGN: 'ASSIGN'
             PARAM_LIST: 'PARAM-LIST'
             ENDL: 'ENDL'
+            TYPE_DECL: 'TYPE-DECL'
         })
 
     @CASTS: Object.freeze({
