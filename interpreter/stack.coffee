@@ -2,15 +2,14 @@ assert = require 'assert'
 Error = require '../error'
 
 module.exports = class Stack
-    constructor: ->
-        @stack = []
-        @currentAR = null
+    @stack: []
+    @currentAR: null
 
-    pushActivationRecord: ->
+    @pushActivationRecord: ->
         @currentAR = {}
         @stack.push @currentAR
 
-    popActivationRecord: ->
+    @popActivationRecord: ->
         assert @stack.length > 0
 
         @stack.pop()
@@ -18,13 +17,13 @@ module.exports = class Stack
             if @stack.length > 0 then @stack[@stack.length - 1] else null # If the else branch is executed it means the program has finished its execution
 
     # Parameter value is optional, if ommited means variable has been declared but not yet assigned
-    defineVariable: (name, value = null) ->
+    @defineVariable: (name, value = null) ->
         assert @currentAR?
         assert (typeof name is "string")
 
         @currentAR[name] = value
 
-    getVariable: (name) ->
+    @getVariable: (name) ->
         assert @currentAR?
         assert (typeof name is "string")
         assert typeof @currentAR[name] isnt "undefined"
@@ -34,7 +33,7 @@ module.exports = class Stack
         else
             @currentAR[name]
 
-    setVariable: (name, value) ->
+    @setVariable: (name, value) ->
         assert @currentAR?
         assert (typeof name is "string")
         assert @currentAR[name]?
