@@ -32,8 +32,8 @@ funcName2Tree = null
     result = Runner.executeListInstructions func.getChild(3)
     Stack.popActivationRecord()
     # If main function is executed and no result is returned, value 0 is returned
-    if funcName is 'main' and not result
-        return 0
+    if funcName is 'main' and not result.value
+        result.value = 0
     result
 
 listArguments = (argListAst, args) ->

@@ -43,9 +43,11 @@ execute = (ast) ->
 execute = (code) ->
     try
         prog = parser.parse code
-        console.log util.inspect(prog, { showHidden: false, depth: null }) if debug
+        if debug then console.log util.inspect(prog, { showHidden: false, depth: null })
         interpreter.load(prog)
-        interpreter.run()
+        res = interpreter.run()
+        # res {value: returned value, output: output printed to cout}
+        console.log(res.output) if res?.output?
     catch error
         console.error error.stack ? error
 

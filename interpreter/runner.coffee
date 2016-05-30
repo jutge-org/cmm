@@ -1,24 +1,27 @@
 assert = require 'assert'
 
-Stack = require './stack'
-Ast = require '../parser/ast'
-{ NODES } = Ast
+Stack   = require './stack'
+Ast     = require '../parser/ast'
+Eval    = require './expression'
+{ NODES, STATEMENTS } = Ast
 
 module.exports = @
 
 funcName2Tree = null
 
+outputString = ""
+
 @executeListInstructions = (T) ->
     assert T?
     for child in T.getChildren()
         result = executeInstruction child
+        result.output = outputString if not result?.output?
+        outputString = ""
         return result if result
-        
     null
 
 executeInstruction = (T) ->
     assert T?
-    console.log(T.getType())
     switch T.getType()
         when 'TYPE-DECL'
             type = T.getChild 0
@@ -26,7 +29,7 @@ executeInstruction = (T) ->
             for atom in decl
                 varName = atom.getChild 0
                 if atom.getType is 'ASSIGN'
-                    value = evaluateExpression atom.getChild, 1
+                    value = Eval.evaluateExpression atom.getChild, 1
                     # TODO: Data?
                     value = new Data type value
                     stack.defineVariable varName, value
@@ -34,24 +37,21 @@ executeInstruction = (T) ->
                     stack.defineVariable(varName, new Data type)
         when 'BLOCK-ASSIGN'
             executeListInstructions T
-        when 'ASSIGN'
+        when NODES.ASSIGN
             id    = T.getChild 0
             data  = stack.getVariable id
-            value = evaluateExpression T.getChild 1
+            value = Eval.evaluateExpression T.getChild 1
             data.setValue value
-        when 'COUT'
-            console.log T.getChild 0
-            for outputItem in T.getChild 0
-                console.log outputItem
+        when STATEMENTS.COUT
+            for outputItem in T.getChildren()
                 # TODO: extract constant
-                if outputItem is 'endl' 
-                    console.log outputItem
-                    outputString.add '\n'
+                if outputItem.getType() is NODES.ENDL 
+                    outputString += '\n'
                 else 
-                    console.log(evaluateExpression outputItem)
-                    outputString.add(evaluateExpression outputItem)
-        when 'RETURN'
-            return evaluateExpression(T.getChild 0)
+                    outputString += (Eval.evaluateExpression outputItem)
+        when STATEMENTS.RETURN
+            value: Eval.evaluateExpression(T.getChild 0)
+            output: outputString
         else throw 'Instruction ' + T.getType() + ' not implemented yet.'
             
 
@@ -69,10 +69,10 @@ executeInstruction = (T) ->
     Stack.popActivationRecord()
     # If main function is executed and no result is returned, value 0 is returned
     if funcName is 'main' and not result
-        return 0
+        result.value = 0
     result
 
 listArguments = (argListAst, args) ->
     for argAst, i in args.getChildren()
         id : argAst.getChild(0)
-        value: evaluateExpression(args.getChild(0))
+        value: Eval.evaluateExpression(args.getChild(0))
