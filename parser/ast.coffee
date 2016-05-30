@@ -92,6 +92,7 @@ module.exports = class Ast
 
     setType: (@type) ->
 
+    # TODO: This shouldn't be here
     cast: (casting) ->
         currentType = @type
         currentChildren = @children
