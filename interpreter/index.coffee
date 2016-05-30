@@ -10,4 +10,4 @@ module.exports =
     assert root?
     mapFunctions root
   run: ->
-    executeFunction 'main'
+  	executeFunction 'main'

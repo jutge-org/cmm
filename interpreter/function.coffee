@@ -9,17 +9,17 @@ module.exports = @
 
 funcName2Tree = null
 
-@mapFunctions = (T) ->
-    assert.strictEqual T.getType(), NODES.BLOCK_INSTRUCTIONS
+@mapFunctions = (T) ->  
+    assert.strictEqual T.getType(), NODES.BLOCK_FUNCTIONS
     funcName2Tree = {}
-    for subTree in T.getChildren()
-        assert.strictEqual subTree.getType(), NODES.FUNCTION
-        funcName = subTree.getChild(1).getChild(0)
-        funcName2Tree[funcName] = subTree
+    for functionTree in T.getChildren()
+        assert.strictEqual functionTree.getType(), Ast.TYPES.FUNCTION
+        funcName = functionTree.getChild(1).getChild(0)
+        funcName2Tree[funcName] = functionTree
     return
 
 @executeFunction = (funcName, args = null) ->
-    console.log ('executing' + funcName)
+    console.log ('executing ' + funcName)
     assert funcName2Tree.main?
     func = funcName2Tree[funcName]
     assert func?, 'Function ' + funcName + ' not declared'
@@ -37,6 +37,7 @@ funcName2Tree = null
     result
 
 listArguments = (argListAst, args) ->
-    for argAst, i in args.getChildren()
-        id : argAst.getChild(0)
+    return [] if not args?
+    for argAst, i in args?.getChildren()
+        id : argAst.getChild(0) 
         value: evaluateExpression(args.getChild(0))

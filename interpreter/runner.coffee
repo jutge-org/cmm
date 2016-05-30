@@ -16,9 +16,10 @@ funcName2Tree = null
         
     null
 
-@executeInstruction = (T) ->
+executeInstruction = (T) ->
     assert T?
-    switch T.getType
+    console.log(T.getType())
+    switch T.getType()
         when 'TYPE-DECL'
             type = T.getChild 0
             decl = T.getChild 1
@@ -39,16 +40,19 @@ funcName2Tree = null
             value = evaluateExpression T.getChild 1
             data.setValue value
         when 'COUT'
+            console.log T.getChild 0
             for outputItem in T.getChild 0
+                console.log outputItem
                 # TODO: extract constant
                 if outputItem is 'endl' 
                     console.log outputItem
                     outputString.add '\n'
                 else 
-                    outputString.add(evaluateExpression outputItem)
                     console.log(evaluateExpression outputItem)
+                    outputString.add(evaluateExpression outputItem)
         when 'RETURN'
             return evaluateExpression(T.getChild 0)
+        else throw 'Instruction ' + T.getType() + ' not implemented yet.'
             
 
 @executeFunction = (funcName, args = null) ->
