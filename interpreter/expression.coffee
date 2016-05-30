@@ -9,7 +9,20 @@ module.exports = @
 
 @evaluateExpression = (T) ->
     assert T?
+    if T.getType() of OPERATORS and T.getChildCount() is 2
+        v1 = @evaluateExpression T.getChild(0)
+        v2 = @evaluateExpression T.getChild(1)
     switch T.getType()
+        when OPERATORS.PLUS
+            v1 + v2
+        when OPERATORS.MINUS
+            v1 - v2
+        when OPERATORS.MUL
+            v1 * v2
+        when OPERATORS.DIV
+            v1 / v2
+        when OPERATORS.MOD
+            v1 % v2
         when LITERALS.BOOL
             T.getChild(0)
         when LITERALS.INT
