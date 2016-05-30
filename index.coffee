@@ -47,7 +47,8 @@ execute = (code) ->
         interpreter.load(prog)
         res = interpreter.run()
         # res {value: returned value, output: output printed to cout}
-        console.log(res.output) if res?.output?
+        if res?.output?
+            for line in res.output then console.log line
     catch error
         console.error error.stack ? error
 

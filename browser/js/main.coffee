@@ -54,9 +54,15 @@ $ -> # Equivalent to $(document).ready(function() {...})
             return
 
         try
-            { stdout, status } = execute ast
+            { output, status } = execute ast
+            showableOutput = ""
+            for line in output 
+                showableOutput += " <br> " + line
+            console.log output
+            console.log showableOutput
+            #output.replace(/(?:\r\n|\r|\n)/g, '<br />');
         catch error
             setOutput "<b>Execution Error</b><br/>#{error.stack ? error.message}"
 
-        setOutput "<b>Exit Status:<b/> #{status}<br/><b>Output:</b><br/>#{stdout}"
+        setOutput "<b>Exit Status:<b/> #{status}<br/><b>Output:</b><br/>#{showableOutput}"
     )

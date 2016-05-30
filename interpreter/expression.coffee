@@ -9,9 +9,10 @@ module.exports = @
 
 @evaluateExpression = (T) ->
     assert T?
+    console.log  T
     switch T.getType()
         when LITERALS.STRING 
-            return T.getChild 0
+            return T.getChild(0)
         when NODES.ID
             return Stack.getVariable(T.getChild 0).getValue()
         else 

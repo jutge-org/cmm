@@ -9,14 +9,14 @@ module.exports = @
 
 funcName2Tree = null
 
-outputString = ""
+outputString = [""]
 
 @executeListInstructions = (T) ->
     assert T?
     for child in T.getChildren()
         result = executeInstruction child
         result.output = outputString if not result?.output?
-        outputString = ""
+        outputString = [""]
         return result if result
     null
 
@@ -28,7 +28,7 @@ executeInstruction = (T) ->
             decl = T.getChild 1
             for atom in decl
                 varName = atom.getChild 0
-                if atom.getType is 'ASSIGN'
+                if atom.getType() is 'ASSIGN'
                     value = Eval.evaluateExpression atom.getChild, 1
                     # TODO: Data?
                     value = new Data type value
@@ -46,9 +46,10 @@ executeInstruction = (T) ->
             for outputItem in T.getChildren()
                 # TODO: extract constant
                 if outputItem.getType() is NODES.ENDL 
-                    outputString += '\n'
+                    outputString.push("")
                 else 
-                    outputString += (Eval.evaluateExpression outputItem)
+                    console.log(outputItem)
+                    outputString[outputString.length - 1] += (Eval.evaluateExpression outputItem)
         when STATEMENTS.RETURN
             value: Eval.evaluateExpression(T.getChild 0)
             output: outputString
