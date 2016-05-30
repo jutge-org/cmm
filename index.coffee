@@ -48,7 +48,7 @@ execute = (code) ->
         res = interpreter.run()
         # res {value: returned value, output: output printed to cout}
         if res?.output?
-            for line in res.output then console.log line
+            for line in res.output then console.log line.replace(/(?:\")/g, '')
     catch error
         console.error error.stack ? error
 

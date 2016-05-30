@@ -9,7 +9,6 @@ module.exports = @
 
 @evaluateExpression = (T) ->
     assert T?
-    console.log  T
     switch T.getType()
         when LITERALS.STRING 
             return T.getChild(0)

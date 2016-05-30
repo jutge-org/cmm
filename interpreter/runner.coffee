@@ -48,7 +48,6 @@ executeInstruction = (T) ->
                 if outputItem.getType() is NODES.ENDL 
                     outputString.push("")
                 else 
-                    console.log(outputItem)
                     outputString[outputString.length - 1] += (Eval.evaluateExpression outputItem)
         when STATEMENTS.RETURN
             value: Eval.evaluateExpression(T.getChild 0)
