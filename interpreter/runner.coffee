@@ -23,24 +23,21 @@ outputString = [""]
 executeInstruction = (T) ->
     assert T?
     switch T.getType()
-        when NODES.TYPE_DECL
-            type = T.getChild 0
-            decl = T.getChild 1
-            for atom in decl
-                varName = atom.getChild 0
+        when NODES.DECLARATION
+            declarations = T.getChild 1
+            for atom in declarations
+                varName = atom.getChild(0).getChild(0)
                 if atom.getType() is NODES.ASSIGN
-                    value = Eval.evaluateExpression atom.getChild, 1
-                    # TODO: Data?
-                    value = new Data type value
-                    stack.defineVariable varName, value
+                    value = Eval.evaluateExpression atom.getChild 1
+                    Stack.defineVariable varName, value
                 else if atom.getType is NODES.ID
-                    stack.defineVariable(varName, new Data type)
+                    Stack.defineVariable varName
         when NODES.BLOCK_ASSIGN
             executeListInstructions T
         when NODES.ASSIGN
             id    = T.getChild 0
             value = Eval.evaluateExpression T.getChild 1
-            data.setValue value
+            stack.setVariable id, value
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
                 # TODO: extract constant
