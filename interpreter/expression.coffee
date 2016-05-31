@@ -7,29 +7,48 @@ Ast   = require '../parser/ast'
 
 module.exports = @
 
-eL = (T) -> e T.getChild 0
-eR = (T) -> e T.getChild 1
-
 @evaluateExpression = e = (T) ->
     assert T?
 
     switch T.getType()
         when OPERATORS.PLUS
-            eL(T) + eR(T)
+            e(T.left()) + e(T.right())
         when OPERATORS.MINUS
-            eL(T) - eR(T)
+            e(T.left()) + e(T.right())
         when OPERATORS.MUL
-            eL(T) * eR(T)
+            e(T.left()) + e(T.right())
         when OPERATORS.INT_DIV
-            eL(T) // eR(T)
+            e(T.left()) + e(T.right())
         when OPERATORS.DOUBLE_DIV
-            eL(T) / eR(T)
+            e(T.left()) + e(T.right())
         when OPERATORS.MOD
-            eL(T) % eR(T)
+            e(T.left()) + e(T.right())
+        when OPERATORS.UPLUS
+            e(T.child())
+        when OPERATORS.UMINUS
+            - e(T.child())
+        when OPERATORS.LT
+            e(T.left()) < e(T.right())
+        when OPERATORS.LTE
+            e(T.left()) <= e(T.right())
+        when OPERATORS.GT
+            e(T.left()) > e(T.right())
+        when OPERATORS.GTE
+            e(T.left()) >= e(T.right())
+        when OPERATORS.EQ
+            e(T.left()) is e(T.right())
+        when OPERATORS.NEQ
+            e(T.left()) isnt e(T.right())
+        when OPERATORS.AND
+            e(T.left()) and e(T.right())
+        when OPERATORS.OR
+            e(T.left()) or e(T.right())
+        when OPERATORS.NOT
+            not e(T.child())
         when LITERALS.BOOL, LITERALS.INT, LITERALS.DOUBLE, LITERALS.STRING, LITERALS.CHAR
-            T.getChild 0
+            T.child()
         when NODES.ID
-            Stack.getVariable(T.getChild 0)
+            Stack.getVariable(T.child())
         else
             console.log('Expression evaluation not implemented yet')
             null
