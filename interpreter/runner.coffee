@@ -11,24 +11,22 @@ funcName2Tree = null
 
 outputString = [""]
 
-@executeListInstructions = (T) ->
-    assert T?
-    for child in T.getChildren()
-        result = executeInstruction child
-        if result.value?
-            result.output = outputString
-            outputString = [""] 
-            return result
-    result =
-        value: undefined
-        output: outputString
-    outputString = [""]
-    result
-
-executeInstruction = (T) ->
+@executeInstruction = (T) ->
     assert T?
     result = value: undefined, output: undefined
     switch T.getType()
+        when NODES.BLOCK_INSTRUCTIONS
+            for child in T.getChildren()
+                result = @executeInstruction child
+                if result.value?
+                    result.output = outputString
+                    outputString = [""] 
+                    return result
+            result =
+                value: undefined
+                output: outputString
+            outputString = [""]
+            result
         when NODES.DECLARATION
             declarations = T.getChild 1
             for atom in declarations

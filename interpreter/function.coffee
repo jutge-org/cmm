@@ -29,7 +29,7 @@ funcName2Tree = null
     for { id, value } in arg_values
         Stack.defineVariable id, value
 
-    result = Runner.executeListInstructions func.getChild(3)
+    result = Runner.executeInstruction func.getChild(3)
     Stack.popActivationRecord()
     # If main function is executed and no result is returned, value 0 is returned
     if funcName is 'main' and (not result? or not result.value?)
