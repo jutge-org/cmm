@@ -30,7 +30,7 @@ module.exports = @
         when LITERALS.STRING 
             T.getChild(0)
         when NODES.ID
-            Stack.getVariable(T.getChild 0).getValue()
+            Stack.getVariable(T.getChild 0)
         else 
             console.log('Expression evaluation not implemented yet')
             null

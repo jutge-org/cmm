@@ -41,7 +41,7 @@ functions = null
     for id, i in argIds
         Stack.defineVariable id, argValuesAst.getChild(i).getChild(0)
 
-    result = Runner.executeListInstructions func.getChild(3)
+    result = Runner.executeInstruction func.getChild(3)
 
     Stack.popActivationRecord()
 
