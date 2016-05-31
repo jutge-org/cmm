@@ -7,30 +7,29 @@ Ast   = require '../parser/ast'
 
 module.exports = @
 
-@evaluateExpression = (T) ->
+eL = (T) -> e T.getChild 0
+eR = (T) -> e T.getChild 1
+
+@evaluateExpression = e = (T) ->
     assert T?
-    if T.getType() of OPERATORS and T.getChildCount() is 2
-        v1 = @evaluateExpression T.getChild(0)
-        v2 = @evaluateExpression T.getChild(1)
+
     switch T.getType()
         when OPERATORS.PLUS
-            v1 + v2
+            eL(T) + eR(T)
         when OPERATORS.MINUS
-            v1 - v2
+            eL(T) - eR(T)
         when OPERATORS.MUL
-            v1 * v2
-        when OPERATORS.DIV
-            v1 / v2
+            eL(T) * eR(T)
+        when OPERATORS.INT_DIV
+            eL(T) // eR(T)
+        when OPERATORS.DOUBLE_DIV
+            eL(T) / eR(T)
         when OPERATORS.MOD
-            v1 % v2
-        when LITERALS.BOOL
-            T.getChild(0)
-        when LITERALS.INT
-            T.getChild(0)
-        when LITERALS.STRING 
-            T.getChild(0)
+            eL(T) % eR(T)
+        when LITERALS.BOOL, LITERALS.INT, LITERALS.DOUBLE, LITERALS.STRING, LITERALS.CHAR
+            T.getChild 0
         when NODES.ID
             Stack.getVariable(T.getChild 0)
-        else 
+        else
             console.log('Expression evaluation not implemented yet')
             null
