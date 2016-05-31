@@ -3,6 +3,7 @@ assert = require 'assert'
 Stack   = require './stack'
 Ast     = require '../parser/ast'
 Eval    = require './expression'
+Func    = require './function'
 { NODES, STATEMENTS } = Ast
 
 module.exports = @
@@ -50,6 +51,11 @@ outputString = [""]
                     outputString[outputString.length - 1] += (Eval.evaluateExpression outputItem)
         when STATEMENTS.RETURN
             result.value = Eval.evaluateExpression(T.getChild 0)
+        when NODES.FUNCALL
+            funcId = T.getChild(0).getChild(0)
+            params = T.getChild(1)
+            result = Func.executeFunction(funcId, params)
+            outputString = result.output
         else throw 'Instruction ' + T.getType() + ' not implemented yet.'
         
     result
