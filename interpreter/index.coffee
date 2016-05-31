@@ -8,8 +8,8 @@ Stack = require './stack'
 { NODES } = Ast
 
 module.exports =
-  load: (root) ->
-    assert root?
-    mapFunctions root
-  run: ->
-  	executeFunction 'main', new Ast(NODES.PARAM_LIST, [])
+    load: (root) ->
+        assert root?
+        mapFunctions root
+    run: ->
+        executeFunction 'main', new Ast(NODES.PARAM_LIST, [])

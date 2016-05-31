@@ -48,7 +48,7 @@ functions = null
     # If main function is executed and no result is returned, value 0 is returned
     if not result?
         if funcName is "main"
-            result.value = 0
+            result = 0
         else if type isnt TYPES.VOID
             throw Error.NO_RETURN.complete("name", funcName)
 
