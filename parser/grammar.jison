@@ -20,9 +20,9 @@
 "%"                                         return 'MOD'
 "+"                                         return 'PLUS'
 
-"or"                                        return 'OR'
-"and"                                       return 'AND'
-"not"                                       return 'NOT'
+"or"|"||"                                   return 'OR'
+"and"|"&&"                                  return 'AND'
+"not"|"!"                                   return 'NOT'
 
 "<<"                                        return '<<'
 ">>"                                        return '>>'
