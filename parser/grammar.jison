@@ -65,8 +65,8 @@
 "true"|"false"                              return 'BOOL_LIT'
 [0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
 ([1-9][0-9]*|0)                             return 'INT_LIT'
-\'(\\.|[^'])\'                              return 'CHAR_LIT'
-\"(\\.|[^"])*\"                             return 'STRING_LIT'
+\'([^\\\']|\\.)\'                           return 'CHAR_LIT'
+\"([^\\\"]|\\.)*\"                          return 'STRING_LIT'
 
 ([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*       return 'ID'
 
@@ -134,7 +134,6 @@ instruction
     | if
     | while
     | for
-    | funcall ';'
     | return_stmt ';'
     | ';'
         {$$ = new yy.Ast('NOP', []);}
@@ -145,6 +144,7 @@ basic_stmt
     | declaration
     | cin
     | cout
+    | expr
     ;
 
 return_stmt
