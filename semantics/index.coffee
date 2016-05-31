@@ -122,7 +122,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             # Comprovar que el tipus al que s'assigna no es void
             # Retorna void
             variableId = ast.getChild(0).getChild(0)
-            variableType = definedVariables[variableId]
+            variableType = checkAndPreprocess ast.getChild(0), definedVariables, functionId
 
             if variableType is TYPES.VOID
                 throw Error.VOID_DECLARATION.complete('name', variableId)
