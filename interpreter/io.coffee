@@ -7,7 +7,11 @@ module.exports = class IO
     @STDOUT: 1
     @STDERR: 2
 
-    output: (stream, string) ->
+    @reset: ->
+        IO.stdout = ""
+        IO.stderr = ""
+
+    @output: (stream, string) ->
         assert (typeof string is "string")
 
         switch stream

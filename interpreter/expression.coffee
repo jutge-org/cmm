@@ -2,6 +2,7 @@ assert = require 'assert'
 
 Stack = require './stack'
 Ast   = require '../parser/ast'
+Func = require './function'
 
 { NODES, OPERATORS, LITERALS, CASTS } = Ast
 
@@ -55,41 +56,44 @@ module.exports = @
             Stack.getVariable(T.child())
 
         when CASTS.INT2DOUBLE
-            T.child()
+            e(T.child())
         when CASTS.INT2CHAR
-            T.child()
+            e(T.child())
         when CASTS.INT2BOOL
-            T.child() isnt 0
+            e(T.child()) isnt 0
 
         when CASTS.DOUBLE2INT
-            Math.floor T.child()
+            Math.floor e(T.child())
         when CASTS.DOUBLE2CHAR
-            Math.floor T.child()
+            Math.floor e(T.child())
         when CASTS.DOUBLE2BOOL
-            T.child() isnt 0
+            e(T.child()) isnt 0
 
         when CASTS.CHAR2INT
-            T.child()
+            e(T.child())
         when CASTS.CHAR2BOOL
-            T.child() isnt 0
+            e(T.child()) isnt 0
         when CASTS.CHAR2DOUBLE
-            T.child()
+            e(T.child())
 
         when CASTS.BOOL2INT
-            if T.child() then 1 else 0
+            if e(T.child()) then 1 else 0
         when CASTS.BOOL2DOUBLE
-            if T.child() then 1 else 0
+            if e(T.child()) then 1 else 0
         when CASTS.BOOL2CHAR
-            if T.child() then 1 else 0
+            if e(T.child()) then 1 else 0
 
         when CASTS.INT2COUT
-            T.child().toString()
+            e(T.child()).toString()
         when CASTS.BOOL2COUT
-            if T.child() then "1" else "0"
+            if e(T.child()) then "1" else "0"
         when CASTS.CHAR2COUT
-            String.fromCharCode(T.child())
+            String.fromCharCode(e(T.child()))
         when CASTS.DOUBLE2COUT
-            T.child().toString()
+            e(T.child()).toString()
+
+        when NODES.FUNCALL
+            Func.executeFunction T
         else
             console.log('Expression evaluation not implemented yet')
             null

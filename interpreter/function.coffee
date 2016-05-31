@@ -21,13 +21,12 @@ functions = null
         funcId = functionTree.getChild(1).getChild(0)
         argIds = (argAst.getChild(1).getChild(0) for argAst in functionTree.getChild(2))
         type = functionTree.getChild(0)
-        functions[funcId] = { type, argIds }
+        functions[funcId] = { type, argIds, instructions: functionTree.getChild(3) }
     return
 
 @executeFunction = (T) ->
     funcId = T.getChild(0).getChild(0)
     argValuesAst = T.getChild(1)
-    console.log ('executing ' + funcId)
 
     assert functions.main?
 
@@ -35,7 +34,7 @@ functions = null
 
     assert func?, 'Function ' + funcId + ' not declared'
 
-    { type, argIds } = func
+    { type, argIds, instructions } = func
 
     assert argIds.length is argValuesAst.getChildCount()
 
@@ -45,7 +44,7 @@ functions = null
 
     result = null
     try
-        Runner.executeInstruction func.getChild(3)
+        Runner.executeInstruction instructions
     catch maybeError
         if maybeError?.return is yes # The function returned
             { value: result } = maybeError

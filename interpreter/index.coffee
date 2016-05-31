@@ -15,10 +15,13 @@ module.exports = @
         mapFunctions root
 
 @run = =>
+    io.reset()
+
     try
         status = executeFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
     catch error
+        console.error error.stack
         io.output io.STDERR, error.message
         status = error.code
-    finally
-        { status, stdout: io.stdout, stderr: io.stderr }
+
+    { status, stdout: io.stdout, stderr: io.stderr }
