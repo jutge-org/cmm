@@ -251,6 +251,31 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     tryToCast(leftAst, typeLeft, typeRight)
 
             return TYPES.BOOL
+        when OPERATORS.AND, OPERATORS.OR
+            # Comprovat/castejar que els dos tipus siguin iguals, i que siguin bools
+            leftAst = ast.getChild(0)
+            rightAst = ast.getChild(1)
+            typeLeft = checkAndPreprocess leftAst, definedVariables, functionId
+            typeRight = checkAndPreprocess rightAst, definedVariables, functionId
+
+            if typeLeft isnt TYPES.BOOL
+                tryToCast leftAst, typeLeft, TYPES.BOOL
+            if typeRight isnt TYPES.BOOL
+                tryToCast rightAst, typeRight, TYPES.BOOL
+
+            return TYPES.BOOL
+            # Retorna tipus bool
+        when OPERATORS.NOT
+            # Comprovat/castejar que el tipus sigui igual, i que sigui bool
+            # Retorna tipus bool
+
+            valueAst = ast.child()
+            type = checkAndPreprocess valueAst, definedVariables, functionId
+
+            if type isnt TYPES.BOOL
+                tryToCast valueAst, type, TYPES.BOOL
+
+            return TYPES.BOOL
         when STATEMENTS.IF_THEN
             # Comprovar/castejar que la condicio es un boolea
             # Comprovar recursivament el cos del then
