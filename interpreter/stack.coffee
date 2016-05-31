@@ -14,7 +14,7 @@ module.exports = class Stack
 
         @stack.pop()
         @currentAR =
-            if @stack.length > 0 then @stack[@stack.length - 1] else null # If the else branch is executed it means the program has finished its execution
+            if @stack.length > 0 then @stack[@stack.length - 1] else null
 
     # Parameter value is optional, if ommited means variable has been declared but not yet assigned
     @defineVariable: (name, value = null) ->
