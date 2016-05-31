@@ -21,6 +21,9 @@ module.exports = class Ast
             DOUBLE_DIV: 'DOUBLE_DIV'
             INT_DIV: 'INT_DIV'
             MOD: 'MOD'
+            OR: 'OR'
+            AND: 'AND'
+            NOT: 'NOT'
             LT: '<'
             GT: '>'
             LTE: '<='
@@ -102,6 +105,10 @@ module.exports = class Ast
         @type = casting
         @children = [new Ast(currentType, currentChildren)]
 
+    # These are to simplify and beautify some code
+    child: -> @children[0]
+    left: -> @children[0]
+    right: -> @children[1]
 
     getChild: (i) -> @children[i]
 

@@ -7,66 +7,85 @@
 "//".*                /* ignore comment */
 "/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
+// I think we should make all the tokens return a name rathen than itself
 "+="                                        return '+='
 "-="                                        return '-='
 "*="                                        return '*='
 "/="                                        return '/='
 "%="                                        return '%='
+
 "*"                                         return 'MUL'
 "/"                                         return 'DIV'
 "-"                                         return 'MINUS'
 "%"                                         return 'MOD'
 "+"                                         return 'PLUS'
+
+"or"                                        return 'OR'
+"and"                                       return 'AND'
+"not"                                       return 'NOT'
+
 "<<"                                        return '<<'
 ">>"                                        return '>>'
+
 ">"                                         return '>'
 "<"                                         return '<'
 ">="                                        return '>='
 "<="                                        return '<='
 "!="                                        return '!='
 "=="                                        return '=='
-"="                                         return 'EQUAL'
+
+"="                                         return 'EQUAL' // TODO: Replace by ASSIGN and rethink the whole assign parsing
+
 ";"                                         return ';'
 "{"                                         return '{'
 "}"                                         return '}'
 "("                                         return '('
 ")"                                         return ')'
 ","                                         return ','
+
 "return"                                    return 'RETURN'
+
 "cin"                                       return 'CIN'
 "cout"                                      return 'COUT'
+
 "endl"                                      return 'ENDL'
+
 "int"                                       return 'INT'
 "double"                                    return 'DOUBLE'
 "char"                                      return 'CHAR'
 "bool"                                      return 'BOOL'
 "string"                                    return 'STRING'
 "void"                                      return 'VOID'
-"cin"                                       return 'CIN'
-"cout"                                      return 'COUT'
+
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
 "while"                                     return 'WHILE'
 "for"                                       return 'FOR'
+
 "true"|"false"                              return 'BOOL_LIT'
 [0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
 ([1-9][0-9]*|0)                             return 'INT_LIT'
 \'(\\.|[^'])\'                              return 'CHAR_LIT'
 \"(\\.|[^"])*\"                             return 'STRING_LIT'
+
 ([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*       return 'ID'
+
 <<EOF>>                                     return 'EOF'
+
 .                                           return 'INVALID'
 
 /lex
 
 /* operator associations and precedence */
-
 %right '+=' '-=' '*=' '/=' '%='
+%left OR
+%left AND
 %left '==' '!='
 %left '<' '>' '<=' '>='
-%left 'PLUS' 'MINUS'
-%left 'MUL' 'DIV' 'MOD'
-%left UNARY
+%left PLUS MINUS
+%left MUL DIV MOD
+%right NOT UPLUS UMINUS
+%right THEN ELSE
 
 %start prog
 
@@ -74,7 +93,7 @@
 
 prog
     : block_functions EOF
-        { return $1; } /* to print the tree: typeof console !== 'undefined' ? console.log($1) : print($1); */
+        { return $1; }
     ;
 
 block_functions
@@ -155,10 +174,10 @@ param
     ;
 
 if
-    : IF '(' expr ')' instruction_body else
-        {$$ = new yy.Ast('IF-THEN-ELSE', [$3, $5, $6]);}
-    | IF '(' expr ')' instruction_body
+    : IF '(' expr ')' instruction_body %prec THEN
         {$$ = new yy.Ast('IF-THEN', [$3, $5]);}
+    | IF '(' expr ')' instruction_body else
+        {$$ = new yy.Ast('IF-THEN-ELSE', [$3, $5, $6]);}
     ;
 
 while
@@ -176,6 +195,8 @@ else
         {$$ = $2;}
     ;
 
+// TODO: Treat cin and cout as simple predefined objects like true and false of type STREAM
+// TODO: Then make << and >> operators
 cin
     : CIN block_cin
         {$$ = $2;}
@@ -280,10 +301,16 @@ expr
         {$$ = new yy.Ast('DIV', [$1,$3]);}
     | expr MOD expr
         {$$ = new yy.Ast('MOD', [$1,$3]);}
-    | MINUS expr %prec UNARY
+    | expr AND expr
+        {$$ = new yy.Ast('AND', [$1,$3]);}
+    | expr OR expr
+        {$$ = new yy.Ast('OR', [$1,$3]);}
+    | MINUS expr
         {$$ = new yy.Ast('UMINUS', [$2]);}
-    | PLUS expr %prec UNARY
+    | PLUS expr
         {$$ = new yy.Ast('UPLUS', [$2]);}
+    | NOT expr
+        {$$ = new yy.Ast('NOT', [$2]);}
     | expr '<' expr
         {$$ = new yy.Ast('<', [$1,$3]);}
     | expr '>' expr
