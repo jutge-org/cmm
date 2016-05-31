@@ -378,7 +378,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             # Retorna void
             for child in ast.getChildren()
                 if child.getType() is NODES.ENDL
-                    child.setType(TYPES.STRING)
+                    child.setType(LITERALS.STRING)
                     child.setChild(0, "\n")
                 else
                     type = checkAndPreprocess child, definedVariables, functionId
