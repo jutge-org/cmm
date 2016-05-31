@@ -9,7 +9,7 @@ Error = require '../error'
 
 module.exports = @
 
-# Of the form: { funcName: { type: tipus, argIds: [id1, id2, ..., idn] } }
+# Of the form: { <funcId>: { type: tipus, argIds: [id1, id2, ..., idn] } }
 functions = null
 
 
@@ -18,20 +18,22 @@ functions = null
     assert.strictEqual T.getType(), NODES.BLOCK_FUNCTIONS
     for functionTree in T.getChildren()
         assert.strictEqual functionTree.getType(), TYPES.FUNCTION
-        funcName = functionTree.getChild(1).getChild(0)
+        funcId = functionTree.getChild(1).getChild(0)
         argIds = (argAst.getChild(1).getChild(0) for argAst in functionTree.getChild(2))
         type = functionTree.getChild(0)
-        functions[funcName] = { type, argIds }
+        functions[funcId] = { type, argIds }
     return
 
-@executeFunction = (funcName, argValuesAst) ->
-    console.log ('executing ' + funcName)
+@executeFunction = (T) ->
+    funcId = T.getChild(0).getChild(0)
+    argValuesAst = T.getChild(1)
+    console.log ('executing ' + funcId)
 
     assert functions.main?
 
-    func = functions[funcName]
+    func = functions[funcId]
 
-    assert func?, 'Function ' + funcName + ' not declared'
+    assert func?, 'Function ' + funcId + ' not declared'
 
     { type, argIds } = func
 
@@ -41,15 +43,22 @@ functions = null
     for id, i in argIds
         Stack.defineVariable id, argValuesAst.getChild(i).getChild(0)
 
-    result = Runner.executeInstruction func.getChild(3)
+    result = null
+    try
+        Runner.executeInstruction func.getChild(3)
+    catch maybeError
+        if maybeError?.return is yes # The function returned
+            { value: result } = maybeError
+        else
+            throw maybeError # You can omit the maybe
 
     Stack.popActivationRecord()
 
     # If main function is executed and no result is returned, value 0 is returned
     if not result?
-        if funcName is "main"
+        if funcId is "main"
             result = 0
         else if type isnt TYPES.VOID
-            throw Error.NO_RETURN.complete("name", funcName)
+            throw Error.NO_RETURN.complete("name", funcId)
 
     result
