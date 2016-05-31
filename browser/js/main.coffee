@@ -38,7 +38,8 @@ $ -> # Equivalent to $(document).ready(function() {...})
         try
             ast = compile code
         catch error
-            setOutput "<b>Compilation Error</b><br/>#{error.stack ? error.message}"
+            console.log error.stack
+            setOutput "<b>Compilation Error</b><br/>#{error.stack?.split("</").join("/") ? error.message}"
             return
 
         setOutput "<b>No compilation errors</b><br/>#{JSON.stringify(ast, null, 4)}"
