@@ -15,9 +15,9 @@ outputString = [""]
     assert T?
     for child in T.getChildren()
         result = executeInstruction child
-        result.output = outputString if not result?.output?
+        result.output = outputString if result? and not result.output?
         outputString = [""]
-        return result if result
+        return result if result.value?
     null
 
 executeInstruction = (T) ->
