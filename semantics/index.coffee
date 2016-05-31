@@ -145,9 +145,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             ast.setChild(0, parseInt(ast.getChild(0)))
             return TYPES.INT
         when LITERALS.STRING
+            ast.setChild(0, JSON.parse("{ \"s\": #{ast.getChild(0)} }").s) # HACK: SUCH HACKS, eval(ast.getChild(0)) also works, but we're not sure its 100% secure
             return TYPES.STRING
         when LITERALS.CHAR
-            ast.setChild(0, parseFloat(ast.getChild(0)))
+            ast.setChild(0, JSON.parse("{ \"s\": \"#{ast.getChild(0)[1...-1]}\" }").s.charCodeAt(0)) # HACK: SUCH HACKS^2
             return TYPES.CHAR
         when LITERALS.BOOL
             ast.setChild(0, ast.getChild(0) is "true")
