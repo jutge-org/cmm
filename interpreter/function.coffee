@@ -33,7 +33,7 @@ funcName2Tree = null
     Stack.popActivationRecord()
     # If main function is executed and no result is returned, value 0 is returned
     if funcName is 'main' and (not result? or not result.value?)
-        result = {value : 0}
+        result.value = 0
     result
 
 listArguments = (argListAst, args) ->

@@ -15,13 +15,19 @@ outputString = [""]
     assert T?
     for child in T.getChildren()
         result = executeInstruction child
-        result.output = outputString if result? and not result.output?
-        outputString = [""]
-        return result if result.value?
-    null
+        if result.value?
+            result.output = outputString
+            outputString = [""] 
+            return result
+    result =
+        value: undefined
+        output: outputString
+    outputString = [""]
+    result
 
 executeInstruction = (T) ->
     assert T?
+    result = value: undefined, output: undefined
     switch T.getType()
         when NODES.DECLARATION
             declarations = T.getChild 1
@@ -40,15 +46,15 @@ executeInstruction = (T) ->
             stack.setVariable id, value
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
-                # TODO: extract constant
-                if outputItem.getType() is NODES.ENDL 
+                if outputItem.getType() is NODES.ENDL
                     outputString.push("")
                 else 
                     outputString[outputString.length - 1] += (Eval.evaluateExpression outputItem)
         when STATEMENTS.RETURN
-            value: Eval.evaluateExpression(T.getChild 0)
-            output: outputString
+            result.value = Eval.evaluateExpression(T.getChild 0)
         else throw 'Instruction ' + T.getType() + ' not implemented yet.'
+        
+    result
             
 
 @executeFunction = (funcName, args = null) ->
