@@ -15,15 +15,15 @@ module.exports = @
         when OPERATORS.PLUS
             e(T.left()) + e(T.right())
         when OPERATORS.MINUS
-            e(T.left()) + e(T.right())
+            e(T.left()) - e(T.right())
         when OPERATORS.MUL
-            e(T.left()) + e(T.right())
+            e(T.left()) * e(T.right())
         when OPERATORS.INT_DIV
-            e(T.left()) + e(T.right())
+            e(T.left()) // e(T.right())
         when OPERATORS.DOUBLE_DIV
-            e(T.left()) + e(T.right())
+            e(T.left()) / e(T.right())
         when OPERATORS.MOD
-            e(T.left()) + e(T.right())
+            e(T.left()) % e(T.right())
         when OPERATORS.UPLUS
             e(T.child())
         when OPERATORS.UMINUS
