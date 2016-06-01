@@ -24,4 +24,4 @@ module.exports = @
         io.output io.STDERR, error.message
         status = error.code
 
-    { status, stdout: io.stdout, stderr: io.stderr }
+    { status, stdout: io.stdout, stderr: io.stderr, output: io.interleaved }

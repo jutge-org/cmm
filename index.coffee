@@ -25,35 +25,32 @@ program
     .option('-d, --debug', 'output debug information', -> debug = yes)
     .parse(process.argv)
 
-console.log Ast
-
 grammar = readFileSync GRAMMAR_PATH, "utf-8"
 parser = new Parser grammar
 parser.yy = { Ast } # new yy.Ast(...)
 
-compile = (code) ->
-    ast = parser.parse code
-    checkSemantics ast
-
-
-execute = (ast) ->
-    interpreter.load ast
-    interpreter.run()
-
-execute = (code) ->
+execute = (code, exit = yes) ->
     try
-        prog = parser.parse code
-        if debug then console.log util.inspect(prog, { showHidden: false, depth: null })
-        interpreter.load(prog)
-        res = interpreter.run()
+        ast = parser.parse code
+        if debug then console.log util.inspect(ast, { showHidden: false, depth: null })
+        ast = checkSemantics ast
+    catch error
+        console.error "Compilation error:"
+        console.error error.stack ? error
+        return
+
+    try
+        interpreter.load ast
+        { status, stdout, stderr, output } = interpreter.run()
         # res {value: returned value, output: output printed to cout}
-        if res?.output?
-            for line in res.output then console.log line.replace(/(?:\")/g, '')
+        console.log output
+        if exit
+            process.exit status
     catch error
         console.error error.stack ? error
 
 if file? # Non-interactive, parse file
-    execute file
+    execute readFileSync(file, 'utf-8')
 else # Shell interactive execution
     process.argv[2..] = [] # So that shell doesn't parse the options as commands
 
@@ -63,4 +60,6 @@ else # Shell interactive execution
         app.use(shell.history({ shell: app }))
     )
 
-    app.on('command', ([command]) -> execute command)
+    app.on('command', ([command]) ->
+        execute command, no
+    )
