@@ -4,10 +4,9 @@ Error = require '../error'
 module.exports = class Stack
     @stack: []
     @currentAR: null
-    @scopesStack: []
 
     @pushActivationRecord: ->
-        @currentAR = {}
+        @currentAR = { scopesStack: [], variables: {} }
         @stack.push @currentAR
 
     @popActivationRecord: ->
@@ -16,41 +15,40 @@ module.exports = class Stack
         @stack.pop()
         @currentAR =
             if @stack.length > 0 then @stack[@stack.length - 1] else null
-        @scopesStack = []
-        
+
     # Parameter value is optional, if ommited means variable has been declared but not yet assigned
     @defineVariable: (name, value = null) ->
         assert @currentAR?
         assert (typeof name is "string")
 
-        @currentAR[name] = value
+        @currentAR.variables[name] = value
 
     @getVariable: (name) ->
         assert @currentAR?
         assert (typeof name is "string")
-        assert typeof @currentAR[name] isnt "undefined"
+        assert typeof @currentAR.variables[name] isnt "undefined"
 
-        if @currentAR[name] is null
+        if @currentAR.variables[name] is null
             throw Error.GET_VARIABLE_NOT_ASSIGNED.complete('name', name)
         else
-            @currentAR[name]
+            @currentAR.variables[name]
 
     @setVariable: (name, value) ->
         assert @currentAR?
         assert (typeof name is "string")
-        assert typeof @currentAR[name] isnt "undefined"
+        assert typeof @currentAR.variables[name] isnt "undefined"
 
-        @currentAR[name] = value
+        @currentAR.variables[name] = value
 
     @openNewScope: ->
         assert @currentAR?
         variablesSet = {}
-        variablesSet[varId] = yes for varId of @currentAR
-        @scopesStack.push variablesSet
+        variablesSet[varId] = yes for varId of @currentAR.variables
+        @currentAR.scopesStack.push variablesSet
 
     @closeScope: ->
         assert @scopesStack.length > 0
 
-        variablesSet = @scopesStack.pop()
-        for variable of @currentAR when variable not of variablesSet
-            delete @currentAR[variable]
+        variablesSet = @currentAR.scopesStack.pop()
+        for variable of @currentAR.variables when variable not of variablesSet
+            delete @currentAR.variables[variable]
