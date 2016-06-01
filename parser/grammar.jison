@@ -22,6 +22,8 @@
 "%"                                         return 'MOD'
 "+"                                         return 'PLUS'
 
+"!="                                        return '!='
+
 "or"|"||"                                   return 'OR'
 "and"|"&&"                                  return 'AND'
 "not"|"!"                                   return 'NOT'
@@ -33,7 +35,6 @@
 "<="                                        return '<='
 ">"                                         return '>'
 "<"                                         return '<'
-"!="                                        return '!='
 "=="                                        return '=='
 
 "="                                         return 'EQUAL' // TODO: Replace by ASSIGN and rethink the whole assign parsing

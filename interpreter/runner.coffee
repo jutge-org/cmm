@@ -52,7 +52,6 @@ module.exports = @
 
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
-                console.log outputItem
                 io.output io.STDOUT, evaluateExpression(outputItem)
         when STATEMENTS.RETURN
             value = evaluateExpression T.child()

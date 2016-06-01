@@ -29,7 +29,7 @@ module.exports = class IO
         assert (typeof input is "string")
         assert IO.streams[stream]?
 
-        IO.streams[stream] = input.trim().split(/(\s+)/)
+        IO.streams[stream] = input.trim().split(/\s+/)
 
         IO.streams[stream] = [] if IO.streams[stream][0] is ""
 
