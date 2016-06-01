@@ -2,6 +2,7 @@ assert = require 'assert'
 
 Ast = require '../parser/ast'
 Error = require '../error'
+valueParser = require '../parser/value-parser'
 
 { NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS } = Ast
 
@@ -48,13 +49,12 @@ checkVariableDefined = (id, definedVariables) ->
     unless definedVariables[id]?
         throw Error.GET_VARIABLE_NOT_DEFINED.complete('name', id)
 
-
 tryToCast = (ast, originType, destType) ->
     assert originType?
     assert destType?
 
     if CASTINGS[originType][destType]?
-        ast.cast(CASTINGS[originType][destType])
+        ast.addParent(CASTINGS[originType][destType])
     else
         throw Error.INVALID_CAST.complete('origin', originType, 'dest', destType)
 
@@ -138,21 +138,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         when NODES.DECL_ASSIGN
             valueAst = ast.getChild(1)
             return checkAndPreprocess valueAst, definedVariables, functionId
-        when LITERALS.DOUBLE
-            ast.setChild(0, parseFloat(ast.getChild(0)))
-            return TYPES.DOUBLE
-        when LITERALS.INT
-            ast.setChild(0, parseInt(ast.getChild(0)))
-            return TYPES.INT
-        when LITERALS.STRING
-            ast.setChild(0, JSON.parse("{ \"s\": #{ast.getChild(0)} }").s) # HACK: SUCH HACKS, eval(ast.getChild(0)) also works, but we're not sure its 100% secure
-            return TYPES.STRING
-        when LITERALS.CHAR
-            ast.setChild(0, JSON.parse("{ \"s\": \"#{ast.getChild(0)[1...-1]}\" }").s.charCodeAt(0)) # HACK: SUCH HACKS^2
-            return TYPES.CHAR
-        when LITERALS.BOOL
-            ast.setChild(0, ast.getChild(0) is "true")
-            return TYPES.BOOL
+        when LITERALS.DOUBLE, LITERALS.INT, LITERALS.STRING, LITERALS.CHAR, LITERALS.BOOL
+            valueParser.parseLiteral ast
         when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
             # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
             # o bé integrals (char castejat a int o int o bool cast a int)
@@ -371,7 +358,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                         throw Error.CIN_VARIABLE_UNDEFINED.complete('name', varId)
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
-
+                    else
+                        child.addParent definedVariables[varId]
             return TYPES.BOOL
         when STATEMENTS.COUT
             # Comprovar/castejar que tots els fills siguin strings o endl, que es convertira a "\n" (string)
@@ -384,7 +372,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     type = checkAndPreprocess child, definedVariables, functionId
 
                     if type isnt TYPES.STRING
-                        child.cast(
+                        child.addParent(
                             switch type
                                 when TYPES.INT then CASTS.INT2COUT
                                 when TYPES.BOOL then CASTS.BOOL2COUT

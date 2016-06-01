@@ -1,26 +1,45 @@
 assert = require 'assert'
 
 module.exports = class IO
-    @stdout: ""
-    @stderr: ""
-    @interleaved: ""
+    @streams:
+        1: ""
+        2: ""
+        0: ""
+        3: ""
+
     @STDIN: 0
     @STDOUT: 1
     @STDERR: 2
+    @INTERLEAVED: 3
 
     @reset: ->
-        IO.stdout = ""
-        IO.stderr = ""
-        IO.interleaved = ""
+        for stream of IO.streams
+            IO.streams[stream] = ""
 
     @output: (stream, string) ->
         assert (typeof string is "string")
-        @interleaved += string
+        assert IO.streams[stream]?
 
-        switch stream
-            when IO.STDOUT
-                IO.stdout += string
-            when IO.STDERR
-                IO.stderr += string
-            else
-                assert false
+
+        IO.streams[IO.INTERLEAVED] += string
+
+        IO.streams[stream] += string
+
+    @setInput: (stream, input) ->
+        assert (typeof input is "string")
+        assert IO.streams[stream]?
+
+        IO.streams[stream] = input.trim().split(/(\s+)/)
+
+        IO.streams[stream] = [] if IO.streams[stream][0] is ""
+
+    @getWord: (stream) ->
+        assert IO.streams[stream]?
+        IO.streams[stream].shift()
+
+    # Used to refill when there is some leftover that was not parsed from the word
+    @unshiftWord: (stream, word) ->
+        assert IO.streams[stream]?
+        IO.streams[stream].unshift(word)
+
+    @getStream: (stream) -> IO.streams[stream]

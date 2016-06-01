@@ -98,13 +98,10 @@ module.exports = class Ast
 
     setType: (@type) ->
 
-    # TODO: This shouldn't be here
-    cast: (casting) ->
+    addParent: (type) ->
         currentType = @type
-        currentChildren = @children
-
-        @type = casting
-        @children = [new Ast(currentType, currentChildren)]
+        @type = type
+        @children = [new Ast(currentType, @children)]
 
     # These are to simplify and beautify some code
     child: -> @children[0]

@@ -5,6 +5,7 @@ Ast     = require '../parser/ast'
 { evaluateExpression } = require './expression'
 Func = require './function'
 io = require './io'
+valueParser = require '../parser/value-parser'
 
 { NODES, STATEMENTS } = Ast
 
@@ -33,8 +34,25 @@ module.exports = @
             id    = T.left().left()
             value = evaluateExpression T.right()
             Stack.setVariable id, value
+        when STATEMENTS.CIN
+            for inputItem in T.getChildren()
+                id = inputItem.child().child()
+                word = io.getWord(io.STDIN)
+                if word?
+                    { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    if value?
+                        if leftover.length > 0
+                            io.unshiftWord(io.STDIN, leftover)
+
+                        Stack.setVariable id, value
+                    else
+                        Stack.setVariable id, null
+                else
+                    Stack.setVariable id, null
+
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
+                console.log outputItem
                 io.output io.STDOUT, evaluateExpression(outputItem)
         when STATEMENTS.RETURN
             value = evaluateExpression T.child()
