@@ -1,9 +1,16 @@
 # C--
-C-- is a C++ shell that can be embeded in the browser. 
+C-- is a C++ shell interpreter that can be embedded in the browser. 
 
 The project is in early stages, so things may go wrong.
 
+Compilation
+-----------
+   - In your home directory, run `curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -`
+   - Run `sudo apt-get install -y nodejs`
+   - Optionally, you can run `sudo apt-get install -y build-essential`
+   - Now from the project directory, run `npm install`
+   - Finally run `sudo npm install -g browserify coffee-script coffeeify jisonify`
+
 Run
 ---
- - **Terminal**: just type `node index.js` to run the interpreter in your terminal. You can attach a relative path to run a program directly. We also cover a debug option (-d).
- - **Browser**: run the `browserify.sh` script in the *browser* directory. Brofserify and uglifyjs must be globally installed via npm. Then run the webpage via a local server like `http-server`. *Note*: for this method to work, grammar.js must be generated in the *parser* directory via `jison grammar.jison`.
+From the project directory, just run `./run` from the terminal, a new browser window should pop-up.
