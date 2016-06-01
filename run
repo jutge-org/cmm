@@ -2,4 +2,4 @@
 cd browser
 ./browserify.sh
 http-server . &
-google-chrome http://localhost:8080
+firefox http://localhost:8080
