@@ -1,7 +1,8 @@
 #include <iostream>
 using namespace std;
 
-void escriu_linia (char c, string s, bool b) {
+void escriu_linia (char c, string s) {
+  	bool b;
 	bool vocal = c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
 			c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U';
 	bool majuscula = c >= 'A' and c <= 'Z';
@@ -23,11 +24,10 @@ void escriu_linia (char c, string s, bool b) {
 int main() {
 	char c;
 	cin >> c;
-	bool b;
-	escriu_linia (c, "lletra", b);
-	escriu_linia (c, "vocal", b);
-	escriu_linia (c, "consonant", b);
-	escriu_linia (c, "majuscula", b);
-	escriu_linia (c, "minuscula", b);
-	escriu_linia (c, "digit", b);
+	escriu_linia (c, "lletra");
+	escriu_linia (c, "vocal");
+	escriu_linia (c, "consonant");
+	escriu_linia (c, "majuscula");
+	escriu_linia (c, "minuscula");
+	escriu_linia (c, "digit");
 }

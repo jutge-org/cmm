@@ -27,7 +27,11 @@ module.exports = @
 @parseInputWord = (word, type) ->
     switch type
         when TYPES.INT
-            index = word.search(/[^0-9]/)
+            unless /[0-9\-]/.test(word[0])
+                index = 0
+            else
+                index = word[1..].search(/[^0-9]/)
+
             if index > 0
                 value: parseInt word[0...index]
                 leftover: word[index..]
@@ -41,17 +45,20 @@ module.exports = @
             index = 0
             end = no
             foundDot = no
-            while index < word.length and not end
-                if word[index] is '.'
-                    if foundDot
-                        end = true
+
+            if /[0-9\-\.]/.test(word[0])
+                index = 1
+                while index < word.length and not end
+                    if word[index] is '.'
+                        if foundDot
+                            end = true
+                        else
+                            foundDot = yes
+                            ++index
+                    else if /[0-9]/.test(word[index])
+                         ++index
                     else
-                        foundDot = yes
-                        ++index
-                else if /[0-9]/.test(word[index])
-                     ++index
-                else
-                    end = true
+                        end = true
 
             if index > 0
                 value: parseFloat word[0...index]
