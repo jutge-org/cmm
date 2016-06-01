@@ -3,6 +3,7 @@ assert = require 'assert'
 Stack = require './stack'
 Ast   = require '../parser/ast'
 Func = require './function'
+error = require '../error'
 
 { NODES, OPERATORS, LITERALS, CASTS } = Ast
 
@@ -19,7 +20,10 @@ module.exports = @
         when OPERATORS.MUL
             e(T.left()) * e(T.right())
         when OPERATORS.INT_DIV
-            e(T.left()) // e(T.right())
+            den = e(T.right())
+            if den is 0
+                throw error.DIVISION_BY_ZERO
+            e(T.left()) // den
         when OPERATORS.DOUBLE_DIV
             e(T.left()) / e(T.right())
         when OPERATORS.MOD
