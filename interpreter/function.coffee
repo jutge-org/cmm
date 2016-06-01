@@ -4,6 +4,7 @@ Stack = require './stack'
 Runner = require './runner'
 Ast = require '../parser/ast'
 Error = require '../error'
+Expression = require './expression'
 
 { NODES, TYPES } = Ast
 
@@ -19,7 +20,7 @@ functions = null
     for functionTree in T.getChildren()
         assert.strictEqual functionTree.getType(), TYPES.FUNCTION
         funcId = functionTree.getChild(1).getChild(0)
-        argIds = (argAst.getChild(1).getChild(0) for argAst in functionTree.getChild(2))
+        argIds = (argAst.getChild(1).getChild(0) for argAst in functionTree.getChild(2).getChildren())
         type = functionTree.getChild(0)
         functions[funcId] = { type, argIds, instructions: functionTree.getChild(3) }
     return
@@ -38,11 +39,18 @@ functions = null
 
     assert argIds.length is argValuesAst.getChildCount()
 
-    Stack.pushActivationRecord()
-    for id, i in argIds
-        Stack.defineVariable id, argValuesAst.getChild(i).getChild(0)
+    argIdValuePairs =
+        for id, i in argIds
+            id: id
+            value: Expression.evaluateExpression(argValuesAst.getChild(i))
 
     result = null
+
+    Stack.pushActivationRecord()
+
+    for { id, value } in argIdValuePairs
+        Stack.defineVariable id, value
+
     try
         Runner.executeInstruction instructions
     catch maybeError
