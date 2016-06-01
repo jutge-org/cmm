@@ -1,0 +1,6 @@
+lletra('J') = cert
+vocal('J') = fals
+consonant('J') = cert
+majuscula('J') = cert
+minuscula('J') = fals
+digit('J') = fals
