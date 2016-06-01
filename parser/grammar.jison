@@ -8,6 +8,8 @@
 "/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
 // I think we should make all the tokens return a name rathen than itself
+"++"                                        return '++'
+"--"                                        return '--'
 "+="                                        return '+='
 "-="                                        return '-='
 "*="                                        return '*='
@@ -85,6 +87,7 @@
 %left PLUS MINUS
 %left MUL DIV MOD
 %right NOT UPLUS UMINUS
+%right '++' '--'
 %right THEN ELSE
 
 %start prog
@@ -241,6 +244,10 @@ block_assign
 
 assign
     : declaration_assign
+    | '++' id
+        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
+    | '--' id
+        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
     | id '+=' expr
         {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
     | id '-=' expr
