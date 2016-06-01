@@ -4,6 +4,8 @@ $ -> # Equivalent to $(document).ready(function() {...})
         {
             value:
                 """
+                    #include <iostream>
+                    using namespace std;
                     int main() {
 
                     }
