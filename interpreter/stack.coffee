@@ -16,7 +16,8 @@ module.exports = class Stack
         @stack.pop()
         @currentAR =
             if @stack.length > 0 then @stack[@stack.length - 1] else null
-
+        @scopesStack = []
+        
     # Parameter value is optional, if ommited means variable has been declared but not yet assigned
     @defineVariable: (name, value = null) ->
         assert @currentAR?
