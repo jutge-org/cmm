@@ -87,9 +87,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
         when NODES.BLOCK_INSTRUCTIONS
-            definedVariablesAux = copy definedVariables
             for child in ast.getChildren() when child instanceof Ast
-                checkAndPreprocess child, definedVariablesAux, functionId
+                checkAndPreprocess child, definedVariables, functionId
 
             return TYPES.VOID
         when NODES.FUNCALL
@@ -277,7 +276,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast conditionAst, conditionType, TYPES.BOOL
 
             thenBodyAst = ast.getChild(1)
-            checkAndPreprocess thenBodyAst, definedVariables, functionId
+            definedVariablesAux = copy definedVariables
+            checkAndPreprocess thenBodyAst, definedVariablesAux, functionId
 
             return TYPES.VOID
         when STATEMENTS.IF_THEN_ELSE
@@ -292,9 +292,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast conditionAst, conditionType, TYPES.BOOL
 
             thenBodyAst = ast.getChild(1)
-            checkAndPreprocess thenBodyAst, definedVariables, functionId
+            definedVariablesAux = copy definedVariables
+            checkAndPreprocess thenBodyAst, definedVariablesAux, functionId
+            definedVariablesAux = copy definedVariables
             elseBodyAst = ast.getChild(2)
-            checkAndPreprocess elseBodyAst, definedVariables, functionId
+            checkAndPreprocess elseBodyAst, definedVariablesAux, functionId
 
             return TYPES.VOID
         when STATEMENTS.WHILE
@@ -309,26 +311,27 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast conditionAst, conditionType, TYPES.BOOL
 
             bodyAst = ast.getChild(1)
-            checkAndPreprocess bodyAst, definedVariables, functionId
+            definedVariablesAux = copy definedVariables
+            checkAndPreprocess bodyAst, definedVariablesAux, functionId
 
             return TYPES.VOID
         when STATEMENTS.FOR
             # Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea
             # Comprovar recursivament el cos del for
             # Retorna void
-
+            definedVariablesAux = copy definedVariables
             initAst = ast.getChild(0)
             conditionAst = ast.getChild(1)
             incrementAst = ast.getChild(2)
             bodyAst = ast.getChild(3)
-            checkAndPreprocess initAst, definedVariables, functionId
-            conditionType = checkAndPreprocess conditionAst, definedVariables, functionId
+            checkAndPreprocess initAst, definedVariablesAux, functionId
+            conditionType = checkAndPreprocess conditionAst, definedVariablesAux, functionId
 
             if conditionType isnt TYPES.BOOL
                 tryToCast conditionAst, conditionType, TYPES.BOOL
 
-            checkAndPreprocess incrementAst, definedVariables, functionId
-            checkAndPreprocess bodyAst, definedVariables, functionId
+            checkAndPreprocess incrementAst, definedVariablesAux, functionId
+            checkAndPreprocess bodyAst, definedVariablesAux, functionId
 
             return TYPES.VOID
         when STATEMENTS.RETURN # Com collons sabré el tipus de la funció? :S (l'hauré de passar com a paràmetre d'aquesta...)
@@ -348,9 +351,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
         when STATEMENTS.CIN
-            console.log('fora')
             if 'iostream' not in INCLUDES
-                console.log('dins')
                 throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.CIN)
             # Comprovar que tots els fills son ids i que tenen tipus assignable
             # retorna bool
@@ -367,9 +368,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                         child.addParent definedVariables[varId]
             return TYPES.BOOL
         when STATEMENTS.COUT
-            console.log('fora')
             if 'iostream' not in INCLUDES
-                console.log('dins')
                 throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.COUT)
             # Comprovar/castejar que tots els fills siguin strings o endl, que es convertira a "\n" (string)
             # Retorna void
