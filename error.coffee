@@ -13,7 +13,7 @@ copy = (obj) -> JSON.parse JSON.stringify(obj)
             [placeHolder, text, others...] = others
             placeHolder =  "<<#{placeHolder}>>"
             index = ret.message.indexOf placeHolder
-            assert index > 0
+            assert index >= 0
             ret.message = ret.message.replace placeHolder, text
         ret
 
@@ -33,6 +33,7 @@ e "VOID_FUNCTION_ARGUMENT", 14, "Cannot define a function argument with void typ
 e "FUNCTION_UNDEFINED", 15, "Cannot call function <<name>>, variable is not declared"
 e "CALL_NON_FUNCTION", 16, "Cannot call <<name>>, which is not a function"
 e "INVALID_PARAMETER_COUNT_CALL", 17, "Function <<name>> with <<good>> parameters has been called with wrong number of parameters <<wrong>>"
+e "IOSTREAM_LIBRARY_MISSING", 18, "<<name>> not found. iostream library needed."
 
 e "VOID_DECLARATION", 30, "Cannot declare a variable with type void: variable <<name>>"
 

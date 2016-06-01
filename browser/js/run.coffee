@@ -15,6 +15,8 @@ compile = (code, showAst = no) ->
         ast = parser.parse code
         ast = checkSemantics ast
     catch error
+        console.log('error')
+        console.log(error)
         setOutput "#{error.message}"
         setStatus "Compilation error"
         return

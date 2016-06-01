@@ -8,6 +8,7 @@ valueParser = require '../parser/value-parser'
 
 # TODO: This casting information should go somewhere else
 CASTINGS = {}
+INCLUDES = []
 
 for TYPE of TYPES
     CASTINGS[TYPE] = {}
@@ -347,6 +348,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
         when STATEMENTS.CIN
+            console.log('fora')
+            if 'iostream' not in INCLUDES
+                console.log('dins')
+                throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.CIN)
             # Comprovar que tots els fills son ids i que tenen tipus assignable
             # retorna bool
             for child in ast.getChildren()
@@ -362,6 +367,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                         child.addParent definedVariables[varId]
             return TYPES.BOOL
         when STATEMENTS.COUT
+            console.log('fora')
+            if 'iostream' not in INCLUDES
+                console.log('dins')
+                throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.COUT)
             # Comprovar/castejar que tots els fills siguin strings o endl, que es convertira a "\n" (string)
             # Retorna void
             for child in ast.getChildren()
@@ -402,7 +411,24 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
     ###
 
 
-@checkSemantics = (ast) ->
+@checkSemantics = (root) ->
+    assert root?
+
+    INCLUDES = []
+    includes = root.getChild(0)
+
+    console.log(includes)
+
+    for incl in includes.getChildren()
+        console.log('incl')
+        console.log(incl)
+        if incl.getType() is 'INCLUDE'
+            id = incl.getChild(0).getChild(0)
+            INCLUDES.push(id)
+
+    console.log(INCLUDES)
+
+    ast = root.getChild(1)
     assert ast.getType() is NODES.BLOCK_FUNCTIONS
     definedVariables = {}
 

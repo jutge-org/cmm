@@ -44,6 +44,7 @@
 "("                                         return '('
 ")"                                         return ')'
 ","                                         return ','
+"#"                                         return '#'
 
 "return"                                    return 'RETURN'
 
@@ -58,6 +59,11 @@
 "bool"                                      return 'BOOL'
 "string"                                    return 'STRING'
 "void"                                      return 'VOID'
+
+"include"                                   return 'INCLUDE'
+'using'                                     return 'using'
+'namespace'                                 return 'NAMESPACE'
+'std'                                       return 'std'
 
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
@@ -95,8 +101,22 @@
 %% /* language grammar */
 
 prog
-    : block_functions EOF
-        { return $1; }
+    : block_includes block_functions EOF
+        { return new yy.Ast('PROGRAM', [$1, $2]); }
+    ;
+
+block_includes
+    : block_includes include
+        {$$.addChild($2);}
+    | 
+        {$$ = new yy.Ast('BLOCK-INCLUDES', []);}
+    ;
+
+include
+    : '#' INCLUDE '<' id '>'
+        {$$ = new yy.Ast('INCLUDE', [$4]);}
+    | 'using' NAMESPACE 'std' ';'
+        {$$ = new yy.Ast('NAMESPACE', [$4]);}
     ;
 
 block_functions
