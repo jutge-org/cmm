@@ -37,7 +37,7 @@ module.exports = class Stack
     @setVariable: (name, value) ->
         assert @currentAR?
         assert (typeof name is "string")
-        assert @currentAR[name] isnt "undefined"
+        assert typeof @currentAR[name] isnt "undefined"
 
         @currentAR[name] = value
 
@@ -49,7 +49,7 @@ module.exports = class Stack
 
     @closeScope: ->
         assert @scopesStack.length > 0
-        
+
         variablesSet = @scopesStack.pop()
         for variable of @currentAR when variable not of variablesSet
             delete @currentAR[variable]
