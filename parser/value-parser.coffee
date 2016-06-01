@@ -64,7 +64,9 @@ module.exports = @
                 leftover: ""
 
         when TYPES.BOOL
+            console.log word
             value = parseInt word
+            console.log value
             if value not in [0,1]
                 leftover: word
                 value: null
