@@ -28,7 +28,7 @@ $ -> # Equivalent to $(document).ready(function() {...})
     )
 
     $("#run").click(->
-        w.postMessage({ command: "run", code: codeMirror.getValue() })
+        w.postMessage({ command: "run", code: codeMirror.getValue(), input: $("#input").val() })
     )
 
     $("#kill").click(->

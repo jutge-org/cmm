@@ -1,5 +1,6 @@
 #!/bin/sh
+pkill node
 cd browser
 ./browserify.sh
-http-server . &
-firefox http://localhost:8080
+http-server -c-1 . &
+google-chrome http://localhost:8080

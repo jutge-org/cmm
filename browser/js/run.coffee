@@ -24,12 +24,12 @@ compile = (code, showAst = no) ->
     ast
 
 
-execute = (ast) ->
+execute = (ast, input) ->
     setStatus "Running"
 
     try
         interpreter.load ast
-        { stdout, stderr, output, status } = interpreter.run()
+        { stdout, stderr, output, status } = interpreter.run(input)
     catch error
         setOutput "#{error.stack ? error.message}"
         return
@@ -42,10 +42,11 @@ setOutput = (s) -> postMessage({ type: "output", value: s })
 setStatus = (s) -> postMessage({ type: "status", value: s })
 
 onmessage = (e) ->
-    { data: { command, code } } = e
+    { data: { command, code, input } } = e
+
     if command is "compile"
         compile(code, yes)
     else
         ast = compile(code)
         if ast?
-            execute(ast)
+            execute(ast, input)
