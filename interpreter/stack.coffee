@@ -48,6 +48,8 @@ module.exports = class Stack
         @scopesStack.push variablesSet
 
     @closeScope: ->
+        assert @scopesStack.length > 0
+        
         variablesSet = @scopesStack.pop()
         for variable of @currentAR when variable not of variablesSet
             delete @currentAR[variable]
