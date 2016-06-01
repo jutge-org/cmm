@@ -4,6 +4,7 @@ Error = require '../error'
 module.exports = class Stack
     @stack: []
     @currentAR: null
+    @scopesStack: []
 
     @pushActivationRecord: ->
         @currentAR = {}
@@ -39,3 +40,14 @@ module.exports = class Stack
         assert @currentAR[name] isnt "undefined"
 
         @currentAR[name] = value
+
+    @openNewScope: ->
+        assert @currentAR?
+        variablesSet = {}
+        variablesSet[varId] = yes for varId of @currentAR
+        @scopesStack.push variablesSet
+
+    @closeScope: ->
+        variablesSet = @scopesStack.pop()
+        for variable of @currentAR when variable not of variablesSet
+            delete @currentAR[variable]

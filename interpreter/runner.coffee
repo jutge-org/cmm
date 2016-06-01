@@ -39,7 +39,32 @@ module.exports = @
         when STATEMENTS.RETURN
             value = evaluateExpression T.child()
             throw { return: yes, value }
-        # TODO: Add expressions here too, and make FUNCALL be an expressions
+        when STATEMENTS.NOP
+            (->)() # Just add this comment to fill this lonely emptiness...
+        when STATEMENTS.IF_THEN
+            if evaluateExpression T.left()
+                Stack.openNewScope()
+                @executeInstruction T.right()
+                Stack.closeScope()
+        when STATEMENTS.IF_THEN_ELSE
+            Stack.openNewScope()
+            if evaluateExpression T.left()
+                @executeInstruction T.right()
+            else
+                @executeInstruction T.getChild 2
+            Stack.closeScope()
+        when STATEMENTS.WHILE
+            Stack.openNewScope()
+            while evaluateExpression T.left()
+                @executeInstruction T.right()
+            Stack.closeScope()
+        when STATEMENTS.FOR
+            Stack.openNewScope()
+            @executeInstruction T.getChild(0)
+            while evaluateExpression T.getChild(1)
+                @executeInstruction T.getChild(3)
+                @executeInstruction T.getChild(2)
+            Stack.closeScope()
         # TODO: Remember to add new scopes when handling for*, if, else and while statements
         #       * Its scope needs to handle also the initialization, condition and increment parts of the for statements
         else

@@ -48,6 +48,7 @@ module.exports = class Ast
             RETURN: 'RETURN'
             CIN: 'CIN'
             COUT: 'COUT'
+            NOP: 'NOP'
         })
 
     @NODES: Object.freeze({
