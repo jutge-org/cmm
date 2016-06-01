@@ -17,6 +17,7 @@ execute = (ast) ->
     interpreter.run()
 
 setOutput = (s) -> $("#output").html(s)
+setStatus = (s) -> $("#exitstatus").text(s)
 
 $ -> # Equivalent to $(document).ready(function() {...})
     # Place the code editor
@@ -33,16 +34,20 @@ $ -> # Equivalent to $(document).ready(function() {...})
     )
 
     $("#compile").click(->
+        setOutput ""
+        setStatus "Compiling"
         code = codeMirror.getValue()
 
         try
             ast = compile code
         catch error
             console.log error.stack
-            setOutput "<b>Compilation Error</b><br/>#{error.stack?.split("</").join("/") ? error.message}"
+            setOutput "#{error.message}"
+            setStatus "Compilation error"
             return
 
-        setOutput "<b>No compilation errors</b><br/>#{JSON.stringify(ast, null, 4)}"
+        setOutput "#{JSON.stringify(ast, null, 4)}"
+        setStatus "Compiled"
     )
 
     $("#run").click(->
@@ -51,13 +56,18 @@ $ -> # Equivalent to $(document).ready(function() {...})
         try
             ast = compile code
         catch error
-            setOutput "<b>Compilation Error</b><br/>#{error.stack ? error.message}"
+            setOutput "#{error.stack ? error.message}"
+            setStatus "Compilation error"
             return
 
-        try
-            { stdout, stderr, status } = execute ast
-        catch error
-            setOutput "<b>Execution Error</b><br/>#{error.stack ? error.message}"
+        setStatus "Running"
 
-        setOutput "<b>Exit Status:<b/> #{status}<br/><b>Stdout:</b><br/>#{stdout}<br/><b>Stderr:</b><br/>#{stderr}"
+        try
+            { stdout, stderr, output, status } = execute ast
+        catch error
+            setOutput "#{error.stack ? error.message}"
+            return
+
+        setStatus status
+        setOutput output
     )

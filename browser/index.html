@@ -38,17 +38,45 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12 col-md-6">
-                <div class="form-group">
-                  <label for="comment">Code:</label>
-                  <textarea class="form-control cpp" id="code" rows="20"></textarea>
+            <div class="col-xs-6 col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Code</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                          <textarea class="form-control cpp" id="code" rows="20"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-md-6">
-                <div class="form-group">
-                  <label for="comment">Output:</label>
-                  <pre id="output">
-                  </pre>
+            <div class="col-xs-6 col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Exit status</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <p id="exitstatus">Not run yet</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Output</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <pre id="output">
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Input</div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <textarea id="input"></textarea>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

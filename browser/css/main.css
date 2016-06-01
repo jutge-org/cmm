@@ -1,5 +1,5 @@
 .CodeMirror {
-    height: 415px;
+    height: 520px;
 }
 
 .btn-cmm {
@@ -10,5 +10,14 @@
 
 #output {
     overflow: auto;
-    height: 415px;
+    height: 387px;
+}
+
+#input {
+    width: 100%;
+    height: 400px;
+}
+
+.form-group {
+    margin-bottom: 0;
 }
