@@ -1,0 +1,3 @@
+girantparaules  - cin dins una condició
+liniesordenades - cin dins una condició
+mesuresestadistiques  - doble assignació

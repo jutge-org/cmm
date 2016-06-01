@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 int mcd(int a, int b) {
     int r;
     while (b != 0) {
@@ -7,13 +10,13 @@ int mcd(int a, int b) {
     }
     return a;
 }
-        
+
 int mcm (int a, int b) {
     int mcm2 = a/mcd(a, b);
     return (b*mcm2);
 }
-    
-    
+
+
 int main() {
     int x;
     cin >> x;
