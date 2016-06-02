@@ -9,6 +9,7 @@ module.exports = class Ast
             CHAR: 'CHAR'
             BOOL: 'BOOL'
             FUNCTION: 'FUNCTION'
+            CIN: 'CIN'
         })
 
     @OPERATORS: Object.freeze({
@@ -88,6 +89,8 @@ module.exports = class Ast
             BOOL2COUT: 'BOOL2COUT'
             CHAR2COUT: 'CHAR2COUT'
             DOUBLE2COUT: 'DOUBLE2COUT'
+
+            CIN2BOOL: 'CIN2BOOL'
         })
 
     constructor: (@type, @children) ->
