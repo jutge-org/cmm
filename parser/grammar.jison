@@ -23,9 +23,13 @@
 
 "!="                                        return '!='
 
-"or"|"||"                                   return '||'
-"and"|"&&"                                  return '&&'
-"not"|"!"                                   return '!'
+"or"                                        return '||'
+"and"                                       return '&&'
+"not"                                       return '!'
+
+"||"                                        return '||'
+"&&"                                        return '&&'
+"!"                                         return '!'
 
 "<<"                                        return '<<'
 ">>"                                        return '>>'
