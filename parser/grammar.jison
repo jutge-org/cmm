@@ -338,7 +338,7 @@ expr
     | STRING_LIT
         {$$ = new yy.Ast('STRING_LIT', [$1]);}
     | direct_assign
-     | '++' id %prec PRE_INC
+    | '++' id %prec PRE_INC
         {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
     | '--' id %prec PRE_DEC
         {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
