@@ -6,8 +6,9 @@ $ -> # Equivalent to $(document).ready(function() {...})
                 """
                     #include <iostream>
                     using namespace std;
-                    int main() {
 
+                    int main() {
+                      
                     }
                 """
             theme: "material"
