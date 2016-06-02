@@ -68,7 +68,7 @@ module.exports = @
 
             Stack.setVariable id, value
             value
-        
+
         when OPERATORS.POST_INC
             id = T.left().left()
             oldValue = e T.left()
@@ -119,6 +119,9 @@ module.exports = @
             String.fromCharCode(e(T.child()))
         when CASTS.DOUBLE2COUT
             e(T.child()).toString()
+
+        when CASTS.CIN2BOOL
+            e(T.child())
 
         when NODES.FUNCALL
             Func.executeFunction T

@@ -29,6 +29,8 @@ CASTINGS[TYPES.BOOL][TYPES.INT] = CASTS.BOOL2INT
 CASTINGS[TYPES.BOOL][TYPES.DOUBLE] = CASTS.BOOL2DOUBLE
 CASTINGS[TYPES.BOOL][TYPES.CHAR] = CASTS.BOOL2CHAR
 
+CASTINGS[TYPES.CIN][TYPES.BOOL] = CASTS.CIN2BOOL
+
 # TODO: This size info should go somewhere else
 SIZE_OF_TYPE = {}
 SIZE_OF_TYPE[TYPES.BOOL] = 1
@@ -389,7 +391,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
                         child.addParent definedVariables[varId]
-            return TYPES.BOOL
+            return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES
                 throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.COUT)
