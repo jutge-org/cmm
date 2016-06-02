@@ -4,8 +4,10 @@ Stack = require './stack'
 Ast   = require '../parser/ast'
 Func = require './function'
 error = require '../error'
+valueParser = require '../parser/value-parser'
+io = require './io'
 
-{ NODES, OPERATORS, LITERALS, CASTS } = Ast
+{ NODES, OPERATORS, LITERALS, CASTS, STATEMENTS } = Ast
 
 module.exports = @
 
@@ -120,5 +122,25 @@ module.exports = @
 
         when NODES.FUNCALL
             Func.executeFunction T
+
+        when STATEMENTS.CIN
+            for inputItem in T.getChildren()
+                id = inputItem.child().child()
+                word = io.getWord(io.STDIN)
+                if word?
+                    { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    if value?
+                        if leftover.length > 0
+                            io.unshiftWord(io.STDIN, leftover)
+
+                        Stack.setVariable id, value
+
+                        return true
+                    else
+                        Stack.setVariable id, null
+                        return false
+                else
+                    Stack.setVariable id, null
+                    return false
         else
             assert false

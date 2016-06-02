@@ -91,6 +91,7 @@
 %left AND
 %left '==' '!='
 %left '<' '>' '<=' '>='
+%left '>>' '<<'
 %left PLUS MINUS
 %left MUL DIV MOD
 %right NOT UPLUS UMINUS
@@ -167,7 +168,6 @@ instruction
 basic_stmt
     : block_assign
     | declaration
-    | cin
     | cout
     | expr
     ;
@@ -228,9 +228,9 @@ cin
     ;
 
 block_cin
-    : block_cin '>>' expr
+    : block_cin '>>' id
         {$$.addChild($3);}
-    | '>>' expr
+    | '>>' id
         {$$ = new yy.Ast('CIN', [$2]);}
     ;
 
@@ -357,6 +357,7 @@ expr
     | id '%=' expr
         {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
     | id
+    | cin
     | funcall
     | '(' expr ')'
         {$$ = $2}
