@@ -338,23 +338,23 @@ expr
         {$$ = new yy.Ast('STRING_LIT', [$1]);}
     | direct_assign
     | '++' id %prec '++a'
-        {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [$2, new yy.Ast('INT_LIT', ['1'])])]);} // TODO: Maybe this should be better done in the semantics/interpreter
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'])])]);} // TODO: Maybe this should be better done in the semantics/interpreter
     | '--' id %prec '--a'
-        {$$ = new yy.Ast('=', [$2, new yy.Ast('-', [$2, new yy.Ast('INT_LIT', ['1'])])]);}
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('-', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'])])]);}
     | id '++' %prec 'a++'
         {$$ = new yy.Ast('a++', [$1]);}
     | id '--' %prec 'a--'
         {$$ = new yy.Ast('a--', [$1]);}
     | id '+=' expr
-        {$$ = new yy.Ast('=', [$1, new yy.Ast('+', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('+', [yy.Ast.copyOf($1),$3])]);}
     | id '-=' expr
-        {$$ = new yy.Ast('=', [$1, new yy.Ast('-', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('-', [yy.Ast.copyOf($1),$3])]);}
     | id '*=' expr
-        {$$ = new yy.Ast('=', [$1, new yy.Ast('*', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('*', [yy.Ast.copyOf($1),$3])]);}
     | id '/=' expr
-        {$$ = new yy.Ast('=', [$1, new yy.Ast('/', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('/', [yy.Ast.copyOf($1),$3])]);}
     | id '%=' expr
-        {$$ = new yy.Ast('=', [$1, new yy.Ast('%', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('%', [yy.Ast.copyOf($1),$3])]);}
     | id
     | cin
     | funcall

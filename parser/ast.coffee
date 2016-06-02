@@ -99,6 +99,12 @@ module.exports = class Ast
         assert (typeof @type is "string")
         assert Array.isArray(@children)
 
+    @copyOf: (ast) ->
+        new Ast(ast.type,
+            for child in ast.children
+                if child instanceof Ast then Ast.copyOf(child) else child 
+        )
+
     getType: -> @type
 
     setType: (@type) ->
