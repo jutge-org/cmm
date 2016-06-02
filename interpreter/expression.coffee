@@ -124,23 +124,24 @@ module.exports = @
             Func.executeFunction T
 
         when STATEMENTS.CIN
+            allRead = yes
             for inputItem in T.getChildren()
                 id = inputItem.child().child()
                 word = io.getWord(io.STDIN)
                 if word?
                     { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    console.log ({leftover, value})
                     if value?
                         if leftover.length > 0
                             io.unshiftWord(io.STDIN, leftover)
 
                         Stack.setVariable id, value
-
-                        return true
                     else
                         Stack.setVariable id, null
-                        return false
+                        allRead = no
                 else
                     Stack.setVariable id, null
-                    return false
+                    allRead = no
+            allRead
         else
             assert false
