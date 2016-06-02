@@ -5,8 +5,6 @@ Ast = require '../../parser/ast.coffee'
 
 parser.yy = { Ast }
 
-console.log "Executing runner code"
-
 compile = (code, showAst = no) ->
     setOutput ""
     setStatus "Compiling"
@@ -15,8 +13,7 @@ compile = (code, showAst = no) ->
         ast = parser.parse code
         ast = checkSemantics ast
     catch error
-        console.log('error')
-        console.log(error)
+        console.log(error.stack ? error.message ? error)
         setOutput "#{error.message}"
         setStatus "Compilation error"
         return
@@ -33,6 +30,7 @@ execute = (ast, input) ->
         interpreter.load ast
         { stdout, stderr, output, status } = interpreter.run(input)
     catch error
+        console.log(error.stack ? error.message ? error)
         setOutput "#{error.stack ? error.message}"
         return
 

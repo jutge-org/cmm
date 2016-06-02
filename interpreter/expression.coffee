@@ -59,6 +59,13 @@ module.exports = @
         when NODES.ID
             Stack.getVariable(T.child())
 
+        when OPERATORS.ASSIGN
+            id    = T.left().left()
+            value = e T.right()
+
+            Stack.setVariable id, value
+            value
+
         when CASTS.INT2DOUBLE
             e(T.child())
         when CASTS.INT2CHAR
@@ -99,5 +106,4 @@ module.exports = @
         when NODES.FUNCALL
             Func.executeFunction T
         else
-            console.log('Expression evaluation not implemented yet')
-            null
+            assert false

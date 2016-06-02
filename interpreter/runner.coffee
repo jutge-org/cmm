@@ -7,7 +7,7 @@ Func = require './function'
 io = require './io'
 valueParser = require '../parser/value-parser'
 
-{ NODES, STATEMENTS } = Ast
+{ NODES, STATEMENTS, OPERATORS } = Ast
 
 module.exports = @
 
@@ -20,20 +20,16 @@ module.exports = @
         when NODES.DECLARATION
             declarations = T.getChild 1
             for declaration in declarations
-                if declaration.getType() is NODES.ASSIGN
+                if declaration.getType() is OPERATORS.ASSIGN
                     varName = declaration.child().child()
                     value = evaluateExpression declaration.getChild 1
                     Stack.defineVariable varName, value
                 else if declaration.getType() is NODES.ID
                     varName = declaration.child()
                     Stack.defineVariable varName
-        when NODES.BLOCK_ASSIGN
-            for child in T.getChildren()
-                @executeInstruction child
-        when NODES.ASSIGN
-            id    = T.left().left()
-            value = evaluateExpression T.right()
-            Stack.setVariable id, value
+        #when NODES.BLOCK_ASSIGN
+        #    for child in T.getChildren()
+        #        @executeInstruction child
         when STATEMENTS.CIN
             for inputItem in T.getChildren()
                 id = inputItem.child().child()

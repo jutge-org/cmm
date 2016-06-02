@@ -37,7 +37,7 @@
 "<"                                         return '<'
 "=="                                        return '=='
 
-"="                                         return 'EQUAL' // TODO: Replace by ASSIGN and rethink the whole assign parsing
+"="                                         return 'DIRECT_ASSIGN' // TODO: Replace by ASSIGN and rethink the whole assign parsing
 
 ";"                                         return ';'
 "{"                                         return '{'
@@ -86,7 +86,7 @@
 /lex
 
 /* operator associations and precedence */
-%right '+=' '-=' '*=' '/=' '%='
+%right '+=' '-=' '*=' '/=' '%=' DIRECT_ASSIGN
 %left OR
 %left AND
 %left '==' '!='
@@ -109,7 +109,7 @@ prog
 block_includes
     : block_includes include
         {$$.addChild($2);}
-    | 
+    |
         {$$ = new yy.Ast('BLOCK-INCLUDES', []);}
     ;
 
@@ -256,33 +256,8 @@ instruction_body
         {$$ = $2;}
     ;
 
-block_assign
-    : block_assign ',' assign
-        {$$.addChild($3);}
-    | assign
-        {$$ = new yy.Ast('BLOCK-ASSIGN', [$1]);}
-    ;
-
-assign
-    : declaration_assign
-    | '++' id
-        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
-    | '--' id
-        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
-    | id '+=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
-    | id '-=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MINUS', [$1,$3])]);}
-    | id '*=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MUL', [$1,$3])]);}
-    | id '/=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('DIV', [$1,$3])]);}
-    | id '%=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
-    ;
-
-declaration_assign
-    : id 'EQUAL' expr
+direct_assign
+    : id DIRECT_ASSIGN expr
         {$$ = new yy.Ast('ASSIGN', [$1, $3]);}
     ;
 
@@ -292,11 +267,11 @@ declaration
     ;
 
 declaration_body
-    : declaration_body ',' declaration_assign
+    : declaration_body ',' direct_assign
         {$$.push($3);}
     | declaration_body ',' id
         {$$.push($3);}
-    | declaration_assign
+    | direct_assign
         {$$ = [$1];}
     | id
         {$$ = [$1];}
@@ -361,6 +336,21 @@ expr
         {$$ = new yy.Ast('BOOL_LIT', [$1]);}
     | STRING_LIT
         {$$ = new yy.Ast('STRING_LIT', [$1]);}
+    | direct_assign
+    | '++' id
+        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
+    | '--' id
+        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
+    | id '+=' expr
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
+    | id '-=' expr
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MINUS', [$1,$3])]);}
+    | id '*=' expr
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MUL', [$1,$3])]);}
+    | id '/=' expr
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('DIV', [$1,$3])]);}
+    | id '%=' expr
+        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
     | id
     | funcall
     | '(' expr ')'

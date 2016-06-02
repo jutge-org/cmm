@@ -72,7 +72,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             for declarationAst in declarations
                 if declarationAst.getType() is NODES.ID # No need to check, only an id
                     id = declarationAst.getChild(0)
-                else # Is decl-assign
+                else # Is assign
                     id = declarationAst.getChild(0).getChild(0)
                     valueAst = declarationAst.getChild(1)
                     actualType = checkAndPreprocess valueAst, definedVariables, functionId
@@ -117,10 +117,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     throw Error.CALL_NON_FUNCTION.complete('name', funcId)
             else
                 throw Error.FUNCTION_UNDEFINED.complete('name', funcId)
-        when NODES.ASSIGN
+        when OPERATORS.ASSIGN
             # Comprovar/castejar que el tipus del id que s'assigna es el mateix que el del literal/part dreta
             # Comprovar que el tipus al que s'assigna no es void
-            # Retorna void
+            # Retorna el tipus de la expressió de la dreta
             variableId = ast.getChild(0).getChild(0)
             variableType = checkAndPreprocess ast.getChild(0), definedVariables, functionId
 
@@ -134,10 +134,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if valueType isnt variableType
                 tryToCast valueAst, valueType, variableType
 
-            return TYPES.VOID
-        when NODES.DECL_ASSIGN
-            valueAst = ast.getChild(1)
-            return checkAndPreprocess valueAst, definedVariables, functionId
+            return valueType
         when LITERALS.DOUBLE, LITERALS.INT, LITERALS.STRING, LITERALS.CHAR, LITERALS.BOOL
             valueParser.parseLiteral ast
         when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
@@ -416,16 +413,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
     INCLUDES = []
     includes = root.getChild(0)
 
-    console.log(includes)
-
     for incl in includes.getChildren()
-        console.log('incl')
-        console.log(incl)
         if incl.getType() is 'INCLUDE'
             id = incl.getChild(0).getChild(0)
             INCLUDES.push(id)
 
-    console.log(INCLUDES)
 
     ast = root.getChild(1)
     assert ast.getType() is NODES.BLOCK_FUNCTIONS
