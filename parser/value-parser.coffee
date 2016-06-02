@@ -31,6 +31,9 @@ module.exports = @
                 index = 0
             else
                 index = word[1..].search(/[^0-9]/)
+                if index >= 0
+                    ++index
+
 
             if index > 0
                 value: parseInt word[0...index]
