@@ -60,6 +60,7 @@ tryToCast = (ast, originType, destType) ->
         throw Error.INVALID_CAST.complete('origin', originType, 'dest', destType)
 
 checkAndPreprocess = (ast, definedVariables, functionId) ->
+    console.log(ast)
     switch ast.getType()
         when NODES.ID
             id = ast.getChild(0)
