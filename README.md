@@ -1,5 +1,5 @@
 # C--
-C-- is a C++ shell interpreter that can be embedded in the browser. 
+C-- is a C++ shell interpreter that can be embedded in the browser.
 
 The project is in early stages, so things may go wrong.
 
@@ -15,4 +15,4 @@ Run
 ---
 From the project directory, just run `./run` from the terminal, a new browser window should pop-up.
 
-## [Try it!](http://c--lang.xyz/browser/)
+## [Try it!](http://c--lang.xyz/)
