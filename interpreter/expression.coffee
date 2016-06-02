@@ -121,7 +121,15 @@ module.exports = @
         when CASTS.CHAR2COUT
             String.fromCharCode(e(T.child()))
         when CASTS.DOUBLE2COUT
-            e(T.child()).toString()
+            double = e(T.child())
+            if isNaN double
+                "-nan" # Yes, C++ gives -nan
+            else if double is Number.POSITIVE_INFINITY
+                "inf"
+            else if double is Number.NEGATIVE_INFINITY
+                "-inf"
+            else
+                double.toString()
 
         when CASTS.CIN2BOOL
             e(T.child())
