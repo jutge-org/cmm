@@ -337,10 +337,16 @@ expr
     | STRING_LIT
         {$$ = new yy.Ast('STRING_LIT', [$1]);}
     | direct_assign
-    | '++' id
+     | '++' id
         {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
     | '--' id
         {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
+    | id '++'
+        {$$ = 
+        new yy.Ast('MINUS', [
+            new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1, new yy.Ast('INT_LIT', [1])])]), 
+            new yy.Ast('INT_LIT', [1])
+        ]);}
     | id '+=' expr
         {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
     | id '-=' expr
