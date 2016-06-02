@@ -6,7 +6,7 @@ using namespace std;
 int ndigits(int x) {
 	int i = 1;
 	while (x > 9) {
-		x = x/10;
+		x /= 10;
 		++i;
 	}
 	return i;
@@ -17,7 +17,7 @@ int ndigits(int x) {
 int dig_central(int x) {
 	int j = ndigits(x)/2;
 	while (j > 0) {
-		x = x/10;
+		x /= 10;
 		--j;
 	}
 	return x%10;

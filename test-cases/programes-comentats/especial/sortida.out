@@ -1,0 +1,450 @@
+int(-2) + int(0): -2
+int(1) - int(0): 1
+int(-2) / int(2): -1
+int(-1) * int(10): -10
+int(0) or int(1): 1
+int(-1) and int(0): 0
+int(-12) <= int(1): 1
+int(-1) >= int(-1): 1
+int(2) == int(1): 0
+int(2) != int(1): 1
+int(-1) > int(-1): 0
+int(-12) < int(-2): 1
+int(0) % int(-1): 0
+int(-1) += int(10): 9
+int(-2) -= int(10): -12
+int(2) *= int(-1): -2
+int(10) /= int(1): 10
+int(-12) %= int(2): 0
+int(2) + double(0): 2
+int(1) - double(3.1415): -2.1415
+int(1) / double(2.5): 0.4
+int(0) * double(-1.9): 0
+int(-1) or double(-1.9): 1
+int(-12) and double(0): 0
+int(-12) <= double(0): 1
+int(-2) >= double(3.1415): 0
+int(-2) == double(0): 0
+int(1) != double(-1.9): 1
+int(2) > double(2.5): 0
+int(-1) < double(0): 1
+int(-2) % double(2.5): operacio no permesa!
+int(-12) += double(3.1415): -9
+int(-12) -= double(3.1415): -16
+int(-12) *= double(0): 0
+int(2) /= double(2.5): 0
+int(-2) %= double(0): operacio no permesa!
+int(2) + char(A): 67
+int(-2) - char(-): -47
+int(-12) / char(0): -1
+int(0) * char(d): 0
+int(1) or char(c): 1
+int(-12) and char(A): 1
+int(-1) <= char(a): 1
+int(-1) >= char(a): 0
+int(0) == char(A): 0
+int(-12) != char(c): 1
+int(1) > char(a): 0
+int(-2) < char(A): 1
+int(10) % char(-): 10
+int(10) += char(c): 109
+int(2) -= char(0): -46
+int(2) *= char(c): 198
+int(-12) /= char(a): -1
+int(-2) %= char(a): -2
+int(10) + bool(1): 11
+int(2) - bool(0): 2
+int(-2) / bool(1): -2
+int(-12) * bool(1): -12
+int(-12) or bool(0): 1
+int(1) and bool(1): 1
+int(-12) <= bool(0): 1
+int(-2) >= bool(1): 0
+int(-1) == bool(1): 0
+int(-1) != bool(1): 1
+int(-2) > bool(0): 0
+int(-12) < bool(1): 1
+int(-12) % bool(1): 0
+int(-12) += bool(0): -12
+int(10) -= bool(0): 10
+int(-2) *= bool(0): 0
+int(-1) /= bool(1): -1
+int(0) %= bool(1): 0
+int(10) + string(!=): operacio no permesa!
+int(2) - string(+): operacio no permesa!
+int(0) / string(!=): operacio no permesa!
+int(-2) * string(>=): operacio no permesa!
+int(1) or string(>=): operacio no permesa!
+int(0) and string(!=): operacio no permesa!
+int(-1) <= string(cl): operacio no permesa!
+int(-2) >= string(+): operacio no permesa!
+int(1) == string(!=): operacio no permesa!
+int(2) != string(+): operacio no permesa!
+int(0) > string(!=): operacio no permesa!
+int(2) < string(lol): operacio no permesa!
+int(-2) % string(>=): operacio no permesa!
+int(-2) += string(+): operacio no permesa!
+int(1) -= string(lol): operacio no permesa!
+int(-2) *= string(>=): operacio no permesa!
+int(-2) /= string(lol): operacio no permesa!
+int(-1) %= string(lol): operacio no permesa!
+double(-1.9) + int(10): 8.1
+double(0) - int(-1): 1
+double(-1.9) / int(-12): 0.15833333333333333
+double(0) * int(2): 0
+double(2.5) or int(-1): 1
+double(0) and int(-12): 0
+double(3.1415) <= int(2): 0
+double(-1.9) >= int(-12): 1
+double(2.5) == int(0): 0
+double(3.1415) != int(10): 1
+double(2.5) > int(10): 0
+double(3.1415) < int(2): 0
+double(0.005) % int(-1): operacio no permesa!
+double(2.5) += int(2): 4.5
+double(2.5) -= int(10): -7.5
+double(0.005) *= int(1): 0.005
+double(0.005) /= int(10): 0.0005
+double(0.005) %= int(10): operacio no permesa!
+double(-1.9) + double(-1.9): -3.8
+double(2.5) - double(-1.9): 4.4
+double(-1.9) / double(3.1415): -0.604806621040904
+double(2.5) * double(3.1415): 7.853750000000001
+double(3.1415) or double(-1.9): 1
+double(2.5) and double(2.5): 1
+double(3.1415) <= double(0.005): 0
+double(0) >= double(-1.9): 1
+double(-1.9) == double(3.1415): 0
+double(3.1415) != double(-1.9): 1
+double(2.5) > double(0): 1
+double(0.005) < double(-1.9): 0
+double(3.1415) % double(0): operacio no permesa!
+double(0) += double(0.005): 0.005
+double(0.005) -= double(2.5): -2.495
+double(0.005) *= double(3.1415): 0.015707500000000003
+double(2.5) /= double(0): inf
+double(-1.9) %= double(2.5): operacio no permesa!
+double(0) + char(c): 99
+double(0) - char(A): -65
+double(2.5) / char(c): 0.025252525252525252
+double(-1.9) * char(A): -123.5
+double(0.005) or char(c): 1
+double(0) and char(c): 0
+double(0.005) <= char(c): 1
+double(2.5) >= char(A): 0
+double(3.1415) == char(A): 0
+double(3.1415) != char(A): 1
+double(0) > char(c): 0
+double(0) < char(a): 1
+double(2.5) % char(0): operacio no permesa!
+double(0.005) += char(d): 100.005
+double(3.1415) -= char(a): -93.8585
+double(-1.9) *= char(c): -188.1
+double(0) /= char(d): 0
+double(-1.9) %= char(d): operacio no permesa!
+double(0.005) + bool(1): 1.005
+double(-1.9) - bool(0): -1.9
+double(0.005) / bool(1): 0.005
+double(0) * bool(0): 0
+double(0) or bool(0): 0
+double(3.1415) and bool(0): 0
+double(-1.9) <= bool(1): 1
+double(2.5) >= bool(1): 1
+double(2.5) == bool(0): 0
+double(0) != bool(0): 0
+double(-1.9) > bool(1): 0
+double(3.1415) < bool(1): 0
+double(2.5) % bool(1): operacio no permesa!
+double(0) += bool(1): 1
+double(3.1415) -= bool(1): 2.1415
+double(2.5) *= bool(0): 0
+double(-1.9) /= bool(1): -1.9
+double(0) %= bool(1): operacio no permesa!
+double(0.005) + string(albert): operacio no permesa!
+double(0) - string(!=): operacio no permesa!
+double(-1.9) / string(albert): operacio no permesa!
+double(-1.9) * string(>=): operacio no permesa!
+double(0) or string(>=): operacio no permesa!
+double(0) and string(!=): operacio no permesa!
+double(0) <= string(albert): operacio no permesa!
+double(0) >= string(albert): operacio no permesa!
+double(2.5) == string(>=): operacio no permesa!
+double(0) != string(lol): operacio no permesa!
+double(2.5) > string(!=): operacio no permesa!
+double(2.5) < string(!=): operacio no permesa!
+double(3.1415) % string(cl): operacio no permesa!
+double(0.005) += string(+): operacio no permesa!
+double(2.5) -= string(>=): operacio no permesa!
+double(-1.9) *= string(!=): operacio no permesa!
+double(0) /= string(lol): operacio no permesa!
+double(0.005) %= string(!=): operacio no permesa!
+char(A) + int(-12): 53
+char(c) - int(0): 99
+char(d) / int(2): 50
+char(d) * int(2): 200
+char(A) or int(-1): 1
+char(A) and int(2): 1
+char(d) <= int(-1): 0
+char(-) >= int(-1): 1
+char(A) == int(-2): 0
+char(c) != int(1): 1
+char(0) > int(-2): 1
+char(c) < int(-1): 0
+char(c) % int(10): 9
+char(-) += int(2): /
+char(c) -= int(-2): e
+char(a) *= int(2): Â
+char(A) /= int(-12): ￺
+char(d) %= int(-1):
+char(c) + double(0.005): 99.005
+char(A) - double(2.5): 62.5
+char(a) / double(0): inf
+char(-) * double(-1.9): -85.5
+char(0) or double(0): 1
+char(-) and double(3.1415): 1
+char(A) <= double(-1.9): 0
+char(-) >= double(3.1415): 1
+char(0) == double(0): 0
+char(d) != double(0.005): 1
+char(c) > double(-1.9): 1
+char(c) < double(-1.9): 0
+char(A) % double(3.1415): operacio no permesa!
+char(d) += double(3.1415): g
+char(A) -= double(0): A
+char(d) *= double(3.1415): ĺ
+char(c) /= double(-1.9): ￋ
+char(A) %= double(3.1415): operacio no permesa!
+char(-) + char(a): 142
+char(a) - char(a): 0
+char(a) / char(d): 0
+char(a) * char(c): 9603
+char(a) or char(A): 1
+char(d) and char(c): 1
+char(c) <= char(a): 0
+char(c) >= char(c): 1
+char(d) == char(d): 1
+char(c) != char(-): 1
+char(A) > char(-): 1
+char(c) < char(d): 1
+char(0) % char(-): 3
+char(-) += char(0): ]
+char(0) -= char(0):
+char(0) *= char(A): ర
+char(a) /= char(-): 
+char(0) %= char(-): 
+char(-) + bool(0): 45
+char(A) - bool(0): 65
+char(-) / bool(1): 45
+char(a) * bool(1): 97
+char(A) or bool(1): 1
+char(d) and bool(1): 1
+char(0) <= bool(1): 0
+char(0) >= bool(0): 1
+char(0) == bool(0): 0
+char(a) != bool(0): 1
+char(c) > bool(0): 1
+char(A) < bool(0): 0
+char(A) % bool(1): 0
+char(0) += bool(0): 0
+char(d) -= bool(0): d
+char(c) *= bool(0):
+char(A) /= bool(1): A
+char(d) %= bool(1):
+char(A) + string(+): operacio no permesa!
+char(-) - string(cl): operacio no permesa!
+char(c) / string(lol): operacio no permesa!
+char(0) * string(!=): operacio no permesa!
+char(d) or string(albert): operacio no permesa!
+char(A) and string(lol): operacio no permesa!
+char(c) <= string(!=): operacio no permesa!
+char(a) >= string(+): operacio no permesa!
+char(d) == string(+): operacio no permesa!
+char(0) != string(>=): operacio no permesa!
+char(d) > string(albert): operacio no permesa!
+char(a) < string(>=): operacio no permesa!
+char(a) % string(+): operacio no permesa!
+char(A) += string(+): operacio no permesa!
+char(0) -= string(+): operacio no permesa!
+char(A) *= string(lol): operacio no permesa!
+char(d) /= string(cl): operacio no permesa!
+char(A) %= string(lol): operacio no permesa!
+bool(1) + int(0): 1
+bool(1) - int(2): -1
+bool(0) / int(2): 0
+bool(1) * int(-1): -1
+bool(0) or int(-12): 1
+bool(1) and int(1): 1
+bool(1) <= int(10): 1
+bool(0) >= int(0): 1
+bool(0) == int(10): 0
+bool(0) != int(2): 1
+bool(0) > int(-1): 1
+bool(0) < int(10): 1
+bool(1) % int(2): 1
+bool(0) += int(0): 0
+bool(1) -= int(-1): 1
+bool(1) *= int(0): 0
+bool(1) /= int(-12): 1
+bool(0) %= int(-2): 0
+bool(0) + double(0.005): 0.005
+bool(1) - double(3.1415): -2.1415
+bool(1) / double(3.1415): 0.31831927423205475
+bool(1) * double(2.5): 2.5
+bool(0) or double(0.005): 1
+bool(1) and double(3.1415): 1
+bool(0) <= double(3.1415): 1
+bool(0) >= double(0): 1
+bool(0) == double(2.5): 0
+bool(0) != double(-1.9): 1
+bool(1) > double(2.5): 0
+bool(1) < double(-1.9): 0
+bool(0) % double(-1.9): operacio no permesa!
+bool(0) += double(0.005): 1
+bool(0) -= double(2.5): 1
+bool(0) *= double(0): 0
+bool(0) /= double(2.5): 0
+bool(1) %= double(0.005): operacio no permesa!
+bool(1) + char(c): 100
+bool(0) - char(0): -48
+bool(0) / char(c): 0
+bool(1) * char(c): 99
+bool(1) or char(0): 1
+bool(0) and char(A): 0
+bool(1) <= char(a): 1
+bool(1) >= char(d): 0
+bool(1) == char(a): 0
+bool(1) != char(-): 1
+bool(1) > char(-): 0
+bool(1) < char(a): 1
+bool(0) % char(A): 0
+bool(0) += char(c): 1
+bool(1) -= char(a): 1
+bool(0) *= char(c): 0
+bool(1) /= char(c): 0
+bool(1) %= char(-): 1
+bool(1) + bool(0): 1
+bool(0) - bool(1): -1
+bool(1) / bool(1): 1
+bool(0) * bool(1): 0
+bool(1) or bool(1): 1
+bool(1) and bool(1): 1
+bool(1) <= bool(1): 1
+bool(0) >= bool(1): 0
+bool(1) == bool(0): 0
+bool(0) != bool(1): 1
+bool(1) > bool(0): 1
+bool(0) < bool(1): 1
+bool(0) % bool(1): 0
+bool(1) += bool(1): 1
+bool(0) -= bool(0): 0
+bool(0) *= bool(0): 0
+bool(1) /= bool(1): 1
+bool(1) %= bool(1): 0
+bool(0) + string(!=): operacio no permesa!
+bool(1) - string(!=): operacio no permesa!
+bool(0) / string(!=): operacio no permesa!
+bool(1) * string(>=): operacio no permesa!
+bool(1) or string(albert): operacio no permesa!
+bool(0) and string(cl): operacio no permesa!
+bool(1) <= string(!=): operacio no permesa!
+bool(0) >= string(!=): operacio no permesa!
+bool(0) == string(cl): operacio no permesa!
+bool(0) != string(lol): operacio no permesa!
+bool(1) > string(>=): operacio no permesa!
+bool(0) < string(>=): operacio no permesa!
+bool(1) % string(albert): operacio no permesa!
+bool(1) += string(+): operacio no permesa!
+bool(0) -= string(+): operacio no permesa!
+bool(0) *= string(lol): operacio no permesa!
+bool(1) /= string(>=): operacio no permesa!
+bool(0) %= string(+): operacio no permesa!
+string(>=) + int(0): operacio no permesa!
+string(!=) - int(-1): operacio no permesa!
+string(albert) / int(-12): operacio no permesa!
+string(albert) * int(10): operacio no permesa!
+string(!=) or int(0): operacio no permesa!
+string(cl) and int(0): operacio no permesa!
+string(cl) <= int(10): operacio no permesa!
+string(!=) >= int(1): operacio no permesa!
+string(albert) == int(1): operacio no permesa!
+string(cl) != int(-1): operacio no permesa!
+string(albert) > int(-2): operacio no permesa!
+string(lol) < int(1): operacio no permesa!
+string(>=) % int(-2): operacio no permesa!
+string(+) += int(-1): operacio no permesa!
+string(cl) -= int(-2): operacio no permesa!
+string(+) *= int(-12): operacio no permesa!
+string(!=) /= int(-2): operacio no permesa!
+string(cl) %= int(-1): operacio no permesa!
+string(!=) + double(3.1415): operacio no permesa!
+string(>=) - double(3.1415): operacio no permesa!
+string(albert) / double(2.5): operacio no permesa!
+string(!=) * double(0.005): operacio no permesa!
+string(>=) or double(-1.9): operacio no permesa!
+string(!=) and double(2.5): operacio no permesa!
+string(albert) <= double(0): operacio no permesa!
+string(cl) >= double(0): operacio no permesa!
+string(cl) == double(0.005): operacio no permesa!
+string(cl) != double(-1.9): operacio no permesa!
+string(!=) > double(-1.9): operacio no permesa!
+string(>=) < double(0): operacio no permesa!
+string(>=) % double(2.5): operacio no permesa!
+string(+) += double(3.1415): operacio no permesa!
+string(albert) -= double(0.005): operacio no permesa!
+string(albert) *= double(0.005): operacio no permesa!
+string(+) /= double(0): operacio no permesa!
+string(cl) %= double(-1.9): operacio no permesa!
+string(>=) + char(A): operacio no permesa!
+string(+) - char(a): operacio no permesa!
+string(lol) / char(0): operacio no permesa!
+string(>=) * char(A): operacio no permesa!
+string(albert) or char(c): operacio no permesa!
+string(cl) and char(c): operacio no permesa!
+string(lol) <= char(0): operacio no permesa!
+string(!=) >= char(A): operacio no permesa!
+string(albert) == char(d): operacio no permesa!
+string(albert) != char(c): operacio no permesa!
+string(albert) > char(d): operacio no permesa!
+string(lol) < char(a): operacio no permesa!
+string(!=) % char(0): operacio no permesa!
+string(!=) += char(a): operacio no permesa!
+string(>=) -= char(0): operacio no permesa!
+string(lol) *= char(0): operacio no permesa!
+string(+) /= char(-): operacio no permesa!
+string(!=) %= char(c): operacio no permesa!
+string(!=) + bool(1): operacio no permesa!
+string(>=) - bool(0): operacio no permesa!
+string(>=) / bool(1): operacio no permesa!
+string(lol) * bool(1): operacio no permesa!
+string(cl) or bool(0): operacio no permesa!
+string(+) and bool(1): operacio no permesa!
+string(>=) <= bool(0): operacio no permesa!
+string(albert) >= bool(1): operacio no permesa!
+string(albert) == bool(0): operacio no permesa!
+string(>=) != bool(1): operacio no permesa!
+string(cl) > bool(1): operacio no permesa!
+string(+) < bool(0): operacio no permesa!
+string(albert) % bool(1): operacio no permesa!
+string(!=) += bool(1): operacio no permesa!
+string(cl) -= bool(0): operacio no permesa!
+string(cl) *= bool(0): operacio no permesa!
+string(lol) /= bool(1): operacio no permesa!
+string(albert) %= bool(1): operacio no permesa!
+string(>=) + string(!=): operacio no permesa!
+string(cl) - string(>=): operacio no permesa!
+string(+) / string(cl): operacio no permesa!
+string(lol) * string(+): operacio no permesa!
+string(!=) or string(!=): operacio no permesa!
+string(>=) and string(!=): operacio no permesa!
+string(albert) <= string(cl): 1
+string(lol) >= string(!=): 1
+string(>=) == string(>=): 1
+string(albert) != string(>=): 1
+string(albert) > string(cl): 0
+string(lol) < string(albert): 0
+string(!=) % string(>=): operacio no permesa!
+string(+) += string(albert): operacio no permesa!
+string(cl) -= string(lol): operacio no permesa!
+string(cl) *= string(cl): operacio no permesa!
+string(+) /= string(>=): operacio no permesa!
+string(+) %= string(lol): operacio no permesa!

@@ -9,8 +9,8 @@ int main() {
 	for (int i = 0; i < x; ++i) {
 		char y;
 		cin >> y;
-		if (y == 'a') ++counta;
-		if (y == 'b') ++countb;
+		if (y == 'a') counta += 1;
+		if (y == 'b') countb++;
 		if (y == 'c') ++countc;
 	}
 	if (counta >= countb and counta >= countc) cout << "majoria de a" << endl << counta << " repeticio(ns)" << endl;
