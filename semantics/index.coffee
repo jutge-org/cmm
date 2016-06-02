@@ -262,6 +262,31 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast valueAst, type, TYPES.BOOL
 
             return TYPES.BOOL
+        when OPERATORS.POST_INC
+            # Comprovar/castejar que el tipus sigui
+            # o bé integral (char castejat a int o int o bool cast a int)
+            # o bé real (double).
+
+            # Retorna tipus el del operand
+
+            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
+            if type isnt TYPES.DOUBLE and type isnt TYPES.INT
+                tryToCast ast.child(), type, TYPES.INT
+                return TYPES.INT
+            return type
+
+        when OPERATORS.POST_DEC
+            # Comprovar/castejar que el tipus sigui
+            # o bé integral (char castejat a int o int o bool cast a int)
+            # o bé real (double).
+
+            # Retorna tipus el del operand
+
+            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
+            if type isnt TYPES.DOUBLE and type isnt TYPES.INT
+                tryToCast ast.child(), type, TYPES.INT
+                return TYPES.INT
+            return type
         when STATEMENTS.IF_THEN
             # Comprovar/castejar que la condicio es un boolea
             # Comprovar recursivament el cos del then

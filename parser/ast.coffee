@@ -25,6 +25,8 @@ module.exports = class Ast
             AND: 'AND'
             NOT: 'NOT'
             ASSIGN: 'ASSIGN'
+            POST_INC: 'POST_INC'
+            POST_DEC: 'POST_DEC'
             LT: '<'
             GT: '>'
             LTE: '<='

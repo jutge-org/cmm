@@ -53,6 +53,7 @@ module.exports = @
         when OPERATORS.NOT
             not e(T.child())
 
+
         when LITERALS.BOOL, LITERALS.INT, LITERALS.DOUBLE, LITERALS.STRING, LITERALS.CHAR
             T.child()
 
@@ -65,6 +66,20 @@ module.exports = @
 
             Stack.setVariable id, value
             value
+        
+        when OPERATORS.POST_INC
+            id = T.left().left()
+            oldValue = e T.left()
+            newValue = oldValue + 1
+            Stack.setVariable id, newValue
+            return oldValue
+
+        when OPERATORS.POST_DEC
+            id = T.left().left()
+            oldValue = e T.left()
+            newValue = oldValue - 1
+            Stack.setVariable id, newValue
+            return oldValue
 
         when CASTS.INT2DOUBLE
             e(T.child())
