@@ -258,7 +258,7 @@ instruction_body
 
 direct_assign
     : id '=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, $3]);}
+        {$$ = new yy.Ast('=', [$1, $3]);}
     ;
 
 declaration
