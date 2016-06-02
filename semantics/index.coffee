@@ -136,7 +136,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if valueType isnt variableType
                 tryToCast valueAst, valueType, variableType
 
-            return valueType
+            return variableType
         when LITERALS.DOUBLE, LITERALS.INT, LITERALS.STRING, LITERALS.CHAR, LITERALS.BOOL
             valueParser.parseLiteral ast
         when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
