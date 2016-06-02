@@ -29,6 +29,9 @@ module.exports = @
         when OPERATORS.DOUBLE_DIV
             e(T.left()) / e(T.right())
         when OPERATORS.MOD
+            den = e(T.right())
+            if den is 0
+                throw error.MODULO_BY_ZERO
             e(T.left()) % e(T.right())
         when OPERATORS.UPLUS
             e(T.child())
@@ -65,8 +68,6 @@ module.exports = @
         when OPERATORS.ASSIGN
             id    = T.left().left()
             value = e T.right()
-
-            console.log {id,value}
 
             Stack.setVariable id, value
             value
