@@ -26,9 +26,6 @@ module.exports = @
                 else if declaration.getType() is NODES.ID
                     varName = declaration.child()
                     Stack.defineVariable varName
-        #when NODES.BLOCK_ASSIGN
-        #    for child in T.getChildren()
-        #        @executeInstruction child
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
                 io.output io.STDOUT, evaluateExpression(outputItem)

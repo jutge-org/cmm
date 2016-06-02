@@ -62,7 +62,6 @@ tryToCast = (ast, originType, destType) ->
         throw Error.INVALID_CAST.complete('origin', originType, 'dest', destType)
 
 checkAndPreprocess = (ast, definedVariables, functionId) ->
-    console.log(ast)
     switch ast.getType()
         when NODES.ID
             id = ast.getChild(0)
@@ -422,17 +421,6 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 checkAndPreprocess(child, definedVariables, functionId)
 
             return TYPES.VOID
-
-    ###
-    when STATEMENTS.CIN
-        # Comprovar que tots els fills son ids
-        # retorna bool
-    when STATEMENTS.COUT
-        # Comprovar/castejar que tots els fills siguin strings o endl, que es convertira a "\n" (string)
-        # Retorna void
-    ###
-    ###
-    ###
 
 
 @checkSemantics = (root) ->

@@ -7,7 +7,6 @@
 "//".*                /* ignore comment */
 "/*"(.|\n|\r)*?"*/"   /* ignore multiline comment */
 \s+                   /* skip whitespace */
-// I think we should make all the tokens return a name rathen than itself
 "++"                                        return '++'
 "--"                                        return '--'
 "+="                                        return '+='
@@ -16,17 +15,17 @@
 "/="                                        return '/='
 "%="                                        return '%='
 
-"*"                                         return 'MUL'
-"/"                                         return 'DIV'
-"-"                                         return 'MINUS'
-"%"                                         return 'MOD'
-"+"                                         return 'PLUS'
+"*"                                         return '*'
+"/"                                         return '/'
+"-"                                         return '-'
+"%"                                         return '%'
+"+"                                         return '+'
 
 "!="                                        return '!='
 
-"or"|"||"                                   return 'OR'
-"and"|"&&"                                  return 'AND'
-"not"|"!"                                   return 'NOT'
+"or"|"||"                                   return '||'
+"and"|"&&"                                  return '&&'
+"not"|"!"                                   return '!'
 
 "<<"                                        return '<<'
 ">>"                                        return '>>'
@@ -37,7 +36,7 @@
 "<"                                         return '<'
 "=="                                        return '=='
 
-"="                                         return 'DIRECT_ASSIGN' // TODO: Replace by ASSIGN and rethink the whole assign parsing
+"="                                         return '='
 
 ";"                                         return ';'
 "{"                                         return '{'
@@ -62,9 +61,9 @@
 "void"                                      return 'VOID'
 
 "include"                                   return 'INCLUDE'
-'using'                                     return 'using'
+'using'                                     return 'USING'
 'namespace'                                 return 'NAMESPACE'
-'std'                                       return 'std'
+'std'                                       return 'STD'
 
 "if"                                        return 'IF'
 "else"                                      return 'ELSE'
@@ -86,17 +85,17 @@
 /lex
 
 /* operator associations and precedence */
-%right '+=' '-=' '*=' '/=' '%=' DIRECT_ASSIGN
-%left OR
-%left AND
+%right '+=' '-=' '*=' '/=' '%=' '='
+%left '||'
+%left '&&'
 %left '==' '!='
 %left '<' '>' '<=' '>='
 %left '>>' '<<'
-%left PLUS MINUS
-%left MUL DIV MOD
-%right NOT UPLUS UMINUS
-%right PRE_INC PRE_DEC
-%left POST_INC POST_DEC
+%left '+' '-'
+%left '*' '/' '%'
+%right '!' 'u+' 'u-'
+%right '++a' '--a'
+%left 'a++' 'a--'
 %right THEN ELSE
 
 %start prog
@@ -118,7 +117,7 @@ block_includes
 include
     : '#' INCLUDE '<' id '>'
         {$$ = new yy.Ast('INCLUDE', [$4]);}
-    | 'using' NAMESPACE 'std' ';'
+    | USING NAMESPACE STD ';'
         {$$ = new yy.Ast('NAMESPACE', [$4]);}
     ;
 
@@ -258,7 +257,7 @@ instruction_body
     ;
 
 direct_assign
-    : id DIRECT_ASSIGN expr
+    : id '=' expr
         {$$ = new yy.Ast('ASSIGN', [$1, $3]);}
     ;
 
@@ -295,26 +294,26 @@ type
     ;
 
 expr
-    : expr PLUS expr
-        {$$ = new yy.Ast('PLUS', [$1,$3]);}
-    | expr MINUS expr
-        {$$ = new yy.Ast('MINUS', [$1,$3]);}
-    | expr MUL expr
-        {$$ = new yy.Ast('MUL', [$1,$3]);}
-    | expr DIV expr
-        {$$ = new yy.Ast('DIV', [$1,$3]);}
-    | expr MOD expr
-        {$$ = new yy.Ast('MOD', [$1,$3]);}
-    | expr AND expr
-        {$$ = new yy.Ast('AND', [$1,$3]);}
-    | expr OR expr
-        {$$ = new yy.Ast('OR', [$1,$3]);}
-    | MINUS expr
-        {$$ = new yy.Ast('UMINUS', [$2]);}
-    | PLUS expr
-        {$$ = new yy.Ast('UPLUS', [$2]);}
-    | NOT expr
-        {$$ = new yy.Ast('NOT', [$2]);}
+    : expr '+' expr
+        {$$ = new yy.Ast('+', [$1,$3]);}
+    | expr '-' expr
+        {$$ = new yy.Ast('-', [$1,$3]);}
+    | expr '*' expr
+        {$$ = new yy.Ast('*', [$1,$3]);}
+    | expr '/' expr
+        {$$ = new yy.Ast('/', [$1,$3]);}
+    | expr '%' expr
+        {$$ = new yy.Ast('%', [$1,$3]);}
+    | expr '&&' expr
+        {$$ = new yy.Ast('&&', [$1,$3]);}
+    | expr '||' expr
+        {$$ = new yy.Ast('||', [$1,$3]);}
+    | '-' expr %prec 'u-'
+        {$$ = new yy.Ast('u-', [$2]);}
+    | '+' expr %prec 'u+'
+        {$$ = new yy.Ast('u+', [$2]);}
+    | '!' expr
+        {$$ = new yy.Ast('!', [$2]);}
     | expr '<' expr
         {$$ = new yy.Ast('<', [$1,$3]);}
     | expr '>' expr
@@ -338,24 +337,24 @@ expr
     | STRING_LIT
         {$$ = new yy.Ast('STRING_LIT', [$1]);}
     | direct_assign
-    | '++' id %prec PRE_INC
-        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('PLUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
-    | '--' id %prec PRE_DEC
-        {$$ = new yy.Ast('ASSIGN', [$2, new yy.Ast('MINUS', [$2, new yy.Ast('INT_LIT', [1])])]);}
-    | id '++' %prec POST_INC
-        {$$ = new yy.Ast('POST_INC', [$1]);}
-    | id '--' %prec POST_DEC
-        {$$ = new yy.Ast('POST_DEC', [$1]);}
+    | '++' id %prec '++a'
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [$2, new yy.Ast('INT_LIT', ['1'])])]);} // TODO: Maybe this should be better done in the semantics/interpreter
+    | '--' id %prec '--a'
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('-', [$2, new yy.Ast('INT_LIT', ['1'])])]);}
+    | id '++' %prec 'a++'
+        {$$ = new yy.Ast('a++', [$1]);}
+    | id '--' %prec 'a--'
+        {$$ = new yy.Ast('a--', [$1]);}
     | id '+=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('PLUS', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('+', [$1,$3])]);}
     | id '-=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MINUS', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('-', [$1,$3])]);}
     | id '*=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MUL', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('*', [$1,$3])]);}
     | id '/=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('DIV', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('/', [$1,$3])]);}
     | id '%=' expr
-        {$$ = new yy.Ast('ASSIGN', [$1, new yy.Ast('MOD', [$1,$3])]);}
+        {$$ = new yy.Ast('=', [$1, new yy.Ast('%', [$1,$3])]);}
     | id
     | cin
     | funcall

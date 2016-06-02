@@ -66,6 +66,8 @@ module.exports = @
             id    = T.left().left()
             value = e T.right()
 
+            console.log {id,value}
+
             Stack.setVariable id, value
             value
 
@@ -133,7 +135,6 @@ module.exports = @
                 word = io.getWord(io.STDIN)
                 if word?
                     { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
-                    console.log ({leftover, value})
                     if value?
                         if leftover.length > 0
                             io.unshiftWord(io.STDIN, leftover)

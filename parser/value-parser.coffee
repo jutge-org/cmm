@@ -34,7 +34,6 @@ module.exports = @
                 if index >= 0
                     ++index
 
-
             if index > 0
                 value: parseInt word[0...index]
                 leftover: word[index..]
