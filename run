@@ -3,4 +3,4 @@ pkill node
 cd browser
 ./browserify.sh
 http-server -c-1 . &
-google-chrome http://localhost:8080
+google-chrome http://localhost:8080 &
