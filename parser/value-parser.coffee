@@ -25,6 +25,7 @@ module.exports = @
             assert false
 
 @parseInputWord = (word, type) ->
+    # FIXME: This should be rewritten, it's totally broken
     switch type
         when TYPES.INT
             unless /[0-9\-]/.test(word[0])
@@ -49,6 +50,8 @@ module.exports = @
             foundDot = no
 
             if /[0-9\-\.]/.test(word[0])
+                if word[0] is '.'
+                    foundDot = true
                 index = 1
                 while index < word.length and not end
                     if word[index] is '.'
