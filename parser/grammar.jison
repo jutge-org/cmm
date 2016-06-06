@@ -74,7 +74,8 @@
 "while"                                     return 'WHILE'
 "for"                                       return 'FOR'
 
-"true"|"false"                              return 'BOOL_LIT'
+"true"                                      return 'BOOL_LIT'
+"false"                                     return 'BOOL_LIT'
 [0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
 ([1-9][0-9]*|0)                             return 'INT_LIT'
 \'([^\\\']|\\.)\'                           return 'CHAR_LIT'
