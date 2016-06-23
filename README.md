@@ -15,4 +15,4 @@ Run
 ---
 From the project directory, just run `./run` from the terminal, a new browser window should pop-up.
 
-## [Try it!](http://c--lang.xyz/)
+## [Try it!](https://cmm.jutge.org/)
