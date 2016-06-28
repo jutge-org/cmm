@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jutge-org/cmm.svg?branch=master)](https://travis-ci.org/jutge-org/cmm)
+
 # C--
 C-- is a C++ shell interpreter that can be embedded in the browser.
 
