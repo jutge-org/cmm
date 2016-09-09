@@ -1,6 +1,6 @@
 {
   "name": "c--",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "C-- interpreter.",
   "main": "index.js",
   "scripts": {
@@ -8,26 +8,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ghastgar/C--.git"
+    "url": "git+https://github.com/jutge-org/cmm.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ghastgar/C--/issues"
+    "url": "https://github.com/jutge-org/cmm/issues"
   },
-  "homepage": "https://github.com/ghastgar/C--#readme",
-  "dependencies": {
-    "browserify": "^13.1.0",
-    "coffeeify": "^2.0.1",
-    "gulp-uglify": "^2.0.0",
-    "jison": "^0.4.17",
-    "jisonify": "^1.0.4",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
-  },
+  "homepage": "https://github.com/jutge-org/cmm#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
-    "mocha": "*"
+    "mocha": "*",
+    "browserify": "^13.1.0",
+    "coffeeify": "^2.0.1",
+    "gulp-uglify": "^2.0.0",
+    "jisonify": "^1.0.4",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
