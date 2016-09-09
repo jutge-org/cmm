@@ -19,11 +19,9 @@
   "dependencies": {
     "browserify": "^13.1.0",
     "coffeeify": "^2.0.1",
-    "commander": "^2.9.0",
     "gulp-uglify": "^2.0.0",
     "jison": "^0.4.17",
     "jisonify": "^1.0.4",
-    "shell": "^0.3.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   },
