@@ -1,6 +1,6 @@
 {
   "name": "c--",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "C-- interpreter.",
   "main": "index.js",
   "scripts": {
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ghastgar/C--.git"
+    "url": "git+https://github.com/jutge-org/cmm.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ghastgar/C--/issues"
+    "url": "https://github.com/jutge-org/cmm/issues"
   },
-  "homepage": "https://github.com/ghastgar/C--#readme",
+  "homepage": "https://github.com/jutge-org/cmm#readme",
   "dependencies": {
     "browserify": "^13.1.0",
     "coffeeify": "^2.0.1",
