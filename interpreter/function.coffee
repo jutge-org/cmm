@@ -53,7 +53,8 @@ functions = null
 
     try
         runner = new Runner(instructions)
-        runner.begin()
+        while runner.getNumberInstructions() > 0
+            runner.next()
     catch maybeError
         if maybeError?.return is yes # The function returned
             { value: result } = maybeError

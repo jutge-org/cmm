@@ -11,9 +11,18 @@ io = require './io'
 module.exports = class Runner
     constructor: (T) ->
         @root = T
+        @instructionQueue = [T]
 
-    begin: ->
-        @executeInstruction @root
+    next: ->
+        assert @instructionQueue.length > 0
+        T = @instructionQueue.shift()
+        @executeInstruction T
+
+    getNumberInstructions: ->
+        @instructionQueue.length
+
+    pushInstruction: (T) ->
+        @instructionQueue.push T
 
     executeInstruction: (T) ->
         assert T?
