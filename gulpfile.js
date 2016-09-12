@@ -18,5 +18,14 @@ gulp.task('build', function() {
         .pipe(gulp.dest('./lib'))
 });
 
+gulp.task('dev', function() {
+    return browserify('./index.coffee', {extensions:['.coffee']})
+        .transform(coffeeify)
+        .transform(jisonify)
+        .bundle()
+        .pipe(source('index.js'))
+        .pipe(gulp.dest('./lib'))
+});
+
 gulp.task('default', ['build'], function() {
 });
