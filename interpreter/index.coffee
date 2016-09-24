@@ -25,4 +25,7 @@ module.exports = @
         io.output io.STDERR, error.message
         status = error.code
 
-    { status, stdout: io.getStream(io.STDOUT), stderr: io.getStream(io.STDERR), output: io.getStream(io.INTERLEAVED) }
+    { status, stderr: io.getStream(io.STDERR) }
+
+@onstdout = (cb) ->
+    io.setStdoutCB cb
