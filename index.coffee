@@ -5,14 +5,20 @@ Ast = require './parser/ast.coffee'
 
 parser.yy = { Ast }
 
-
-self.compile = (code) ->
+@compile = (code) ->
     ast = parser.parse code
     ast = checkSemantics ast
 
     ast
 
-self.execute = (ast, input) ->
+@execute = (ast, input) ->
     interpreter.load ast
 
     interpreter.run(input)
+
+@events = {
+    onstdout: (cb) -> interpreter.onstdout cb
+}
+
+
+self.cmm = @

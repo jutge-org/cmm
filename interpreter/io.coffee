@@ -12,6 +12,8 @@ module.exports = class IO
     @STDERR: 2
     @INTERLEAVED: 3
 
+    @stdoutCB: null
+
     @reset: ->
         for stream of IO.streams
             IO.streams[stream] = ""
@@ -24,6 +26,7 @@ module.exports = class IO
         IO.streams[IO.INTERLEAVED] += string
 
         IO.streams[stream] += string
+        IO.stdoutCB IO.streams[IO.STDOUT]
 
     @setInput: (stream, input) ->
         assert (typeof input is "string")
@@ -43,3 +46,5 @@ module.exports = class IO
         IO.streams[stream].unshift(word)
 
     @getStream: (stream) -> IO.streams[stream]
+
+    @setStdoutCB: (cb) -> IO.stdoutCB = cb
