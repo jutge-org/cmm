@@ -2,7 +2,7 @@ assert = require 'assert'
 
 Stack   = require './stack'
 Ast     = require '../parser/ast'
-{ evaluateExpression } = require './expression'
+{ evaluateExpression, dataStack } = require './expression'
 Func = require './function'
 io = require './io'
 

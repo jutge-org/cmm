@@ -129,6 +129,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if variableType is TYPES.VOID
                 throw Error.VOID_DECLARATION.complete('name', variableId)
 
+            ast.getChild(0).setType(NODES.IDLHS) #Perque a expression no s'avalui el contingut de la part esquerra
+
             valueAst = ast.getChild(1)
 
             valueType = checkAndPreprocess valueAst, definedVariables, functionId
@@ -263,7 +265,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 tryToCast valueAst, type, TYPES.BOOL
 
             return TYPES.BOOL
-        when OPERATORS.POST_INC
+        when OPERATORS.POST_INC, OPERATORS.POST_DEC
             # Comprovar/castejar que el tipus sigui
             # o bé integral (char castejat a int o int o bool cast a int)
             # o bé real (double).
@@ -274,19 +276,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if type isnt TYPES.DOUBLE and type isnt TYPES.INT
                 tryToCast ast.child(), type, TYPES.INT
                 return TYPES.INT
-            return type
-
-        when OPERATORS.POST_DEC
-            # Comprovar/castejar que el tipus sigui
-            # o bé integral (char castejat a int o int o bool cast a int)
-            # o bé real (double).
-
-            # Retorna tipus el del operand
-
-            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
-            if type isnt TYPES.DOUBLE and type isnt TYPES.INT
-                tryToCast ast.child(), type, TYPES.INT
-                return TYPES.INT
+            ast.child().setType NODES.IDLHS
             return type
         when STATEMENTS.IF_THEN
             # Comprovar/castejar que la condicio es un boolea
@@ -389,7 +379,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
-                        child.addParent definedVariables[varId]
+                        child.addParent definedVariables[varId], leaf=yes
             return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES
@@ -400,6 +390,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 if child.getType() is NODES.ENDL
                     child.setType(LITERALS.STRING)
                     child.setChild(0, "\n")
+                    child.leaf = yes
                 else
                     type = checkAndPreprocess child, definedVariables, functionId
 
