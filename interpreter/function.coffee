@@ -52,7 +52,9 @@ functions = null
         Stack.defineVariable id, value
 
     try
-        Runner.executeInstruction instructions
+        runner = new Runner(instructions)
+        while runner.getNumberInstructions() > 0
+            runner.next()
     catch maybeError
         if maybeError?.return is yes # The function returned
             { value: result } = maybeError
