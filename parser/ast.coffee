@@ -63,6 +63,7 @@ module.exports = class Ast
             ARG_LIST: 'ARG-LIST'
             ARG: 'ARG'
             ID: 'ID'
+            IDLHS: 'ID-LHS'
             DECLARATION: 'DECLARATION'
             FUNCALL: 'FUNCALL'
             PARAM_LIST: 'PARAM-LIST'
@@ -95,24 +96,30 @@ module.exports = class Ast
             CIN2BOOL: 'CIN2BOOL'
         })
 
-    constructor: (@type, @children) ->
+    constructor: (@type, @children, @leaf = no) ->
         assert (typeof @type is "string")
         assert Array.isArray(@children)
 
     @copyOf: (ast) ->
         new Ast(ast.type,
             for child in ast.children
-                if child instanceof Ast then Ast.copyOf(child) else child 
+                if child instanceof Ast then Ast.copyOf(child) else child
+            ,
+            ast.leaf
         )
 
     getType: -> @type
 
+    isLeaf: -> @leaf
+
     setType: (@type) ->
 
-    addParent: (type) ->
+    addParent: (type, leaf=no) ->
         currentType = @type
         @type = type
-        @children = [new Ast(currentType, @children)]
+        isLeaf = @leaf
+        @leaf = leaf
+        @children = [new Ast(currentType, @children, isLeaf)]
 
     # These are to simplify and beautify some code
     child: -> @children[0]

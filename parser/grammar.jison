@@ -185,7 +185,7 @@ return_stmt
 
 funcall
     : id '(' param_list ')'
-        {$$ = new yy.Ast('FUNCALL', [$1,$3]);}
+        {$$ = new yy.Ast('FUNCALL', [$1,$3], leaf=true);}
     ;
 
 param_list
@@ -235,7 +235,7 @@ block_cin
     : block_cin '>>' id
         {$$.addChild($3);}
     | '>>' id
-        {$$ = new yy.Ast('CIN', [$2]);}
+        {$$ = new yy.Ast('CIN', [$2], leaf=true);}
     ;
 
 cout
@@ -332,20 +332,20 @@ expr
     | expr '!=' expr
         {$$ = new yy.Ast('!=', [$1,$3]);}
     | DOUBLE_LIT
-        {$$ = new yy.Ast('DOUBLE_LIT', [$1]);}
+        {$$ = new yy.Ast('DOUBLE_LIT', [$1], leaf=true);}
     | INT_LIT
-        {$$ = new yy.Ast('INT_LIT', [$1]);}
+        {$$ = new yy.Ast('INT_LIT', [$1], leaf=true);}
     | CHAR_LIT
-        {$$ = new yy.Ast('CHAR_LIT', [$1])}
+        {$$ = new yy.Ast('CHAR_LIT', [$1], leaf=true)}
     | BOOL_LIT
-        {$$ = new yy.Ast('BOOL_LIT', [$1]);}
+        {$$ = new yy.Ast('BOOL_LIT', [$1], leaf=true);}
     | STRING_LIT
-        {$$ = new yy.Ast('STRING_LIT', [$1]);}
+        {$$ = new yy.Ast('STRING_LIT', [$1], leaf=true);}
     | direct_assign
     | '++' id %prec '++a'
-        {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'])])]);} // TODO: Maybe this should be better done in the semantics/interpreter
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'], leaf=true)])]);} // TODO: Maybe this should be better done in the semantics/interpreter
     | '--' id %prec '--a'
-        {$$ = new yy.Ast('=', [$2, new yy.Ast('-', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'])])]);}
+        {$$ = new yy.Ast('=', [$2, new yy.Ast('-', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'], leaf=true)])]);}
     | id '++' %prec 'a++'
         {$$ = new yy.Ast('a++', [$1]);}
     | id '--' %prec 'a--'
@@ -369,5 +369,5 @@ expr
 
 id
     : ID
-        {$$ = new yy.Ast('ID', [$1]);}
+        {$$ = new yy.Ast('ID', [$1], leaf=true);}
     ;
