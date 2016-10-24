@@ -13,7 +13,6 @@ module.exports = @
 
 callStack = []
 dataStack = []
-@dataStack = dataStack
 
 prepareAST = (T) ->
     return if not T?

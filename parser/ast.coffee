@@ -69,6 +69,7 @@ module.exports = class Ast
             PARAM_LIST: 'PARAM-LIST'
             ENDL: 'ENDL'
             TYPE_DECL: 'TYPE-DECL'
+            CLOSE_SCOPE: 'CLOSE_SCOPE'
         })
 
     @CASTS: Object.freeze({
@@ -97,6 +98,7 @@ module.exports = class Ast
         })
 
     constructor: (@type, @children, @leaf = no) ->
+        @instr = no
         assert (typeof @type is "string")
         assert Array.isArray(@children)
 
@@ -130,7 +132,13 @@ module.exports = class Ast
 
     getChildren: -> @children
 
-    addChild: (child) -> @children.push child
+    setIsInstr: (@instr) ->
+
+    setId: (@id) ->
+
+    addChild: (child, instr=no) ->
+        child.setIsInstr yes if instr
+        @children.push child
 
     setChild: (i, value) -> @children[i] = value
 

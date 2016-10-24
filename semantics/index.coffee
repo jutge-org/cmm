@@ -42,6 +42,8 @@ SIZE_OF_TYPE[TYPES.DOUBLE] = 64
 isIntegral = (type) -> type in [TYPES.INT, TYPES.BOOL, TYPES.CHAR]
 isAssignable = (type) -> type not in [TYPES.FUNCTION, TYPES.VOID]
 
+NODE_INDEX = 0
+
 module.exports = @
 
 functions = {}
@@ -413,6 +415,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
 
+enumerateInstructions = (T) ->
+    for child in T.getChildren()
+        child.setId ++NODE_INDEX if child.instr
+        enumerateInstructions child if child instanceof Ast
+
 
 @checkSemantics = (root) ->
     assert root?
@@ -469,10 +476,12 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         blockInstructionsAst = functionAst.getChild(3)
         assert blockInstructionsAst.getType() is NODES.BLOCK_INSTRUCTIONS
         checkAndPreprocess(blockInstructionsAst, definedVariablesAux, functionId)
+        enumerateInstructions blockInstructionsAst
 
     if definedVariables.main isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED
     else if functions.main.returnType isnt TYPES.INT
         throw Error.INVALID_MAIN_TYPE
 
+    NODE_INDEX = 0
     ast

@@ -154,7 +154,7 @@ arg
 
 block_instr
     : block_instr instruction
-        {$$.addChild($2);}
+        {$$.addChild($2, instr=true);}
     |
         {$$ = new yy.Ast('BLOCK-INSTRUCTIONS', []);}
     ;
