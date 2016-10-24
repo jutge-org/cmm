@@ -12,11 +12,7 @@ module.exports = class Runner
     constructor: (T) ->
         @root = T
         @instructionQueue = [T]
-
-    next: ->
-        assert @instructionQueue.length > 0
-        T = @instructionQueue.shift()
-        @executeInstruction T
+        @openScopes = {}
 
     getNumberInstructions: ->
         @instructionQueue.length
@@ -24,12 +20,15 @@ module.exports = class Runner
     pushInstruction: (T) ->
         @instructionQueue.push T
 
-    executeInstruction: (T) ->
-        assert T?
+    unwrapBlock: (T, closeScope = no) ->
+        @pushInstruction new Ast NODES.CLOSE_SCOPE, [] if closeScope
+        for child in T.getChildren() by -1
+            @pushInstruction child
+
+    executeInstructionHelper: (T) ->
         switch T.getType()
             when NODES.BLOCK_INSTRUCTIONS
-                for child in T.getChildren()
-                    @executeInstruction child
+                @unwrapBlock T
             when NODES.DECLARATION
                 declarations = T.getChild 1
                 for declaration in declarations
@@ -51,28 +50,41 @@ module.exports = class Runner
             when STATEMENTS.IF_THEN
                 if evaluateExpression T.left()
                     Stack.openNewScope()
-                    @executeInstruction T.right()
-                    Stack.closeScope()
+                    @unwrapBlock T.right(), closeScope=yes
             when STATEMENTS.IF_THEN_ELSE
                 Stack.openNewScope()
                 if evaluateExpression T.left()
-                    @executeInstruction T.right()
+                    @unwrapBlock T.right(), closeScope=yes
                 else
-                    @executeInstruction T.getChild 2
-                Stack.closeScope()
+                    @unwrapBlock T.getChild(2), closeScope=yes
             when STATEMENTS.WHILE
-                Stack.openNewScope()
-                while evaluateExpression T.left()
-                    @executeInstruction T.right()
-                Stack.closeScope()
+                if T.id not of @openScopes
+                    @openScopes[T.id] = yes
+                    Stack.openNewScope()
+                if evaluateExpression T.left()
+                    @pushInstruction T
+                    @unwrapBlock  T.right()
+                else
+                    Stack.closeScope()
+                    delete @openScopes[T.id]
             when STATEMENTS.FOR
-                Stack.openNewScope()
-                @executeInstruction T.getChild(0)
-                while evaluateExpression T.getChild(1)
-                    @executeInstruction T.getChild(3)
-                    @executeInstruction T.getChild(2)
+                if T.id not of @openScopes
+                    @openScopes[T.id] = yes
+                    @executeInstructionHelper T.getChild(0)
+                    Stack.openNewScope()
+                if evaluateExpression T.getChild(1)
+                    @pushInstruction T
+                    @pushInstruction T.getChild(2)
+                    @unwrapBlock T.getChild(3)
+                else
+                    Stack.closeScope()
+                    delete @openScopes[T.id]
+            when NODES.CLOSE_SCOPE
                 Stack.closeScope()
-            # TODO: Remember to add new scopes when handling for*, if, else and while statements
-            #       * Its scope needs to handle also the initialization, condition and increment parts of the for statements
             else
                 evaluateExpression T
+
+    executeInstruction: () ->
+        while @instructionQueue.length > 0
+            T = @instructionQueue.pop()
+            @executeInstructionHelper T
