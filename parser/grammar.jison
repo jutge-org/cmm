@@ -256,7 +256,7 @@ block_cout
 
 instruction_body
     : instruction
-        {$$ = new yy.Ast('BLOCK-INSTRUCTIONS', [$1]);}
+        {$1.setIsInstr(true); $$ = new yy.Ast('BLOCK-INSTRUCTIONS', [$1]);}
     | '{' block_instr '}'
         {$$ = $2;}
     ;
