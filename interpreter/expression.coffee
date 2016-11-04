@@ -5,14 +5,12 @@ Ast   = require '../parser/ast'
 Func = require './function'
 error = require '../error'
 valueParser = require '../parser/value-parser'
+{ callStack, dataStack, returnStack } = require './vm-state'
 io = require './io'
 
 { NODES, OPERATORS, LITERALS, CASTS, STATEMENTS } = Ast
 
 module.exports = @
-
-callStack = []
-dataStack = []
 
 prepareAST = (T) ->
     return if not T?
@@ -149,8 +147,8 @@ prepareAST = (T) ->
             when CASTS.CIN2BOOL
                 dataStack.push dataStack.pop()
 
-            when NODES.FUNCALL
-                dataStack.push(Func.executeFunction(T))
+            when NODES.FUNC_VALUE
+                dataStack.push(returnStack.pop())
 
             when STATEMENTS.CIN
                 allRead = yes
