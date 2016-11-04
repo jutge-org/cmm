@@ -1,7 +1,6 @@
 assert = require 'assert'
 
 Stack = require './stack'
-Runner = require './runner'
 Ast = require '../parser/ast'
 Error = require '../error'
 Expression = require './expression'
@@ -25,7 +24,7 @@ functions = null
         functions[funcId] = { type, argIds, instructions: functionTree.getChild(3) }
     return
 
-@executeFunction = (T) ->
+@initFunction = (T) ->
     funcId = T.getChild(0).getChild(0)
     argValuesAst = T.getChild(1)
 
@@ -51,22 +50,7 @@ functions = null
     for { id, value } in argIdValuePairs
         Stack.defineVariable id, value
 
-    try
-        runner = new Runner(instructions)
-        runner.executeInstruction()
-    catch maybeError
-        if maybeError?.return is yes # The function returned
-            { value: result } = maybeError
-        else
-            throw maybeError # You can omit the maybe
+    instructions
 
+@finalizeFunction = ->
     Stack.popActivationRecord()
-
-    # If main function is executed and no result is returned, value 0 is returned
-    if not result?
-        if funcId is "main"
-            result = 0
-        else if type isnt TYPES.VOID
-            throw Error.NO_RETURN.complete("name", funcId)
-
-    result

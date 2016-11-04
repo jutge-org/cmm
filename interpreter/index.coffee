@@ -3,7 +3,8 @@ assert = require 'assert'
 Error = require '../error'
 Ast = require '../parser/ast'
 Stack = require './stack'
-{ mapFunctions, executeFunction } = require './function'
+{ mapFunctions, initFunction, finalizeFunction } = require './function'
+{ initRunner, executeInstruction } = require './runner'
 io = require './io'
 
 { NODES } = Ast
@@ -14,12 +15,15 @@ module.exports = @
     assert root?
     mapFunctions root
 
-@run = (input) =>
+@run = (input) ->
     io.reset()
     io.setInput(io.STDIN, input)
 
     try
-        status = executeFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
+        instructions = initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
+        initRunner instructions
+        status = executeInstruction()
+        finalizeFunction()
     catch error
         console.error error.stack ? error.message ? error
         io.output io.STDERR, error.message

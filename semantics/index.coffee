@@ -420,6 +420,18 @@ enumerateInstructions = (T) ->
         child.setId ++NODE_INDEX if child.instr
         enumerateInstructions child if child instanceof Ast
 
+preprocessFunctionCalls = (T, currentBlockInstr, currentInstr) ->
+    for child in T.getChildren()
+        continue if not (child instanceof Ast)
+        block = if child.getType() is NODES.BLOCK_INSTRUCTIONS then child else currentBlockInstr
+        instr = if child.instr then child else currentInstr
+        preprocessFunctionCalls child, block, instr
+        if child.getType() is NODES.FUNCALL and not child.instr
+            index = currentBlockInstr.getChildren().indexOf(currentInstr)
+            currentBlockInstr.getChildren().splice(index, 0, Ast.copyOf child)
+            child.setType NODES.FUNC_VALUE
+            child.clearChildren()
+
 
 @checkSemantics = (root) ->
     assert root?
@@ -477,6 +489,8 @@ enumerateInstructions = (T) ->
         assert blockInstructionsAst.getType() is NODES.BLOCK_INSTRUCTIONS
         checkAndPreprocess(blockInstructionsAst, definedVariablesAux, functionId)
         enumerateInstructions blockInstructionsAst
+        preprocessFunctionCalls blockInstructionsAst, blockInstructionsAst, blockInstructionsAst.getChild(0)
+        blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if returnType is TYPES.VOID
 
     if definedVariables.main isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED

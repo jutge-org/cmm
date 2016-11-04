@@ -3,88 +3,95 @@ assert = require 'assert'
 Stack   = require './stack'
 Ast     = require '../parser/ast'
 { evaluateExpression } = require './expression'
+{ instructionQueue, returnStack } = require './vm-state'
+{ initFunction, finalizeFunction } = require './function'
 Func = require './function'
 io = require './io'
 
 { NODES, STATEMENTS, OPERATORS } = Ast
 
-module.exports = class Runner
-    constructor: (T) ->
-        @root = T
-        @instructionQueue = [T]
-        @openScopes = {}
+module.exports = @
 
-    getNumberInstructions: ->
-        @instructionQueue.length
+@initRunner = (T) ->
+    @root = T
+    instructionQueue = [T]
+    @openScopes = {}
 
-    pushInstruction: (T) ->
-        @instructionQueue.push T
+@getNumberInstructions = ->
+    instructionQueue.length
 
-    unwrapBlock: (T, closeScope = no) ->
-        @pushInstruction new Ast NODES.CLOSE_SCOPE, [] if closeScope
-        for child in T.getChildren() by -1
-            @pushInstruction child
+pushInstruction = (T) ->
+    instructionQueue.push T
 
-    executeInstructionHelper: (T) ->
-        switch T.getType()
-            when NODES.BLOCK_INSTRUCTIONS
-                @unwrapBlock T
-            when NODES.DECLARATION
-                declarations = T.getChild 1
-                for declaration in declarations
-                    if declaration.getType() is OPERATORS.ASSIGN
-                        varName = declaration.child().child()
-                        value = evaluateExpression declaration.getChild 1
-                        Stack.defineVariable varName, value
-                    else if declaration.getType() is NODES.ID
-                        varName = declaration.child()
-                        Stack.defineVariable varName
-            when STATEMENTS.COUT
-                for outputItem in T.getChildren()
-                    io.output io.STDOUT, evaluateExpression(outputItem)
-            when STATEMENTS.RETURN
-                value = evaluateExpression T.child()
-                throw { return: yes, value }
-            when STATEMENTS.NOP
-                (->)() # Just add this comment to fill this lonely emptiness...
-            when STATEMENTS.IF_THEN
-                if evaluateExpression T.left()
-                    Stack.openNewScope()
-                    @unwrapBlock T.right(), closeScope=yes
-            when STATEMENTS.IF_THEN_ELSE
+unwrapBlock = (T, closeScope = no) ->
+    pushInstruction new Ast NODES.CLOSE_SCOPE, [] if closeScope
+    for child in T.getChildren() by -1
+        pushInstruction child
+
+executeInstructionHelper = (T) ->
+    switch T.getType()
+        when NODES.BLOCK_INSTRUCTIONS
+            unwrapBlock T
+        when NODES.DECLARATION
+            declarations = T.getChild 1
+            for declaration in declarations
+                if declaration.getType() is OPERATORS.ASSIGN
+                    varName = declaration.child().child()
+                    value = evaluateExpression declaration.getChild 1
+                    Stack.defineVariable varName, value
+                else if declaration.getType() is NODES.ID
+                    varName = declaration.child()
+                    Stack.defineVariable varName
+        when STATEMENTS.COUT
+            for outputItem in T.getChildren()
+                io.output io.STDOUT, evaluateExpression(outputItem)
+        when STATEMENTS.RETURN
+            value = evaluateExpression T.child()
+            returnStack.push value
+            finalizeFunction()
+        when STATEMENTS.NOP
+            (->)() # Just add this comment to fill this lonely emptiness...
+        when STATEMENTS.IF_THEN
+            if evaluateExpression T.left()
                 Stack.openNewScope()
-                if evaluateExpression T.left()
-                    @unwrapBlock T.right(), closeScope=yes
-                else
-                    @unwrapBlock T.getChild(2), closeScope=yes
-            when STATEMENTS.WHILE
-                if T.id not of @openScopes
-                    @openScopes[T.id] = yes
-                    Stack.openNewScope()
-                if evaluateExpression T.left()
-                    @pushInstruction T
-                    @unwrapBlock  T.right()
-                else
-                    Stack.closeScope()
-                    delete @openScopes[T.id]
-            when STATEMENTS.FOR
-                if T.id not of @openScopes
-                    @openScopes[T.id] = yes
-                    @executeInstructionHelper T.getChild(0)
-                    Stack.openNewScope()
-                if evaluateExpression T.getChild(1)
-                    @pushInstruction T
-                    @pushInstruction T.getChild(2)
-                    @unwrapBlock T.getChild(3)
-                else
-                    Stack.closeScope()
-                    delete @openScopes[T.id]
-            when NODES.CLOSE_SCOPE
-                Stack.closeScope()
+                unwrapBlock T.right(), closeScope=yes
+        when STATEMENTS.IF_THEN_ELSE
+            Stack.openNewScope()
+            if evaluateExpression T.left()
+                unwrapBlock T.right(), closeScope=yes
             else
-                evaluateExpression T
+                unwrapBlock T.getChild(2), closeScope=yes
+        when STATEMENTS.WHILE
+            if T.id not of @openScopes
+                @openScopes[T.id] = yes
+                Stack.openNewScope()
+            if evaluateExpression T.left()
+                pushInstruction T
+                unwrapBlock  T.right()
+            else
+                Stack.closeScope()
+                delete @openScopes[T.id]
+        when STATEMENTS.FOR
+            if T.id not of @openScopes
+                @openScopes[T.id] = yes
+                executeInstructionHelper T.getChild(0)
+                Stack.openNewScope()
+            if evaluateExpression T.getChild(1)
+                pushInstruction T
+                pushInstruction T.getChild(2)
+                unwrapBlock T.getChild(3)
+            else
+                Stack.closeScope()
+                delete @openScopes[T.id]
+        when NODES.CLOSE_SCOPE
+            Stack.closeScope()
+        when NODES.FUNCALL
+            pushInstruction initFunction T
+        else
+            evaluateExpression T
 
-    executeInstruction: () ->
-        while @instructionQueue.length > 0
-            T = @instructionQueue.pop()
-            @executeInstructionHelper T
+@executeInstruction = ->
+    while instructionQueue.length > 0
+        T = instructionQueue.pop()
+        executeInstructionHelper T
+    return 0

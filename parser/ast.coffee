@@ -70,6 +70,7 @@ module.exports = class Ast
             ENDL: 'ENDL'
             TYPE_DECL: 'TYPE-DECL'
             CLOSE_SCOPE: 'CLOSE_SCOPE'
+            FUNC_VALUE: 'FUNC_VALUE'
         })
 
     @CASTS: Object.freeze({
@@ -141,5 +142,7 @@ module.exports = class Ast
         @children.push child
 
     setChild: (i, value) -> @children[i] = value
+
+    clearChildren: () -> @children = []
 
     getChildCount: -> @children.length
