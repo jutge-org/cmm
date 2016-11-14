@@ -71,6 +71,7 @@ module.exports = class Ast
             TYPE_DECL: 'TYPE-DECL'
             CLOSE_SCOPE: 'CLOSE_SCOPE'
             FUNC_VALUE: 'FUNC_VALUE'
+            CIN_VALUE: 'CIN_VALUE'
         })
 
     @CASTS: Object.freeze({

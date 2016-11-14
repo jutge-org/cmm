@@ -4,9 +4,7 @@ Stack = require './stack'
 Ast   = require '../parser/ast'
 Func = require './function'
 error = require '../error'
-valueParser = require '../parser/value-parser'
-{ callStack, dataStack, returnStack } = require './vm-state'
-io = require './io'
+{ callStack, dataStack, returnStack, cinStack } = require './vm-state'
 
 { NODES, OPERATORS, LITERALS, CASTS, STATEMENTS } = Ast
 
@@ -149,26 +147,8 @@ prepareAST = (T) ->
 
             when NODES.FUNC_VALUE
                 dataStack.push(returnStack.pop())
-
-            when STATEMENTS.CIN
-                allRead = yes
-                for inputItem in T.getChildren()
-                    id = inputItem.child().child()
-                    word = io.getWord(io.STDIN)
-                    if word?
-                        { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
-                        if value?
-                            if leftover.length > 0
-                                io.unshiftWord(io.STDIN, leftover)
-
-                            Stack.setVariable id, value
-                        else
-                            Stack.setVariable id, null
-                            allRead = no
-                    else
-                        Stack.setVariable id, null
-                        allRead = no
-                dataStack.push allRead
+            when NODES.CIN_VALUE
+                dataStack.push(cinStack.pop())
             else
                 assert false
     dataStack.pop()

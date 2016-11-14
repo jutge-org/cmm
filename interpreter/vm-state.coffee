@@ -4,3 +4,4 @@ module.exports = @
 @dataStack = []
 @instructionQueue = []
 @returnStack = []
+@cinStack = []
