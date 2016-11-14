@@ -3,7 +3,8 @@ assert = require 'assert'
 Stack   = require './stack'
 Ast     = require '../parser/ast'
 { evaluateExpression } = require './expression'
-{ instructionQueue, returnStack } = require './vm-state'
+{ instructionQueue, returnStack, dataStack, cinStack } = require './vm-state'
+valueParser = require '../parser/value-parser'
 { initFunction, finalizeFunction } = require './function'
 Func = require './function'
 io = require './io'
@@ -87,6 +88,25 @@ executeInstructionHelper = (T) ->
             Stack.closeScope()
         when NODES.FUNCALL
             pushInstruction initFunction T
+        when STATEMENTS.CIN
+            allRead = yes
+            for inputItem in T.getChildren()
+                id = inputItem.child().child()
+                word = io.getWord(io.STDIN)
+                if word?
+                    { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    if value?
+                        if leftover.length > 0
+                            io.unshiftWord(io.STDIN, leftover)
+
+                        Stack.setVariable id, value
+                    else
+                        Stack.setVariable id, null
+                        allRead = no
+                else
+                    Stack.setVariable id, null
+                    allRead = no
+            cinStack.push allRead
         else
             evaluateExpression T
 
@@ -94,4 +114,5 @@ executeInstructionHelper = (T) ->
     while instructionQueue.length > 0
         T = instructionQueue.pop()
         executeInstructionHelper T
-    return 0
+        yield T
+    yield 0

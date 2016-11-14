@@ -14,7 +14,13 @@ parser.yy = { Ast }
 @execute = (ast, input) ->
     interpreter.load ast
 
-    interpreter.run(input)
+    iterator = interpreter.run(input)
+
+    loop
+      { value, done } = iterator.next()
+      break unless not done
+      result = value
+    result
 
 @events = {
     onstdout: (cb) -> interpreter.onstdout cb

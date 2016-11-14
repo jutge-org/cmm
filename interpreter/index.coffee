@@ -22,14 +22,19 @@ module.exports = @
     try
         instructions = initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
         initRunner instructions
-        status = executeInstruction()
+        iterator = executeInstruction()
+        loop
+          { value, done } = iterator.next()
+          yield value
+          break unless not done
+          status = value
         finalizeFunction()
     catch error
         console.error error.stack ? error.message ? error
         io.output io.STDERR, error.message
         status = error.code
 
-    { status, stderr: io.getStream(io.STDERR) }
+    yield { status, stderr: io.getStream(io.STDERR) }
 
 @onstdout = (cb) ->
     io.setStdoutCB cb
