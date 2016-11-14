@@ -1,4 +1,4 @@
-assert = require 'assert'
+massert = require 'assert'
 
 Stack   = require './stack'
 Ast     = require '../parser/ast'
@@ -113,6 +113,6 @@ executeInstructionHelper = (T) ->
 @executeInstruction = ->
     while instructionQueue.length > 0
         T = instructionQueue.pop()
-        executeInstructionHelper T
         yield T
+        executeInstructionHelper T
     yield 0
