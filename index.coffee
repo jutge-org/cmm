@@ -18,9 +18,10 @@ parser.yy = { Ast }
 
     loop
       { value, done } = iterator.next()
+      yield value
       break unless not done
       result = value
-    result
+    yield result
 
 @events = {
     onstdout: (cb) -> interpreter.onstdout cb
