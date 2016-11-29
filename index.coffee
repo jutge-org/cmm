@@ -2,6 +2,7 @@
 { checkSemantics } = require './semantics/'
 interpreter = require './interpreter/'
 Ast = require './parser/ast.coffee'
+io = require './interpreter/io'
 
 parser.yy = { Ast }
 
@@ -22,6 +23,11 @@ parser.yy = { Ast }
       break unless not done
       result = value
     yield result
+
+@hooks = {
+    setInput: (input) -> io.setInput(io.STDIN, input)
+    isInputBufferEmpty: -> io.isInputBufferEmpty(io.STDIN)
+}
 
 @events = {
     onstdout: (cb) -> interpreter.onstdout cb

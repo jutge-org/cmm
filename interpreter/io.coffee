@@ -48,3 +48,5 @@ module.exports = class IO
     @getStream: (stream) -> IO.streams[stream]
 
     @setStdoutCB: (cb) -> IO.stdoutCB = cb
+
+    @isInputBufferEmpty: (stream) -> IO.streams[stream].length is 0

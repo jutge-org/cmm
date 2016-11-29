@@ -23,7 +23,7 @@ gulp.task('dev', function() {
         .transform(coffeeify)
         .transform(jisonify)
         .bundle()
-        .pipe(source('index.js'))
+        .pipe(source('index.min.js'))
         .pipe(gulp.dest('./lib'))
 });
 
