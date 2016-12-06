@@ -415,6 +415,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return TYPES.VOID
 
+# TODO: replace by jison enumerations
 enumerateInstructions = (T) ->
     for child in T.getChildren()
         child.setId ++NODE_INDEX if child.instr

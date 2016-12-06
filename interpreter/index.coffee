@@ -19,20 +19,15 @@ module.exports = @
     io.reset()
     io.setInput(io.STDIN, input)
 
-    try
-        instructions = initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
-        initRunner instructions
-        iterator = executeInstruction()
-        loop
-          { value, done } = iterator.next()
-          yield value
-          break unless not done
-          status = value
-        finalizeFunction()
-    catch error
-        console.error error.stack ? error.message ? error
-        io.output io.STDERR, error.message
-        status = error.code
+    instructions = initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
+    initRunner instructions
+    iterator = executeInstruction()
+    loop
+      { value, done } = iterator.next()
+      yield value
+      break unless not done
+      status = value
+    finalizeFunction()
 
     yield { status, stderr: io.getStream(io.STDERR) }
 
