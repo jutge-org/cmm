@@ -72,6 +72,7 @@ module.exports = class Ast
             CLOSE_SCOPE: 'CLOSE_SCOPE'
             FUNC_VALUE: 'FUNC_VALUE'
             CIN_VALUE: 'CIN_VALUE'
+            END_FUNC_BLOCK: 'END_FUNC_BLOCK'
         })
 
     @CASTS: Object.freeze({

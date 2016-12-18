@@ -505,6 +505,7 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
         enumerateInstructions blockInstructionsAst
         preprocessFunctionAndCinNodes blockInstructionsAst, blockInstructionsAst, blockInstructionsAst.getChild(0)
         blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if returnType is TYPES.VOID
+        blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if functionId is "main"
 
     if definedVariables.main isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED

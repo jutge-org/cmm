@@ -3,7 +3,7 @@ assert = require 'assert'
 Error = require '../error'
 Ast = require '../parser/ast'
 Stack = require './stack'
-{ mapFunctions, initFunction, finalizeFunction } = require './function'
+{ mapFunctions, initFunction } = require './function'
 { initRunner, executeInstruction } = require './runner'
 io = require './io'
 
@@ -19,15 +19,14 @@ module.exports = @
     io.reset()
     io.setInput(io.STDIN, input)
 
-    instructions = initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
-    initRunner instructions
+    initFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
+    initRunner()
     iterator = executeInstruction()
     loop
       { value, done } = iterator.next()
-      yield value
       break unless not done
+      yield value
       status = value
-    finalizeFunction()
 
     yield { status, stderr: io.getStream(io.STDERR) }
 
