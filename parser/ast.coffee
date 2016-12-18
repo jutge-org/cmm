@@ -72,6 +72,7 @@ module.exports = class Ast
             CLOSE_SCOPE: 'CLOSE_SCOPE'
             FUNC_VALUE: 'FUNC_VALUE'
             CIN_VALUE: 'CIN_VALUE'
+            END_FUNC_BLOCK: 'END_FUNC_BLOCK'
         })
 
     @CASTS: Object.freeze({
@@ -101,6 +102,7 @@ module.exports = class Ast
 
     constructor: (@type, @children, @leaf = no) ->
         @instr = no
+        @instrNumber = -1
         assert (typeof @type is "string")
         assert Array.isArray(@children)
 
@@ -136,10 +138,14 @@ module.exports = class Ast
 
     setIsInstr: (@instr) ->
 
+    setInstrNumber: (@instrNumber) ->
+
     setId: (@id) ->
 
-    addChild: (child, instr=no) ->
-        child.setIsInstr yes if instr
+    addChild: (child, instr=no, instrNumber=-1) ->
+        if instr
+            child.setIsInstr yes
+            child.setInstrNumber instrNumber
         @children.push child
 
     setChild: (i, value) -> @children[i] = value

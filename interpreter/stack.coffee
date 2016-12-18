@@ -5,8 +5,8 @@ module.exports = class Stack
     @stack: []
     @currentAR: null
 
-    @pushActivationRecord: ->
-        @currentAR = { scopesStack: [], variables: {} }
+    @pushActivationRecord: (funcName, args) ->
+        @currentAR = { scopesStack: [], variables: {}, funcName: funcName, args: args }
         @stack.push @currentAR
 
     @popActivationRecord: ->
@@ -17,28 +17,28 @@ module.exports = class Stack
             if @stack.length > 0 then @stack[@stack.length - 1] else null
 
     # Parameter value is optional, if ommited means variable has been declared but not yet assigned
-    @defineVariable: (name, value = null) ->
+    @defineVariable: (name, type, value = null) ->
         assert @currentAR?
         assert (typeof name is "string")
 
-        @currentAR.variables[name] = value
+        @currentAR.variables[name] = { type: type, value: value }
 
     @getVariable: (name) ->
         assert @currentAR?
         assert (typeof name is "string")
-        assert typeof @currentAR.variables[name] isnt "undefined"
+        assert typeof @currentAR.variables[name].value isnt "undefined"
 
         if @currentAR.variables[name] is null
             throw Error.GET_VARIABLE_NOT_ASSIGNED.complete('name', name)
         else
-            @currentAR.variables[name]
+            @currentAR.variables[name].value
 
     @setVariable: (name, value) ->
         assert @currentAR?
         assert (typeof name is "string")
-        assert typeof @currentAR.variables[name] isnt "undefined"
+        assert typeof @currentAR.variables[name].value isnt "undefined"
 
-        @currentAR.variables[name] = value
+        @currentAR.variables[name].value = value
 
     @openNewScope: ->
         assert @currentAR?

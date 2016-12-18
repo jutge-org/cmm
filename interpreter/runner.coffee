@@ -13,9 +13,7 @@ io = require './io'
 
 module.exports = @
 
-@initRunner = (T) ->
-    @root = T
-    instructionQueue = [T]
+@initRunner = ->
     @openScopes = {}
 
 @getNumberInstructions = ->
@@ -35,14 +33,15 @@ executeInstructionHelper = (T) ->
             unwrapBlock T
         when NODES.DECLARATION
             declarations = T.getChild 1
+            type = T.getChild 0
             for declaration in declarations
                 if declaration.getType() is OPERATORS.ASSIGN
                     varName = declaration.child().child()
                     value = evaluateExpression declaration.getChild 1
-                    Stack.defineVariable varName, value
+                    Stack.defineVariable varName, type, value
                 else if declaration.getType() is NODES.ID
                     varName = declaration.child()
-                    Stack.defineVariable varName
+                    Stack.defineVariable varName, type
         when STATEMENTS.COUT
             for outputItem in T.getChildren()
                 io.output io.STDOUT, evaluateExpression(outputItem)
@@ -87,7 +86,7 @@ executeInstructionHelper = (T) ->
         when NODES.CLOSE_SCOPE
             Stack.closeScope()
         when NODES.FUNCALL
-            pushInstruction initFunction T
+            initFunction T
         when STATEMENTS.CIN
             allRead = yes
             for inputItem in T.getChildren()
@@ -107,6 +106,8 @@ executeInstructionHelper = (T) ->
                     Stack.setVariable id, null
                     allRead = no
             cinStack.push allRead
+        when NODES.END_FUNC_BLOCK
+            (->)()
         else
             evaluateExpression T
 

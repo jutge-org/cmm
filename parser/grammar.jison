@@ -154,7 +154,7 @@ arg
 
 block_instr
     : block_instr instruction
-        {$$.addChild($2, instr=true);}
+        {$$.addChild($2, instr=true, instrNumber=@2.first_line);}
     |
         {$$ = new yy.Ast('BLOCK-INSTRUCTIONS', []);}
     ;
@@ -206,7 +206,7 @@ if
     : IF '(' expr ')' instruction_body %prec THEN
         {$$ = new yy.Ast('IF-THEN', [$3, $5]);}
     | IF '(' expr ')' instruction_body else
-        {$$ = new yy.Ast('IF-THEN-ELSE', [$3, $5, $6]);}
+        {$6.setIsInstr(true); $6.setInstrNumber(@6.first_line); $$ = new yy.Ast('IF-THEN-ELSE', [$3, $5, $6]);}
     ;
 
 while
@@ -256,7 +256,7 @@ block_cout
 
 instruction_body
     : instruction
-        {$1.setIsInstr(true); $$ = new yy.Ast('BLOCK-INSTRUCTIONS', [$1]);}
+        {$1.setIsInstr(true); $1.setInstrNumber(@1.first_line); $$ = new yy.Ast('BLOCK-INSTRUCTIONS', [$1]);}
     | '{' block_instr '}'
         {$$ = $2;}
     ;

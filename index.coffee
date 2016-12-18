@@ -2,6 +2,9 @@
 { checkSemantics } = require './semantics/'
 interpreter = require './interpreter/'
 Ast = require './parser/ast.coffee'
+io = require './interpreter/io'
+Stack = require './interpreter/stack'
+{ stepInto, stepOver, stepOut } = require './debugger/steps'
 
 parser.yy = { Ast }
 
@@ -18,13 +21,24 @@ parser.yy = { Ast }
 
     loop
       { value, done } = iterator.next()
-      yield value
       break unless not done
-      result = value
-    yield result
+      yield value: value, stack: Stack.stack
+    yield 0
+
+@hooks = {
+    setInput: (input) -> io.setInput(io.STDIN, input)
+    isInputBufferEmpty: -> io.isInputBufferEmpty(io.STDIN)
+    modifyVariable: (stackNumber, varName, value) -> Stack.stack[stackNumber].variables[varName].value = value
+}
 
 @events = {
     onstdout: (cb) -> interpreter.onstdout cb
+}
+
+@actions = {
+    stepOut: -> stepOut()
+    stepOver: -> stepOver()
+    stepInto: -> stepInto()
 }
 
 
