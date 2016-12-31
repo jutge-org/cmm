@@ -4,7 +4,8 @@
   "description": "C-- interpreter.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coverage": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -R spec"
   },
   "repository": {
     "type": "git",
@@ -17,14 +18,17 @@
   },
   "homepage": "https://github.com/jutge-org/cmm#readme",
   "devDependencies": {
-    "chai": "^3.5.0",
-    "gulp": "^3.9.1",
-    "mocha": "*",
     "browserify": "^13.1.0",
+    "chai": "^3.5.0",
     "coffeeify": "^2.0.1",
+    "gulp": "^3.9.1",
     "gulp-uglify": "^2.0.0",
     "jisonify": "^1.0.4",
+    "mocha": "*",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "istanbul": "^0.4.5"
   }
 }
