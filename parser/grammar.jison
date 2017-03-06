@@ -74,6 +74,8 @@
 "while"                                     return 'WHILE'
 "for"                                       return 'FOR'
 
+"const"                                     return 'CONST'
+
 "true"                                      return 'BOOL_LIT'
 "false"                                     return 'BOOL_LIT'
 [0-9]+("."[0-9]+)\b                         return 'DOUBLE_LIT'
@@ -170,8 +172,7 @@ instruction
     ;
 
 basic_stmt
-    : block_assign
-    | declaration
+    : declaration
     | cout
     | expr
     ;
@@ -267,8 +268,29 @@ direct_assign
     ;
 
 declaration
-    : type declaration_body
+    : declaration_specifier_seq declaration_body
         {$$ = new yy.Ast('DECLARATION', [$1, $2]);}
+    ;
+
+
+// In C++ type specifiers can be in any order, i.e int const x;
+// is a valid declaration
+// Note also that this grammar allows declarations with duplicate specifiers
+// which should be unique by the specification, like: int int x; or const int const x;
+// Also, declarations with no type specifiers are allowed.
+// Both things will be checked in the semantic analysis
+declaration_specifier_seq
+    : declaration_specifier_seq declaration_specifier
+        {$$.push($2);}
+    | declaration_specifier
+        {$$ = [$1];}
+    ;
+
+declaration_specifier
+    : CONST
+        {$$ = new yy.Ast('CONST', []);}
+    | type
+        {$$ = new yy.Ast('TYPE', [$1]);}
     ;
 
 declaration_body
@@ -342,6 +364,7 @@ expr
     | STRING_LIT
         {$$ = new yy.Ast('STRING_LIT', [$1], leaf=true);}
     | direct_assign
+    // TODO: From now on, id should be an expression, this check should be done in the semantics
     | '++' id %prec '++a'
         {$$ = new yy.Ast('=', [$2, new yy.Ast('+', [yy.Ast.copyOf($2), new yy.Ast('INT_LIT', ['1'], leaf=true)])]);} // TODO: Maybe this should be better done in the semantics/interpreter
     | '--' id %prec '--a'

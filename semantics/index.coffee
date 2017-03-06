@@ -3,8 +3,9 @@ assert = require 'assert'
 Ast = require '../parser/ast'
 Error = require '../error'
 valueParser = require '../parser/value-parser'
+Declaration = require './declaration'
 
-{ NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS } = Ast
+{ NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS, DECLARATION_SPECIFIERS } = Ast
 
 # TODO: This casting information should go somewhere else
 CASTINGS = {}
@@ -63,15 +64,31 @@ tryToCast = (ast, originType, destType) ->
     else
         throw Error.INVALID_CAST.complete('origin', originType, 'dest', destType)
 
+
 checkAndPreprocess = (ast, definedVariables, functionId) ->
     switch ast.getType()
         when NODES.ID
             id = ast.getChild(0)
             checkVariableDefined(id, definedVariables)
-            return definedVariables[id]
+            return definedVariables[id].type
         when NODES.DECLARATION
             declarations = ast.getChild(1)
-            type = ast.getChild(0)
+            specifiersList = ast.getChild(0)
+            specifiers = {}
+
+            for specifier in specifiersList
+                name = specifier.getType()
+                if name is DECLARATION_SPECIFIERS.TYPE
+                    type = specifier.child()
+                if name of specifiers
+                    throw Error.DUPLICATE_SPECIFIER.complete('specifier', name);
+                else
+                    specifiers[name] = yes
+
+            unless specifiers.TYPE
+                throw Error.NO_TYPE_SPECIFIER
+
+            delete specifiers.TYPE
 
             for declarationAst in declarations
                 if declarationAst.getType() is NODES.ID # No need to check, only an id
@@ -87,7 +104,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 if definedVariables[id]?
                     throw Error.VARIABLE_REDEFINITION.complete('name', id)
                 else
-                    definedVariables[id] = type
+                    definedVariables[id] = new Declaration(type, specifiers)
 
             return TYPES.VOID
         when NODES.BLOCK_INSTRUCTIONS
@@ -103,7 +120,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             funcId = ast.getChild(0).getChild(0)
             if definedVariables[funcId]?
-                if definedVariables[funcId] is TYPES.FUNCTION
+                if definedVariables[funcId].type is TYPES.FUNCTION
                     assert functions[funcId]?
                     paramList = ast.getChild(1)
                     assert paramList.getType() is NODES.PARAM_LIST
@@ -130,6 +147,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             if variableType is TYPES.VOID
                 throw Error.VOID_DECLARATION.complete('name', variableId)
+
+                varId = child.getChild(0)
+
+            if definedVariables[variableId].specifiers.CONST
+                throw Error.CONST_MODIFICATION.complete("name", variableId)
 
             ast.getChild(0).setType(NODES.IDLHS) #Perque a expression no s'avalui el contingut de la part esquerra
 
@@ -271,10 +293,17 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             # Comprovar/castejar que el tipus sigui
             # o bé integral (char castejat a int o int o bool cast a int)
             # o bé real (double).
+            # Cal comprovar que la variable no esta declarada const
 
             # Retorna tipus el del operand
 
-            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
+            id = ast.child()
+
+            if definedVariables[id].specifiers.CONST
+                throw Error.CONST_MODIFICATION.complete("name", id)
+
+
+            type = checkAndPreprocess(id, definedVariables, functionId)
             if type isnt TYPES.DOUBLE and type isnt TYPES.INT
                 tryToCast ast.child(), type, TYPES.INT
                 return TYPES.INT
@@ -376,12 +405,16 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     throw Error.CIN_OF_NON_ID
                 else
                     varId = child.getChild(0)
+
+                    if definedVariables[varId].specifiers.CONST
+                        throw Error.CONST_MODIFICATION.complete("name", varId)
+
                     unless definedVariables[varId]?
                         throw Error.CIN_VARIABLE_UNDEFINED.complete('name', varId)
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
-                        child.addParent definedVariables[varId], leaf=yes
+                        child.addParent definedVariables[varId], yes
             return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES
@@ -474,7 +507,7 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
         if definedVariables[functionId]?
             throw Error.FUNCTION_REDEFINITION.complete('name', functionId)
 
-        definedVariables[functionId] = TYPES.FUNCTION
+        definedVariables[functionId] = new Declaration(TYPES.FUNCTION)
 
         functions[functionId] = { returnType,  argTypes: [] }
 
@@ -486,8 +519,8 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
 
         for argAst in argListAst.getChildren()
             assert argAst.getType() is NODES.ARG
-            argId = argAst.getChild(1).getChild(0)
-            argType = argAst.getChild(0)
+            argId = argAst.right().child()
+            argType = argAst.left()
 
             if argType is TYPES.VOID
                 throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
@@ -497,7 +530,7 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
             if definedVariablesAux[argId]?
                 throw Error.VARIABLE_REDEFINITION.complete('name', argId)
 
-            definedVariablesAux[argId] = argType
+            definedVariablesAux[argId] = new Declaration(argType)
 
         blockInstructionsAst = functionAst.getChild(3)
         assert blockInstructionsAst.getType() is NODES.BLOCK_INSTRUCTIONS
@@ -507,7 +540,8 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
         blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if returnType is TYPES.VOID
         blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if functionId is "main"
 
-    if definedVariables.main isnt TYPES.FUNCTION
+
+    if definedVariables.main.type isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED
     else if functions.main.returnType isnt TYPES.INT
         throw Error.INVALID_MAIN_TYPE

@@ -14,6 +14,11 @@ module.exports = class Ast
                        # (as a type)
         })
 
+    @DECLARATION_SPECIFIERS: Object.freeze({
+            CONST: 'CONST'
+            TYPE: 'TYPE'
+        })
+
     @OPERATORS: Object.freeze({
             PLUS: '+'
             MINUS: '-'
