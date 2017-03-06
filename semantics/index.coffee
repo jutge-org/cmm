@@ -297,7 +297,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             # Retorna tipus el del operand
 
-            id = ast.child()
+            id = ast.child().child()
 
             if definedVariables[id].specifiers.CONST
                 throw Error.CONST_MODIFICATION.complete("name", id)
@@ -414,7 +414,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
-                        child.addParent definedVariables[varId], yes
+                        child.addParent definedVariables[varId].type, yes
             return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES
