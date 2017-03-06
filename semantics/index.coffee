@@ -541,7 +541,7 @@ preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
         blockInstructionsAst.getChildren().push new Ast(STATEMENTS.RETURN, []) if functionId is "main"
 
 
-    if definedVariables.main.type isnt TYPES.FUNCTION
+    if not definedVariables.main? or definedVariables.main.type isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED
     else if functions.main.returnType isnt TYPES.INT
         throw Error.INVALID_MAIN_TYPE
