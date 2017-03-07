@@ -303,7 +303,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 throw Error.CONST_MODIFICATION.complete("name", id)
 
 
-            type = checkAndPreprocess(id, definedVariables, functionId)
+            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
             if type isnt TYPES.DOUBLE and type isnt TYPES.INT
                 tryToCast ast.child(), type, TYPES.INT
                 return TYPES.INT

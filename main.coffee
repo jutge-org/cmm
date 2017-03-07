@@ -6,19 +6,27 @@ interpreter = require './interpreter/'
 io = require './interpreter/io'
 Stack = require './interpreter/stack'
 { stepInto, stepOver, stepOut } = require './debugger/steps'
+fs = require 'fs'
 
-GRAMMAR_PATH = './parser/grammar.jison'
+
+BASE = __dirname
+GRAMMAR_PATH = "#{BASE}/parser/grammar.jison"
 
 grammar = readFileSync GRAMMAR_PATH, "utf-8"
 parser = new Parser grammar
 parser.yy = { Ast }
 
-compile = (code) ->
-    ast = parser.parse code
+@compile = (code) ->
+    try
+        ast = parser.parse code
+    catch err
+        throw "parse"
+
     ast = checkSemantics ast
+
     ast
 
-execute = (ast, input) ->
+@execute = (ast, input) ->
     interpreter.load ast
 
     iterator = interpreter.run(input)
@@ -29,33 +37,20 @@ execute = (ast, input) ->
         yield value: value, stack: Stack.stack
     yield 0
 
-hooks = {
+@hooks = {
     setInput: (input) -> io.setInput(io.STDIN, input)
     isInputBufferEmpty: -> io.isInputBufferEmpty(io.STDIN)
     modifyVariable: (stackNumber, varName, value) -> Stack.stack[stackNumber].variables[varName].value = value
 }
 
-events = {
+@events = {
     onstdout: (cb) -> interpreter.onstdout cb
 }
 
-actions = {
+@actions = {
     stepOut: -> stepOut()
     stepOver: -> stepOver()
     stepInto: -> stepInto()
 }
 
-
-code = """
-int main(){
-    int x = 2;
-    x = 3;
-}
-"""
-try
-    compile(code)
-    console.log "COMPILED"
-catch error
-    console.log error
-
-execute(code)
+module.exports = @
