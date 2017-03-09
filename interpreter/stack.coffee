@@ -33,6 +33,13 @@ module.exports = class Stack
         else
             @currentAR.variables[name].value
 
+    @getVariableType: (name) ->
+        assert @currentAR?
+        assert (typeof name is "string")
+        assert typeof @currentAR.variables[name].value isnt "undefined"
+
+        @currentAR.variables[name].type
+
     @setVariable: (name, value) ->
         assert @currentAR?
         assert (typeof name is "string")

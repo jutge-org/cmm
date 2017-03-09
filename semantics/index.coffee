@@ -87,8 +87,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             unless specifiers.TYPE
                 throw Error.NO_TYPE_SPECIFIER
+            else
+                ast.setChild(0, type)
 
-            delete specifiers.TYPE
+                delete specifiers.TYPE
 
             for declarationAst in declarations
                 if declarationAst.getType() is NODES.ID # No need to check, only an id
@@ -400,7 +402,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 throw Error.IOSTREAM_LIBRARY_MISSING.complete('name', STATEMENTS.CIN)
             # Comprovar que tots els fills son ids i que tenen tipus assignable
             # retorna bool
-            for child in ast.getChildren()
+            for child, i in ast.getChildren()
                 if child.getType() isnt NODES.ID
                     throw Error.CIN_OF_NON_ID
                 else
@@ -414,7 +416,8 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
-                        child.addParent definedVariables[varId].type, yes
+                        ast.setChild(i, varId)
+
             return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES

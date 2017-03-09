@@ -90,10 +90,10 @@ executeInstructionHelper = (T) ->
         when STATEMENTS.CIN
             allRead = yes
             for inputItem in T.getChildren()
-                id = inputItem.child().child()
+                id = inputItem
                 word = io.getWord(io.STDIN)
                 if word?
-                    { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    { leftover, value } = valueParser.parseInputWord word, Stack.getVariableType(id)
                     if value?
                         if leftover.length > 0
                             io.unshiftWord(io.STDIN, leftover)
