@@ -158,3 +158,25 @@ module.exports = class Ast
     clearChildren: () -> @children = []
 
     getChildCount: -> @children.length
+
+    toObject:  ->
+        parent = {}
+
+        parent[@type] = []
+        i = 0
+        for child in @children
+            if child instanceof Ast
+                parent[@type][i] = child.toObject()
+                ++i
+            else if Array.isArray(child)
+                for subChild in child
+                    if subChild instanceof Ast
+                        parent[@type][i] = subChild.toObject()
+                    else
+                        parent[@type][i] = subChild
+                    ++i
+            else
+                parent[@type][i] = child
+                ++i
+        parent
+

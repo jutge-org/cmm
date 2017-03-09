@@ -8,7 +8,7 @@ var gulp = require('gulp'),
 
 
 gulp.task('build', function() {
-    return browserify('./index.coffee', {extensions:['.coffee']})
+    return browserify('./browser.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .transform(jisonify)
         .bundle()
@@ -19,7 +19,7 @@ gulp.task('build', function() {
 });
 
 gulp.task('dev', function() {
-    return browserify('./index.coffee', {extensions:['.coffee']})
+    return browserify('./browser.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .transform(jisonify)
         .bundle()

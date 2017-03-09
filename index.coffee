@@ -1,15 +1,27 @@
-{ parser } = require './parser/grammar.jison'
+{ Parser } = require 'jison'
+{ readFileSync } = require 'fs'
+Ast = require './parser/ast'
 { checkSemantics } = require './semantics/'
 interpreter = require './interpreter/'
-Ast = require './parser/ast.coffee'
 io = require './interpreter/io'
 Stack = require './interpreter/stack'
 { stepInto, stepOver, stepOut } = require './debugger/steps'
+fs = require 'fs'
 
+
+BASE = __dirname
+GRAMMAR_PATH = "#{BASE}/parser/grammar.jison"
+
+grammar = readFileSync GRAMMAR_PATH, "utf-8"
+parser = new Parser grammar
 parser.yy = { Ast }
 
 @compile = (code) ->
-    ast = parser.parse code
+    try
+        ast = parser.parse code
+    catch err
+        throw  err.message
+
     ast = checkSemantics ast
 
     ast
@@ -20,9 +32,9 @@ parser.yy = { Ast }
     iterator = interpreter.run(input)
 
     loop
-      { value, done } = iterator.next()
-      break unless not done
-      yield value: value, stack: Stack.stack
+        { value, done } = iterator.next()
+        break unless not done
+        yield value: value, stack: Stack.stack
     yield 0
 
 @hooks = {
@@ -41,5 +53,4 @@ parser.yy = { Ast }
     stepInto: -> stepInto()
 }
 
-
-self.cmm = @
+module.exports = @
