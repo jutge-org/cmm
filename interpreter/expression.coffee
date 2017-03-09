@@ -37,7 +37,7 @@ prepareAST = (T) ->
                 den = dataStack.pop()
                 if den is 0
                     throw error.DIVISION_BY_ZERO
-                dataStack.push(div // den)
+                dataStack.push((div/den)|0)
             when OPERATORS.DOUBLE_DIV
                 dataStack.push(dataStack.pop() / dataStack.pop())
             when OPERATORS.MOD
@@ -108,9 +108,9 @@ prepareAST = (T) ->
                 dataStack.push(dataStack.pop() isnt 0)
 
             when CASTS.DOUBLE2INT
-                dataStack.push(Math.floor dataStack.pop())
+                dataStack.push(dataStack.pop()|0)
             when CASTS.DOUBLE2CHAR
-                dataStack.push(Math.floor dataStack.pop())
+                dataStack.push(dataStack.pop()|0)
             when CASTS.DOUBLE2BOOL
                 dataStack.push(dataStack.pop() isnt 0)
 
