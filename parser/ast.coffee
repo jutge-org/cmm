@@ -78,6 +78,8 @@ module.exports = class Ast
             FUNC_VALUE: 'FUNC_VALUE'
             CIN_VALUE: 'CIN_VALUE'
             END_FUNC_BLOCK: 'END_FUNC_BLOCK'
+            DECLARATION_SPECIFIERS: 'DECLARATION_SPECIFIERS'
+            DECLARATION_BODY: 'DECLARATION_BODY'
         })
 
     @CASTS: Object.freeze({
@@ -105,11 +107,20 @@ module.exports = class Ast
             CIN2BOOL: 'CIN2BOOL'
         })
 
-    constructor: (@type, @children, @leaf = no) ->
+    constructor: (@type, @children, @leaf = no, flattenChildren = no) ->
         @instr = no
         @instrNumber = -1
         assert (typeof @type is "string")
         assert Array.isArray(@children)
+
+        if flattenChildren
+            newChildren = []
+            for child in @children
+                if Array.isArray(child)
+                    newChildren.concat(child)
+                else
+                    newChildren.push(child)
+            @children = newChildren
 
     @copyOf: (ast) ->
         new Ast(ast.type,

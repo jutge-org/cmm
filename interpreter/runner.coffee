@@ -32,9 +32,9 @@ executeInstructionHelper = (T) ->
         when NODES.BLOCK_INSTRUCTIONS
             unwrapBlock T
         when NODES.DECLARATION
-            declarations = T.getChild 1
+            declarationsAst = T.getChild 1
             type = T.getChild 0
-            for declaration in declarations
+            for declaration in declarationsAst.getChildren()
                 if declaration.getType() is OPERATORS.ASSIGN
                     varName = declaration.child().child()
                     value = evaluateExpression declaration.getChild 1

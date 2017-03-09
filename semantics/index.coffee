@@ -72,11 +72,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             checkVariableDefined(id, definedVariables)
             return definedVariables[id].type
         when NODES.DECLARATION
-            declarations = ast.getChild(1)
-            specifiersList = ast.getChild(0)
+            declarationsAst = ast.getChild(1)
+            specifiersAst = ast.getChild(0)
             specifiers = {}
 
-            for specifier in specifiersList
+            for specifier in specifiersAst.getChildren()
                 name = specifier.getType()
                 if name is DECLARATION_SPECIFIERS.TYPE
                     type = specifier.child()
@@ -92,7 +92,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
                 delete specifiers.TYPE
 
-            for declarationAst in declarations
+            for declarationAst in declarationsAst.getChildren()
                 if declarationAst.getType() is NODES.ID # No need to check, only an id
                     id = declarationAst.getChild(0)
                 else # Is assign
@@ -458,29 +458,32 @@ enumerateInstructions = (T) ->
         enumerateInstructions child if child instanceof Ast
 
 preprocessFunctionAndCinNodes = (T, currentBlockInstr, currentInstr) ->
-    for child in T.getChildren()
-        continue if not (child instanceof Ast)
-        block = if child.getType() is NODES.BLOCK_INSTRUCTIONS then child else currentBlockInstr
-        instr = if child.instr then child else currentInstr
-        preprocessFunctionAndCinNodes child, block, instr
-        if child.getType() is NODES.FUNCALL and not child.instr
-            index = currentBlockInstr.getChildren().indexOf(currentInstr)
-            childCopy = Ast.copyOf child
-            childCopy.setIsInstr yes
-            currentBlockInstr.getChildren().splice(index, 0, childCopy)
-            child.setType NODES.FUNC_VALUE
-            child.clearChildren()
-        if child.getType() is STATEMENTS.CIN and not child.instr
-            bodyWhile = currentInstr.right()
-            index = currentBlockInstr.getChildren().indexOf(currentInstr)
-            childCopy = Ast.copyOf child
-            childCopy.setIsInstr yes
-            currentBlockInstr.getChildren().splice(index, 0, childCopy)
-            childCopy = Ast.copyOf child
-            childCopy.setIsInstr yes
-            bodyWhile.getChildren().push(childCopy)
-            child.setType NODES.CIN_VALUE
-            child.clearChildren()
+    i = 0
+    children = T.getChildren()
+    while i < children.length
+        child = children[i++]
+        if child instanceof Ast
+            block = if child.getType() is NODES.BLOCK_INSTRUCTIONS then child else currentBlockInstr
+            instr = if child.instr then child else currentInstr
+            preprocessFunctionAndCinNodes child, block, instr
+            if child.getType() is NODES.FUNCALL and not child.instr
+                index = currentBlockInstr.getChildren().indexOf(currentInstr)
+                childCopy = Ast.copyOf child
+                childCopy.setIsInstr yes
+                currentBlockInstr.getChildren().splice(index, 0, childCopy)
+                child.setType NODES.FUNC_VALUE
+                child.clearChildren()
+            if child.getType() is STATEMENTS.CIN and not child.instr
+                bodyWhile = currentInstr.right()
+                index = currentBlockInstr.getChildren().indexOf(currentInstr)
+                childCopy = Ast.copyOf child
+                childCopy.setIsInstr yes
+                currentBlockInstr.getChildren().splice(index, 0, childCopy)
+                childCopy = Ast.copyOf child
+                childCopy.setIsInstr yes
+                bodyWhile.getChildren().push(childCopy)
+                child.setType NODES.CIN_VALUE
+                child.clearChildren()
 
 
 @checkSemantics = (root) ->

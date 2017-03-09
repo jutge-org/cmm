@@ -269,7 +269,7 @@ direct_assign
 
 declaration
     : declaration_specifier_seq declaration_body
-        {$$ = new yy.Ast('DECLARATION', [$1, $2]);}
+        {$$ = new yy.Ast('DECLARATION', [new yy.Ast('DECLARATION_SPECIFIERS', $1), new yy.Ast('DECLARATION_BODY', $2)], false, true);}
     ;
 
 
