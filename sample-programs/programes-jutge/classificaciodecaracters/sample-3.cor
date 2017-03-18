@@ -1,6 +1,0 @@
-lletra('.') = fals
-vocal('.') = fals
-consonant('.') = fals
-majuscula('.') = fals
-minuscula('.') = fals
-digit('.') = fals

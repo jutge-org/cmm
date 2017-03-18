@@ -8,23 +8,23 @@ var gulp = require('gulp'),
 
 
 gulp.task('build', function() {
-    return browserify('./browser.coffee', {extensions:['.coffee']})
+    return browserify('./src/browser.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .transform(jisonify)
         .bundle()
         .pipe(source('index.min.js')) // gives streaming vinyl file object
         .pipe(buffer()) // convert from streaming to buffered vinyl file object
         .pipe(uglify()) // now gulp-uglify works
-        .pipe(gulp.dest('./lib'))
+        .pipe(gulp.dest('./build'))
 });
 
 gulp.task('dev', function() {
-    return browserify('./browser.coffee', {extensions:['.coffee']})
+    return browserify('./src/browser.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .transform(jisonify)
         .bundle()
         .pipe(source('index.min.js'))
-        .pipe(gulp.dest('./lib'))
+        .pipe(gulp.dest('./build'))
 });
 
 gulp.task('default', ['build'], function() {

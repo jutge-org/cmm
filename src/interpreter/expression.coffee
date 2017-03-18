@@ -51,7 +51,9 @@ prepareAST = (T) ->
             when OPERATORS.UMINUS
                 dataStack.push(-dataStack.pop())
             when OPERATORS.LT
-                dataStack.push(dataStack.pop() < dataStack.pop())
+                left = dataStack.pop()
+                right = dataStack.pop()
+                dataStack.push(left < right)
             when OPERATORS.LTE
                 dataStack.push(dataStack.pop() <= dataStack.pop())
             when OPERATORS.GT

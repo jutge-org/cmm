@@ -4,15 +4,15 @@ jison = require 'jison'
 should = chai.should()
 expect = chai.expect
 
-error = require '../../error'
-{ mapFunctions, getFunctionMap, initFunction } = require '../../interpreter/function'
-{ evaluateExpression } = require '../../interpreter/expression'
-{ checkSemantics } = require '../../semantics/'
-Stack = require '../../interpreter/stack'
-Ast = require '../../parser/ast'
+error = require '../../src/error'
+{ mapFunctions, getFunctionMap, initFunction } = require '../../src/interpreter/function'
+{ evaluateExpression } = require '../../src/interpreter/expression'
+{ checkSemantics } = require '../../src/semantics/'
+Stack = require '../../src/interpreter/stack'
+Ast = require '../../src/parser/ast'
 { NODES } = Ast
 
-grammar = fs.readFileSync './parser/grammar.jison', 'utf8'
+grammar = fs.readFileSync '../../src/parser/grammar.jison', 'utf8'
 parser = new jison.Parser grammar
 parser.yy = { Ast }
 

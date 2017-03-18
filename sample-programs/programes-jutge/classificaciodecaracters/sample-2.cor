@@ -1,6 +1,0 @@
-lletra('6') = fals
-vocal('6') = fals
-consonant('6') = fals
-majuscula('6') = fals
-minuscula('6') = fals
-digit('6') = cert
