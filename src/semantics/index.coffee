@@ -150,8 +150,6 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if variableType is TYPES.VOID
                 throw Error.VOID_DECLARATION.complete('name', variableId)
 
-                varId = child.getChild(0)
-
             if definedVariables[variableId].specifiers.CONST
                 throw Error.CONST_MODIFICATION.complete("name", variableId)
 
@@ -301,11 +299,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             id = ast.child().child()
 
+            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
+
             if definedVariables[id].specifiers.CONST
                 throw Error.CONST_MODIFICATION.complete("name", id)
 
-
-            type = checkAndPreprocess(ast.child(), definedVariables, functionId)
             if type isnt TYPES.DOUBLE and type isnt TYPES.INT
                 tryToCast ast.child(), type, TYPES.INT
                 return TYPES.INT
@@ -408,13 +406,12 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 else
                     varId = child.getChild(0)
 
-                    if definedVariables[varId].specifiers.CONST
-                        throw Error.CONST_MODIFICATION.complete("name", varId)
-
                     unless definedVariables[varId]?
                         throw Error.CIN_VARIABLE_UNDEFINED.complete('name', varId)
                     else unless isAssignable definedVariables[varId]
                         throw Error.CIN_OF_NON_ASSIGNABLE
+                    else if definedVariables[varId].specifiers.CONST
+                        throw Error.CONST_MODIFICATION.complete("name", varId)
                     else
                         ast.setChild(i, varId)
 
