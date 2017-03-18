@@ -12,7 +12,7 @@ Stack = require '../../src/interpreter/stack'
 Ast = require '../../src/parser/ast'
 { NODES } = Ast
 
-grammar = fs.readFileSync '../../src/parser/grammar.jison', 'utf8'
+grammar = fs.readFileSync './src/parser/grammar.jison', 'utf8'
 parser = new jison.Parser grammar
 parser.yy = { Ast }
 
