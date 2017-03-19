@@ -216,6 +216,8 @@ while
     ;
 
 for
+    // FIXME: This is not correct. Here in the first clause there can be any statement (including the NOP statement)
+    //        except if, while, for, return.. In the second and third clauses the declaration is also forbidden
     : FOR '(' basic_stmt ';' expr ';' basic_stmt ')' instruction_body
         {$$ = new yy.Ast('FOR', [$3, $5, $7, $9])}
     ;
