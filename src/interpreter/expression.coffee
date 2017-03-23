@@ -25,7 +25,7 @@ module.exports = @
             den = e(T.right())
             if den is 0
                 throw error.DIVISION_BY_ZERO
-            e(T.left()) // den
+            (e(T.left())/den) | 0
         when OPERATORS.DOUBLE_DIV
             e(T.left()) / e(T.right())
         when OPERATORS.MOD
@@ -94,9 +94,9 @@ module.exports = @
             e(T.child()) isnt 0
 
         when CASTS.DOUBLE2INT
-            Math.floor e(T.child())
+            e(T.child()) | 0
         when CASTS.DOUBLE2CHAR
-            Math.floor e(T.child())
+            e(T.child()) | 0
         when CASTS.DOUBLE2BOOL
             e(T.child()) isnt 0
 
