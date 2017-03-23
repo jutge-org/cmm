@@ -24,6 +24,8 @@ e = (name, code, message) => @[name] = new InterpretationError code, message
 # TODO: Improve error messages
 # TODO: Organise errors in a better way
 
+
+e "PARSE_ERROR", 100, "Parsing error:\n<<error>>"
 e "VARIABLE_REDEFINITION", 10, "Cannot define variable <<name>>: already defined in this scope"
 e "GET_VARIABLE_NOT_DEFINED", 11, "Cannot get variable <<name>>: not defined in this scope"
 e "SET_VARIABLE_NOT_DEFINED", 12, "Cannot set variable <<name>>: not defined in this scope"

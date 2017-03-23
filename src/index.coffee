@@ -5,6 +5,7 @@ Ast = require './parser/ast'
 interpreter = require './interpreter/'
 io = require './interpreter/io'
 Stack = require './interpreter/stack'
+Error = require './error'
 
 BASE = __dirname
 GRAMMAR_PATH = "#{BASE}/parser/grammar.jison"
@@ -16,7 +17,11 @@ parser.yy = { Ast }
 module.exports = @
 
 @compile = (code) ->
-    ast = parser.parse code
+    try
+        ast = parser.parse code
+    catch error
+        throw Error.PARSE_ERROR.complete('error', error.message)
+
     ast = checkSemantics ast
     ast
 

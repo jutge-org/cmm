@@ -12,7 +12,7 @@ unless code?
         #include <iostream>
         using namespace std;
 
-        int main() {
+        int main) {
             bool found = false;
             int x;
             while (not found and cin >> x) found = x == 2;
@@ -32,7 +32,11 @@ else
 
 
 # Compile
-ast = cmm.compile code
+try
+    ast = cmm.compile code
+catch error
+    console.log error.message
+    process.exit error.code
 
 # Run and store output
 { status, stdout, stderr, output } = cmm.execute(ast, input)
