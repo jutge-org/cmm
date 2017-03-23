@@ -21,7 +21,6 @@ module.exports = @
     try
         status = executeFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
     catch error
-        console.error error.stack ? error.message ? error
         io.output io.STDERR, error.message
         status = error.code
 

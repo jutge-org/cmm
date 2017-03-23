@@ -12,7 +12,7 @@ unless code?
         #include <iostream>
         using namespace std;
 
-        int main) {
+        int main() {
             bool found = false;
             int x;
             while (not found and cin >> x) found = x == 2;
