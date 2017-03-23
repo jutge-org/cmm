@@ -39,7 +39,8 @@ catch error
     console.log error.message
     process.exit error.code
 
-console.log "Compilation successful"
+console.log "Compilation successful:"
+console.log ast.toString()
 
 # Run and store output
 { status, stdout, stderr, output } = cmm.execute(ast, input)
