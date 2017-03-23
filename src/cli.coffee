@@ -35,8 +35,11 @@ else
 try
     ast = cmm.compile code
 catch error
+    error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
     console.log error.message
     process.exit error.code
+
+console.log "Compilation successful"
 
 # Run and store output
 { status, stdout, stderr, output } = cmm.execute(ast, input)
