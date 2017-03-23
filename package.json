@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ghastgar/C--#readme",
   "dependencies": {
+    "ascii-tree": "^0.3.0",
     "coffeeify": "^2.0.1",
     "commander": "^2.9.0",
     "jison": "^0.4.17",

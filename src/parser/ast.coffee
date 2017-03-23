@@ -1,4 +1,5 @@
 assert = require 'assert'
+asciitree = require 'ascii-tree'
 
 module.exports = class Ast
     @TYPES: Object.freeze({
@@ -128,3 +129,45 @@ module.exports = class Ast
     setChild: (i, value) -> @children[i] = value
 
     getChildCount: -> @children.length
+
+    toObject:  ->
+        parent = {}
+
+        parent[@type] = []
+        i = 0
+        for child in @children
+            if child instanceof Ast
+                parent[@type][i] = child.toObject()
+                ++i
+            else if Array.isArray(child)
+                for subChild in child
+                    if subChild instanceof Ast
+                        parent[@type][i] = subChild.toObject()
+                    else
+                        parent[@type][i] = subChild
+                    ++i
+            else
+                parent[@type][i] = child
+                ++i
+        parent
+
+    toString: ->
+        _traverse = (list, node, level) ->
+            ++level
+            prefix = Array(level + 1).join("#")
+
+            unless node?
+                list.push prefix + node
+            else if Array.isArray(node)
+                for elem in node
+                    _traverse(list, elem, level-1)
+            else if typeof node is 'object'
+                Object.keys(node).forEach (k) ->
+                    list.push prefix + k
+                    _traverse list, node[k], level
+            else
+                list.push prefix + node
+
+        list = []
+        _traverse list, @toObject(), 0
+        asciitree.generate(list.join('\u000d\n'))
