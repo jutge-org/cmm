@@ -1,8 +1,8 @@
 assert = require 'assert'
 
-Ast = require '../parser/ast'
-Error = require '../error'
-valueParser = require '../parser/value-parser'
+{ Ast } = require '../ast'
+Error = require '../../error'
+{ parseLiteral } = require '../parser/literal-parser'
 
 { NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS } = Ast
 
@@ -138,7 +138,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             return variableType
         when LITERALS.DOUBLE, LITERALS.INT, LITERALS.STRING, LITERALS.CHAR, LITERALS.BOOL
-            valueParser.parseLiteral ast
+            parseLiteral ast
         when OPERATORS.PLUS, OPERATORS.MINUS, OPERATORS.MUL
             # Comprovar/castejar que els dos tipus siguin iguals, i que siguin
             # o bé integrals (char castejat a int o int o bool cast a int)

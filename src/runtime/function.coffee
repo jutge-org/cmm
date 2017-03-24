@@ -2,7 +2,7 @@ assert = require 'assert'
 
 Stack = require './stack'
 Runner = require './runner'
-Ast = require '../parser/ast'
+{ Ast } = require '../compiler/ast'
 Error = require '../error'
 Expression = require './expression'
 

@@ -1,8 +1,6 @@
 assert = require 'assert'
 
-Error = require '../error'
-Ast = require '../parser/ast'
-Stack = require './stack'
+{ Ast } = require '../compiler/ast'
 { mapFunctions, executeFunction } = require './function'
 io = require './io'
 

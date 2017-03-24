@@ -1,9 +1,9 @@
 assert = require 'assert'
 
 Stack   = require './stack'
-Ast     = require '../parser/ast'
+{ Ast } = require '../compiler/ast'
 { evaluateExpression } = require './expression'
-Func = require './function'
+
 io = require './io'
 
 { NODES, STATEMENTS, OPERATORS } = Ast

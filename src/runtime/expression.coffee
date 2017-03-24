@@ -1,10 +1,10 @@
 assert = require 'assert'
 
 Stack = require './stack'
-Ast   = require '../parser/ast'
+{ Ast }   = require '../compiler/ast'
 Func = require './function'
 error = require '../error'
-valueParser = require '../parser/value-parser'
+{ parseInput } = require './input-parser'
 io = require './io'
 
 { NODES, OPERATORS, LITERALS, CASTS, STATEMENTS } = Ast
@@ -143,7 +143,7 @@ module.exports = @
                 id = inputItem.child().child()
                 word = io.getWord(io.STDIN)
                 if word?
-                    { leftover, value } = valueParser.parseInputWord word, inputItem.getType()
+                    { leftover, value } = parseInput word, inputItem.getType()
                     if value?
                         if leftover.length > 0
                             io.unshiftWord(io.STDIN, leftover)

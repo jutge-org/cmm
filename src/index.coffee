@@ -1,21 +1,9 @@
-{ parser } = require './parser/grammar'
-Ast = require './parser/ast'
-{ checkSemantics } = require './semantics/'
-interpreter = require './interpreter/'
-Error = require './error'
-
-parser.yy = { Ast }
+{ compile } = require './compiler'
+interpreter = require './runtime'
 
 module.exports = @
 
-@compile = (code) ->
-    try
-        ast = parser.parse code
-    catch error
-        throw Error.PARSE_ERROR.complete('error', error.message)
-
-    ast = checkSemantics ast
-    ast
+@compile = compile
 
 @execute = (ast, input) ->
     interpreter.load ast

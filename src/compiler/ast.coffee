@@ -1,7 +1,9 @@
 assert = require 'assert'
 asciitree = require 'ascii-tree'
 
-module.exports = class Ast
+module.exports = @
+
+@Ast = class Ast
     @TYPES: Object.freeze({
             VOID: 'VOID'
             INT: 'INT'
