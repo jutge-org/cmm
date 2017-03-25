@@ -3,6 +3,8 @@ assert = require 'assert'
 { Ast } = require '../ast'
 Error = require '../../error'
 { parseLiteral } = require '../parser/literal-parser'
+{ Variable } = require './variable'
+{ Function } = require './function'
 
 { NODES, TYPES, OPERATORS, CASTS, LITERALS, STATEMENTS } = Ast
 
@@ -44,8 +46,6 @@ isAssignable = (type) -> type not in [TYPES.FUNCTION, TYPES.VOID]
 
 module.exports = @
 
-functions = {}
-
 copy = (obj) -> JSON.parse JSON.stringify(obj)
 
 checkVariableDefined = (id, definedVariables) ->
@@ -66,7 +66,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         when NODES.ID
             id = ast.getChild(0)
             checkVariableDefined(id, definedVariables)
-            return definedVariables[id]
+            return definedVariables[id].type
         when NODES.DECLARATION
             declarations = ast.getChild(1)
             type = ast.getChild(0)
@@ -85,7 +85,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                 if definedVariables[id]?
                     throw Error.VARIABLE_REDEFINITION.complete('name', id)
                 else
-                    definedVariables[id] = type
+                    definedVariables[id] = new Variable id, type
 
             return TYPES.VOID
         when NODES.BLOCK_INSTRUCTIONS
@@ -101,20 +101,20 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
 
             funcId = ast.getChild(0).getChild(0)
             if definedVariables[funcId]?
-                if definedVariables[funcId] is TYPES.FUNCTION
-                    assert functions[funcId]?
+                if definedVariables[funcId].type is TYPES.FUNCTION
+                    assert definedVariables[funcId]?
                     paramList = ast.getChild(1)
                     assert paramList.getType() is NODES.PARAM_LIST
 
-                    expectedLength = functions[funcId].argTypes.length
+                    expectedLength = definedVariables[funcId].argTypes.length
                     actualLength = paramList.getChildCount()
                     if actualLength isnt expectedLength
                         throw Error.INVALID_PARAMETER_COUNT_CALL.complete('name', funcId, 'good', expectedLength, 'wrong', actualLength)
-                    for argType, i in functions[funcId].argTypes
+                    for argType, i in definedVariables[funcId].argTypes
                         type = checkAndPreprocess(paramList.getChild(i), definedVariables, functionId)
                         if type isnt argType
                             tryToCast(paramList.getChild(i), type, argType)
-                    return functions[funcId].returnType
+                    return definedVariables[funcId].returnType
                 else
                     throw Error.CALL_NON_FUNCTION.complete('name', funcId)
             else
@@ -369,7 +369,7 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             else
                 actualType = TYPES.VOID
 
-            expectedType = functions[functionId].returnType
+            expectedType = definedVariables[functionId].returnType
             if actualType isnt expectedType
                 tryToCast valueAst, actualType, expectedType
 
@@ -386,10 +386,10 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
                     varId = child.getChild(0)
                     unless definedVariables[varId]?
                         throw Error.CIN_VARIABLE_UNDEFINED.complete('name', varId)
-                    else unless isAssignable definedVariables[varId]
+                    else unless isAssignable definedVariables[varId].type
                         throw Error.CIN_OF_NON_ASSIGNABLE
                     else
-                        child.addParent definedVariables[varId]
+                        child.addParent definedVariables[varId].type
             return TYPES.CIN
         when STATEMENTS.COUT
             if 'iostream' not in INCLUDES
@@ -447,12 +447,11 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
         returnType = functionAst.getChild(0)
         functionId = functionAst.getChild(1).getChild(0)
 
+        # When global variables are implemented we should throw an error if there is a redefinition of any kind in thr global scope
         if definedVariables[functionId]?
             throw Error.FUNCTION_REDEFINITION.complete('name', functionId)
 
-        definedVariables[functionId] = TYPES.FUNCTION
-
-        functions[functionId] = { returnType,  argTypes: [] }
+        definedVariables[functionId] = new Function functionId, returnType
 
         # For each function, define its parameters and check its body recursively
         argListAst = functionAst.getChild(2)
@@ -468,20 +467,20 @@ checkAndPreprocess = (ast, definedVariables, functionId) ->
             if argType is TYPES.VOID
                 throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
 
-            functions[functionId].argTypes.push argType
+            definedVariables[functionId].argTypes.push argType
 
             if definedVariablesAux[argId]?
                 throw Error.VARIABLE_REDEFINITION.complete('name', argId)
 
-            definedVariablesAux[argId] = argType
+            definedVariablesAux[argId] = new Variable argId, argType, isFunctionArgument: yes
 
         blockInstructionsAst = functionAst.getChild(3)
         assert blockInstructionsAst.getType() is NODES.BLOCK_INSTRUCTIONS
         checkAndPreprocess(blockInstructionsAst, definedVariablesAux, functionId)
 
-    if definedVariables.main isnt TYPES.FUNCTION
+    if not definedVariables.main? or definedVariables.main.type isnt TYPES.FUNCTION
         throw Error.MAIN_NOT_DEFINED
-    else if functions.main.returnType isnt TYPES.INT
+    else if definedVariables.main.returnType isnt TYPES.INT
         throw Error.INVALID_MAIN_TYPE
 
     ast
