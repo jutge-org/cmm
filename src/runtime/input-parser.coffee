@@ -1,4 +1,4 @@
-{ Ast: { TYPES } } = require '../compiler/ast'
+{ Ast: { TYPES } } = require '../ast/ast'
 
 module.exports = @
 

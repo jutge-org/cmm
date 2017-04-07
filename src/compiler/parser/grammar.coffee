@@ -16,6 +16,8 @@ o = (patternString, action, options) ->
     # All runtime functions we need are defined on "yy"
     action = action.replace /\bnew /g, '$&yy.'
     action = action.replace /\b(?:Ast.copyOf)\b/g, 'yy.$&'
+    # Also objects
+    action = action.replace /\b(?:TYPES)/g, 'yy.$&'
 
     [patternString, (if action.indexOf('$$') >= 0 then action else "$$ = #{action};"), options]
 
@@ -156,41 +158,41 @@ operators = [
 bnf =
     {
         prog: [
-            o 'block_includes block_functions EOF',                               -> new Ast 'PROGRAM', [$1, $2]
+            o 'block_includes block_functions EOF',                               -> new Program $2
         ]
 
         block_includes: [
-            o 'block_includes include',                                           -> $$.addChild($2)
-            o '',                                                                 -> new Ast 'BLOCK-INCLUDES', []
+            o 'block_includes include',                                           ->
+            o '',                                                                 ->
         ]
 
-        include: [
-            o '# INCLUDE < id >',                                                 -> new Ast 'INCLUDE', [$4]
-            o 'USING NAMESPACE STD ;',                                            -> new Ast 'NAMESPACE', [$4]
+        include: [ # TODO: An include can be anywhere in the top scope, and it should be different from a using statement
+            o '# INCLUDE < id >',                                                 ->
+            o 'USING NAMESPACE STD ;',                                            ->
         ]
 
         block_functions: [
-            o 'block_functions function',                                         -> $$.addChild($2)
-            o '',                                                                 -> new Ast 'BLOCK-FUNCTIONS', []
+            o 'block_functions function',                                         -> $$.addChild $2
+            o '',                                                                 -> new List
         ]
 
         function: [
-            o 'type id ( arg_list ) { block_instr }',                             -> new Ast 'FUNCTION',[$1,$2,$4,$7]
+            o 'type id ( arg_list ) { block_instr }',                             -> new Function $1,$2,$4,$7
         ]
 
         arg_list: [
-            o 'arg_list , arg',                                                   -> $$.addChild($3)
-            o 'arg',                                                              -> new Ast 'ARG-LIST', [$1]
-            o '',                                                                 -> new Ast 'ARG-LIST', []
+            o 'arg_list , arg',                                                   -> $$.addChild $3
+            o 'arg',                                                              -> new List $1
+            o '',                                                                 -> new List
         ]
 
-        arg: [
-            o 'type id',                                                          -> new Ast 'ARG', [$1, $2]
+        arg: [ # TODO: This should basically be a conventional declaration node
+            o 'type id',                                                          -> new FuncArg $1, $2
         ]
 
         block_instr: [
-            o 'block_instr instruction',                                          -> $$.addChild($2)
-            o '',                                                                 -> new Ast 'BLOCK-INSTRUCTIONS', []
+            o 'block_instr instruction',                                          -> $$.addChild $2
+            o '',                                                                 -> new List
         ]
 
         instruction: [
@@ -199,7 +201,7 @@ bnf =
             o 'while'
             o 'for'
             o 'return_stmt ;'
-            o ';',                                                                -> new Ast 'NOP', []
+            o ';',                                                                -> null
         ]
 
         basic_stmt: [
@@ -210,18 +212,19 @@ bnf =
         ]
 
         return_stmt: [
-            o 'RETURN expr',                                                      -> new Ast 'RETURN', [$2]
-            o 'RETURN',                                                           -> new Ast 'RETURN', []
+            o 'RETURN expr',                                                      -> new Return $2
+            o 'RETURN',                                                           -> new Return
         ]
 
         funcall: [
-            o 'id ( param_list )',                                                -> new Ast 'FUNCALL', [$1,$3]
+            o 'id ( param_list )',                                                -> new Funcall $1,$3
+            o 'id ( VOID )',                                                      -> new Funcall $1, new List
         ]
 
         param_list: [
-            o 'param_list , param',                                               -> $$.addChild($3)
-            o 'param',                                                            -> new Ast 'PARAM-LIST', [$1]
-            o '',                                                                 -> new Ast 'PARAM-LIST', []
+            o 'param_list , param',                                               -> $$.push $3
+            o 'param',                                                            -> [$1]
+            o '',                                                                 -> []
         ]
 
         param: [
@@ -229,16 +232,16 @@ bnf =
         ]
 
         if: [
-            o 'IF ( expr ) instruction_body',                                     (-> new Ast 'IF-THEN', [$3, $5]), prec: "THEN"
-            o 'IF ( expr ) instruction_body else',                                -> new Ast 'IF-THEN-ELSE', [$3, $5, $6]
+            o 'IF ( expr ) instruction_body',                                     (-> new IfThen $3, $5), prec: "THEN"
+            o 'IF ( expr ) instruction_body else',                                -> new IfThenElse $3, $5, $6
         ]
 
         while: [
-            o 'WHILE ( expr ) instruction_body',                                  -> new Ast 'WHILE', [$3, $5]
+            o 'WHILE ( expr ) instruction_body',                                  -> new While $3, $5
         ]
 
         for: [
-            o 'FOR ( basic_stmt ; expr ; basic_stmt ) instruction_body',          -> new Ast 'FOR', [$3, $5, $7, $9]
+            o 'FOR ( basic_stmt ; expr ; basic_stmt ) instruction_body',          -> new For $3, $5, $7, $9
         ]
 
         else: [
@@ -250,8 +253,8 @@ bnf =
         ]
 
         block_cin: [
-            o 'block_cin >> id',                                                  -> $$.addChild($3)
-            o '>> id',                                                            -> new Ast 'CIN', [$2]
+            o 'block_cin >> id',                                                  -> $$.addChild $3
+            o '>> id',                                                            -> new Cin $2
         ]
 
         cout: [
@@ -259,73 +262,73 @@ bnf =
         ]
 
         block_cout: [
-            o 'block_cout << expr',                                               -> $$.addChild($3)
-            o 'block_cout << ENDL',                                               -> $$.addChild(new Ast 'ENDL', [])
-            o '<< expr',                                                          -> new Ast 'COUT', [$2]
-            o '<< ENDL',                                                          -> new Ast 'COUT', [new Ast('ENDL', [])]
+            o 'block_cout << expr',                                               -> $$.addChild $3
+            o 'block_cout << ENDL',                                               -> $$.addChild(new StringLit '"\\n"')
+            o '<< expr',                                                          -> new Cout $2
+            o '<< ENDL',                                                          -> new Cout(new StringLit '"\\n"')
         ]
 
         instruction_body: [
-            o 'instruction',                                                      -> new Ast 'BLOCK-INSTRUCTIONS', [$1]
+            o 'instruction',                                                      -> new List $1
             o '{ block_instr }',                                                  -> $2
         ]
 
         direct_assign: [
-            o 'id = expr',                                                        -> new Ast '=', [$1, $3]
+            o 'id = expr',                                                        -> new Assign $1, $3 # Note the first child should always be the id. See hack note on direct assign
         ]
 
         declaration: [
-            o 'type declaration_body',                                            -> new Ast 'DECLARATION', [$1, $2]
+            o 'type declaration_body',                                            -> new Declaration $1, $2
         ]
 
         declaration_body: [
-            o 'declaration_body , direct_assign',                                 -> $$.push($3)
-            o 'declaration_body , id',                                            -> $$.push($3)
-            o 'direct_assign',                                                    -> [$1]
+            o 'declaration_body , direct_assign',                                 -> $$.push $3.child(), $3 # HACK: Assumes direct_assign's first child is the id
+            o 'declaration_body , id',                                            -> $$.push $3
+            o 'direct_assign',                                                    -> [$1.child(), $1] # Basically avoids having to treat the assign case specially. A new declaration is made before the assign
             o 'id',                                                               -> [$1]
         ]
 
-        type: [
-            o 'INT',                                                              ->  'INT'
-            o 'DOUBLE',                                                           ->  'DOUBLE'
-            o 'CHAR',                                                             ->  'CHAR'
-            o 'BOOL',                                                             ->  'BOOL'
-            o 'STRING',                                                           ->  'STRING'
-            o 'VOID',                                                             ->  'VOID'
+        type: [ # Maybe create this dinamically?
+            o 'INT',                                                              -> TYPES[$1.toUpperCase()]
+            o 'DOUBLE',                                                           -> TYPES[$1.toUpperCase()]
+            o 'CHAR',                                                             -> TYPES[$1.toUpperCase()]
+            o 'BOOL',                                                             -> TYPES[$1.toUpperCase()]
+            o 'STRING',                                                           -> TYPES[$1.toUpperCase()]
+            o 'VOID',                                                             -> TYPES[$1.toUpperCase()]
         ]
 
         expr: [
-            o 'expr + expr',                                                      -> new Ast '+', [$1,$3]
-            o 'expr - expr',                                                      -> new Ast '-', [$1,$3]
-            o 'expr * expr',                                                      -> new Ast '*', [$1,$3]
-            o 'expr / expr',                                                      -> new Ast '/', [$1,$3]
-            o 'expr % expr',                                                      -> new Ast '%', [$1,$3]
-            o 'expr && expr',                                                     -> new Ast '&&', [$1,$3]
-            o 'expr || expr',                                                     -> new Ast '||', [$1,$3]
-            o '- expr',                                                          (-> new Ast 'u-', [$2]), prec: "u-"
-            o '+ expr',                                                          (-> new Ast 'u+', [$2]), prec: "u+"
-            o '! expr',                                                           -> new Ast '!', [$2]
-            o 'expr < expr',                                                      -> new Ast '<', [$1,$3]
-            o 'expr > expr',                                                      -> new Ast '>', [$1,$3]
-            o 'expr <= expr',                                                     -> new Ast '<=', [$1,$3]
-            o 'expr >= expr',                                                     -> new Ast '>=', [$1,$3]
-            o 'expr == expr',                                                     -> new Ast '==', [$1,$3]
-            o 'expr != expr',                                                     -> new Ast '!=', [$1,$3]
-            o 'DOUBLE_LIT',                                                       -> new Ast 'DOUBLE_LIT', [$1]
-            o 'INT_LIT',                                                          -> new Ast 'INT_LIT', [$1]
-            o 'CHAR_LIT',                                                         -> new Ast 'CHAR_LIT', [$1]
-            o 'BOOL_LIT',                                                         -> new Ast 'BOOL_LIT', [$1]
-            o 'STRING_LIT',                                                       -> new Ast 'STRING_LIT', [$1]
+            o 'expr + expr',                                                      -> new Add $1, $3
+            o 'expr - expr',                                                      -> new Sub $1, $3
+            o 'expr * expr',                                                      -> new Mul $1, $3
+            o 'expr / expr',                                                      -> new Div $1, $3
+            o 'expr % expr',                                                      -> new Mod $1, $3
+            o 'expr && expr',                                                     -> new And $1, $3
+            o 'expr || expr',                                                     -> new Or $1, $3
+            o 'expr < expr',                                                      -> new Lt $1, $3
+            o 'expr > expr',                                                      -> new Gt $1, $3
+            o 'expr <= expr',                                                     -> new Lte $1, $3
+            o 'expr >= expr',                                                     -> new Gte $1, $3
+            o 'expr == expr',                                                     -> new Eq $1, $3
+            o 'expr != expr',                                                     -> new Neq $1, $3
+            o 'id += expr',                                                       -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
+            o 'id -= expr',                                                       -> new Assign $1, new Sub(Ast.copyOf($1), $3)
+            o 'id *= expr',                                                       -> new Assign $1, new Mul(Ast.copyOf($1), $3)
+            o 'id /= expr',                                                       -> new Assign $1, new Div(Ast.copyOf($1), $3)
+            o 'id %= expr',                                                       -> new Assign $1, new Mod(Ast.copyOf($1), $3)
+            o '- expr',                                                          (-> new Usub $2), prec: "u-"
+            o '+ expr',                                                          (-> new Uadd $2), prec: "u+"
+            o '! expr',                                                           -> new Not $2
+            o '++ id',                                                           (-> new PreInc $2), prec: "++a"
+            o '-- id',                                                           (-> new PreDec $2), prec: "--a"
+            o 'id ++',                                                           (-> new PostInc $1), prec: "a++"
+            o 'id --',                                                           (-> new PostDec $1), prec: "a--"
+            o 'DOUBLE_LIT',                                                       -> new DoubleLit $1
+            o 'INT_LIT',                                                          -> new IntLit $1
+            o 'CHAR_LIT',                                                         -> new CharLit $1
+            o 'BOOL_LIT',                                                         -> new BoolLit $1
+            o 'STRING_LIT',                                                       -> new StringLit $1
             o 'direct_assign'
-            o '++ id',                                                           (-> new Ast '=', [$2, new Ast('+', [Ast.copyOf($2), new Ast('INT_LIT', ['1'])])]), prec: "++a"
-            o '-- id',                                                           (-> new Ast '=', [$2, new Ast('-', [Ast.copyOf($2), new Ast('INT_LIT', ['1'])])]), prec: "--a"
-            o 'id ++',                                                           (-> new Ast 'a++', [$1]), prec: "a++"
-            o 'id --',                                                           (-> new Ast 'a--', [$1]), prec: "a--"
-            o 'id += expr',                                                       -> new Ast '=', [$1, new Ast('+', [Ast.copyOf($1),$3])]
-            o 'id -= expr',                                                       -> new Ast '=', [$1, new Ast('-', [Ast.copyOf($1),$3])]
-            o 'id *= expr',                                                       -> new Ast '=', [$1, new Ast('*', [Ast.copyOf($1),$3])]
-            o 'id /= expr',                                                       -> new Ast '=', [$1, new Ast('/', [Ast.copyOf($1),$3])]
-            o 'id %= expr',                                                       -> new Ast '=', [$1, new Ast('%', [Ast.copyOf($1),$3])]
             o 'id'
             o 'cin'
             o 'funcall'
@@ -333,7 +336,7 @@ bnf =
         ]
 
         id: [
-            o 'ID',                                                               -> new Ast 'ID', [$1]
+            o 'ID',                                                               -> new Id $1
         ]
     }
 

@@ -1,10 +1,10 @@
 { parser } = require './grammar'
-{ Ast } = require '../ast'
+astModule = require '../../ast'
 Error = require '../../error'
 
 module.exports = @
 
-parser.yy = { Ast }
+parser.yy = astModule
 
 @parse = (code) ->
     try

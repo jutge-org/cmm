@@ -37,3 +37,7 @@ node_modules
 coffee/browser/js/*.js
 
 build/
+
+test/programs/
+
+.vscode/

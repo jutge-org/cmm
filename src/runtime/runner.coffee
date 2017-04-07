@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 Stack   = require './stack'
-{ Ast } = require '../compiler/ast'
+{ Ast } = require '../ast/ast'
 { evaluateExpression } = require './expression'
 
 io = require './io'

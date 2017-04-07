@@ -1,6 +1,6 @@
 assert = require 'assert'
 
-{ Ast } = require '../compiler/ast'
+{ Ast } = require '../ast/ast'
 { mapFunctions, executeFunction } = require './function'
 io = require './io'
 
