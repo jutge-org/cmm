@@ -6,8 +6,6 @@ module.exports = @
 
 @Assign = class Assign extends Ast
     compile: (state) ->
-        console.log "Assign"
-
         [ variableAst, valueAst ] = @children
         { children: [ variable ] } = variableAst
 
@@ -26,3 +24,9 @@ module.exports = @
             instructions: [ valueInstructions..., castInstructions..., new Assign(variableReference, result) ]
             result: variableReference
         }
+
+    execute: ({ memory }) ->
+        [ dest, src ] = @children
+        dest.write(memory, src.read(memory))
+
+        yes

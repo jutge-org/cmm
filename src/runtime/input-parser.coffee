@@ -1,4 +1,4 @@
-{ Ast: { TYPES } } = require '../ast/ast'
+{ TYPES } = require '../ast/type'
 
 module.exports = @
 

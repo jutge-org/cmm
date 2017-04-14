@@ -6,8 +6,6 @@ module.exports = @
 
 @IfThen = class IfThen extends Ast
     compile: (state) ->
-        console.log "IfThen"
-
         [ conditionAst, thenBody ] = @children
 
         # Comprovar/castejar que la condicio es un boolea
@@ -33,8 +31,6 @@ module.exports = @
 
 @IfThenElse = class IfThenElse extends @IfThen
     compile: (state) ->
-        console.log "IfThenElse"
-
         [ _, _, elseBody ] = @children
 
         { type, instructions, branch } = super state

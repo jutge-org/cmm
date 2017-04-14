@@ -7,8 +7,6 @@ module.exports = @
 
 @Declaration = class Declaration extends Ast
     compile: (state) ->
-        console.log "Declaration"
-
         [ type, declarations ] = @children
 
         instructions = []

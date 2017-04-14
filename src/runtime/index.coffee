@@ -1,25 +1,25 @@
 assert = require 'assert'
 
-{ Ast } = require '../ast/ast'
-{ mapFunctions, executeFunction } = require './function'
-io = require './io'
+{ IO } = require './io'
 
-{ NODES } = Ast
+{ Program: { ENTRY_FUNCTION } } = require '../compiler/program'
+{ Memory } = require './memory'
 
 module.exports = @
 
-@load = (root) ->
-    assert root?
-    mapFunctions root
+@run = (program, input) ->
+    func = program.functions[ENTRY_FUNCTION]
+    instructions = func.instructions
+    pointers = { instruction: 0, stack: 0, temporaries: 0 }
+    io = new IO
+    io.setInput IO.STDIN, input
 
-@run = (input) =>
-    io.reset()
-    io.setInput(io.STDIN, input)
+    memory = new Memory pointers
 
-    try
-        status = executeFunction new Ast(NODES.FUNCALL, [new Ast(NODES.ID, ["main"]), new Ast(NODES.PARAM_LIST, [])])
-    catch error
-        io.output io.STDERR, error.message
-        status = error.code
+    state = { memory, instructions, pointers, variables: program.variables, functions: program.functions, controlStack: [], function: func, io }
 
-    { status, stdout: io.getStream(io.STDOUT), stderr: io.getStream(io.STDERR), output: io.getStream(io.INTERLEAVED) }
+    while state.instructions[state.pointers.instruction].execute state
+        ++state.pointers.instruction
+        #console.log state.instructions[state.pointers.instruction].toString()
+
+    { stdout: io.getStream(IO.STDOUT), stderr: io.getStream(IO.STDERR), output: io.getStream(IO.INTERLEAVED)}

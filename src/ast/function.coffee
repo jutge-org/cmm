@@ -6,15 +6,12 @@ assert = require 'assert'
 { Variable } = require '../compiler/semantics/variable'
 Error = require '../error'
 utils = require '../utils'
-{ Branch } = require './branch'
 { Return } = require './return'
 
 module.exports = @
 
 @Function = class Function extends Ast
     compile: (state) ->
-        console.log "Function"
-
         [ returnType, { children: [ functionId ] }, argList, instructionList ] = @children
 
         state.newFunction(new FunctionVar functionId, returnType)
@@ -23,7 +20,9 @@ module.exports = @
         
         { instructions: instructionsBody } = instructionList.compile state
 
-        functionVariable = state.getVariable functionId
+        functionVariable = state.getFunction functionId
+
+        instructionsBody.push new Return # Ensure that all functions have an ending return statement
 
         functionVariable.instructions = instructionsBody
 
@@ -35,8 +34,6 @@ module.exports = @
 # TODO: This should basically be a conventional declaration node
 @FuncArg = class FuncArg extends Ast
     compile: (state) ->
-        console.log "FuncArg"
-
         [ argType, { children: [ argId ] } ] = @children
 
         { functionId } = state
@@ -44,9 +41,12 @@ module.exports = @
         if argType is TYPES.VOID
             throw Error.VOID_FUNCTION_ARGUMENT.complete('function', 'argument', argId)
 
-        func = state.getVariable functionId
+        func = state.getFunction functionId
 
         assert func?
+        
+        if argType is TYPES.STRING
+            throw { generated: yes }
 
         func.argTypes.push argType
 

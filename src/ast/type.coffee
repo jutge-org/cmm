@@ -24,6 +24,7 @@ class Type extends Ast
 
     getSymbol: -> @id
 
+identity = (x) -> x
 
 @TYPES = TYPES =
     VOID: new Type 'VOID', {
@@ -36,13 +37,12 @@ class Type extends Ast
         isIntegral: yes
         isNumeric: yes
         castings:
-            DOUBLE: (x) ->
-            CHAR: (x) ->
-            BOOL: (x) ->
-            COUT: (x) ->
+            DOUBLE: identity
+            CHAR: identity
+            BOOL: (x) -> x isnt 0
+            COUT: (x) -> x.toString()
 
         stdTypeName: 'Int32'
-
     }
 
     DOUBLE: new Type 'DOUBLE', {
@@ -50,15 +50,26 @@ class Type extends Ast
         bytes: 8
         isNumeric: yes
         castings:
-            INT: (x) ->
-            CHAR: (x) ->
-            BOOL: (x) ->
+            INT: identity
+            CHAR: identity
+            BOOL: (x) -> x isnt 0
             COUT: (x) ->
+                if isNaN x
+                    "-nan"
+                else if x is Number.POSITIVE_INFINITY
+                    "inf"
+                else if x is Number.NEGATIVE_INFINITY
+                    "-inf"
+                else
+                    x.toString()
+
         stdTypeName: 'Float64'
     }
 
     STRING: new Type 'STRING', {
         bytes: 0
+        castings:
+            COUT: identity
     }
 
     CHAR: new Type 'CHAR', {
@@ -66,10 +77,10 @@ class Type extends Ast
         bytes: 1
         isIntegral: yes
         castings:
-            INT: (x) ->
-            DOUBLE: (x) ->
-            BOOL: (x) ->
-            COUT: (x) ->
+            INT: identity
+            DOUBLE: identity
+            BOOL: (x) -> x isnt 0
+            COUT: String.fromCharCode
 
         stdTypeName: 'Int8'
     }
@@ -79,10 +90,10 @@ class Type extends Ast
         bytes: 1
         isIntegral: yes
         castings:
-            INT: (x) ->
-            DOUBLE: (x) ->
-            CHAR: (x) ->
-            COUT: (x) ->
+            INT: identity
+            DOUBLE: identity
+            CHAR: identity
+            COUT: (x) -> if x then "1" else "0"
 
         stdTypeName: 'Uint8'
     }
@@ -94,24 +105,33 @@ class Type extends Ast
     CIN: new Type 'CIN', {
         isAssignable: no
         castings:
-            BOOL: (x) ->
+            BOOL: (x) -> x
     }
 
     COUT: new Type 'COUT', {
         isAssignable: no
     }
 
-@TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @TYPES when type.isAssignable), 'bytes')
+@TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @TYPES when type.isAssignable), 'bytes').arg
 
 Object.freeze @TYPES
 
 class Casting extends Ast
-    constructor: (@interpret, children...) ->
+    constructor: (@cast, children...) ->
         super children...
 
+    execute: ({ memory }) ->
+        [ dest, src ] = @children
+
+        dest.write(memory, @cast(src.read(memory)))
+
+        yes
+
 for typeId, type of TYPES
+    type.castingGenerator = {}
     for castingId, fn of type.castings
-        type.castings[castingId] = (r, x) -> new Casting fn, r, x
+        do (fn) ->
+            type.castingGenerator[castingId] = (r, x) -> new Casting fn, r, x
 
 # Returns a list of instructions necessary to cast memoryReference from
 # actualType to expectedType. Could be empty
@@ -124,7 +144,7 @@ for typeId, type of TYPES
         if actualType.castings[expectedType.id]?
             state.releaseTemporaries memoryReference if releaseReference
             result = state.getTemporary expectedType
-            { instructions: [ actualType.castings[expectedType.id](result, memoryReference) ], result }
+            { instructions: [ actualType.castingGenerator[expectedType.id](result, memoryReference) ], result }
         else
             throw Error.INVALID_CAST.complete('origin', actualType.id, 'dest', expectedType.id)
     else

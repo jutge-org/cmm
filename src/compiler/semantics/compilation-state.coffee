@@ -2,27 +2,31 @@ assert = require 'assert'
 
 utils = require '../../utils'
 Error = require '../../error'
-{ HeapReference, StackReference, TmpReference } = require '../../ast/memory-reference'
+{ MemoryReference } = require '../../ast/memory-reference'
 
 module.exports = @
 
 @CompilationState = class CompilationState
     constructor: ->
-        @definedVariables = {}
+        @variables = {}
         @functions = {}
         @scopeLevel = 0 # In order to be able to distinguish redefined and override variables
         @addressOffset = 0 # So as to define the offset of each local/global variable in the function stack/heap
         @temporaryAddressOffset = 0
+        @variablesCopyStack = []
 
     openScope: ->
-        @definedVariablesCopy = {}
-        for variable, scopes of @definedVariables
-            @definedVariablesCopy[variable] = utils.clone scopes
+        variablesCopy = {}
+        for variable, scopes of @variables
+            variablesCopy[variable] = utils.clone scopes
+
+        @variablesCopyStack.push variablesCopy
 
         ++@scopeLevel
 
     closeScope: ->
-        @definedVariables = @definedVariablesCopy
+        @variables = @variablesCopyStack.pop()
+
         --@scopeLevel
 
     newFunction: (func) ->
@@ -33,15 +37,15 @@ module.exports = @
         @addressOffsetCopy = @addressOffset
         @addressOffset = 0
         @functionId = func.id # Necessary for a return statement or funcarg to know its function id
+        @functions[@functionId] = func
 
         @openScope()
 
     endFunction: ->
         assert @functionId?
 
-        @definedVariables[@functionId][0].stackSize = @addressOffset
+        @variables[@functionId][0].stackSize = @addressOffset
         @addressOffset = @addressOffsetCopy
-        @functions[@functionId] = @definedVariables[@functionId][0]
         delete @functionId
 
         @closeScope()
@@ -49,36 +53,37 @@ module.exports = @
     defineVariable: (variable, onError) ->
         { id } = variable
 
-        if @definedVariables[id]?
-            if @definedVariables[id][@scopeLevel]?
+        if @variables[id]?
+            if @variables[id][@scopeLevel]?
                 throw (onError ? Error.VARIABLE_REDEFINITION.complete("name", id))
         else
-            @definedVariables[id] = {}
+            @variables[id] = {}
 
         if variable.type.isAssignable
-            referenceConstructor = if @scopeLevel is 0 then HeapReference else StackReference
-            variable.memoryReference = new referenceConstructor(variable.type, @addressOffset)
+            variable.memoryReference = MemoryReference.from(variable.type, @addressOffset, if @scopeLevel > 0 then 1 else 0)
             @addressOffset += variable.type.bytes
 
-
-        @definedVariables[id][@scopeLevel] = variable
+        @variables[id][@scopeLevel] = variable
 
     getVariable: (id) ->
-        if @definedVariables[id]?
+        if @variables[id]?
             max = -1
-            for level of @definedVariables[id]
+            for level of @variables[id]
                 if level is @scopeLevel
-                    return @definedVariables[id][level]
+                    return @variables[id][level]
                 else if level > max
                     max = level
 
             if max isnt -1
-                return @definedVariables[id][max]
+                return @variables[id][max]
 
         return null
 
+
+    getFunction: (id) -> @functions[id]
+
     getTemporary: (type) ->
-        ret = new TmpReference type, @temporaryAddressOffset
+        ret = MemoryReference.from(type, @temporaryAddressOffset, MemoryReference.TMP)
         @temporaryAddressOffset += type.bytes # TODO: Check that it doesn't go over 4096
         ret
 

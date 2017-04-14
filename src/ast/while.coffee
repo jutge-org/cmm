@@ -7,8 +7,6 @@ module.exports = @
 
 @While = class While extends Ast
     compile: (state) ->
-        console.log "While"
-
         [ conditionAst, body ] = @children
 
         # Comprovar/castejar que la condicio es un boolea

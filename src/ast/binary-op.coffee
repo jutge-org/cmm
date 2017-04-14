@@ -1,5 +1,7 @@
 { Ast } = require './ast'
 { TYPES, ensureType } = require './type'
+{ BranchFalse, BranchTrue } = require './branch'
+{ Assign } = require './assign'
 Error = require '../error'
 utils = require '../utils'
 module.exports = @
@@ -29,6 +31,13 @@ module.exports = @
 
         return { instructions, result, type }
 
+    execute: ({ memory }) ->
+        [ reference, value1, value2 ] = @children
+
+        reference.write memory, @f(value1.read(memory), value2.read(memory))
+
+        yes
+
 class Arithmetic extends BinaryOp
     casting: (operands, state) ->
         expectedType = @castType operands.map((x) -> x.type)
@@ -49,14 +58,20 @@ class SimpleArithmetic extends Arithmetic
     castType: (operandTypes) -> if TYPES.DOUBLE in operandTypes then TYPES.DOUBLE else TYPES.INT
 
 @Add = class Add extends SimpleArithmetic
+    f: (x, y) -> x+y
 @Sub = class Sub extends SimpleArithmetic
+    f: (x, y) -> x-y
 @Mul = class Mul extends SimpleArithmetic
+    f: (x, y) -> x*y
 
-# The div interpretation is implemented in the two following classes. The Div
-# class is only for the compilation stage and 'mutates' to one of them
-# depending on the operand types
-class IntDiv extends Ast
-class DoubleDiv extends Ast
+class IntDiv extends BinaryOp
+    f: (x, y) ->
+        throw Error.DIVISION_BY_ZERO if y is 0
+        x/y
+
+class DoubleDiv extends BinaryOp
+    f: (x, y) -> x/y
+
 @Div = class Div extends SimpleArithmetic
     castType: (operandTypes) ->
         resultType = super operandTypes
@@ -76,14 +91,44 @@ class DoubleDiv extends Ast
 
         TYPES.INT
 
+    f: (x, y) ->
+        throw Error.MODULO_BY_ZERO if y is 0
+        x%y
+
 
 
 class LogicArithmetic extends Arithmetic
     castType: -> TYPES.BOOL
 
-@And = class And extends LogicArithmetic
-@Or = class Or extends LogicArithmetic
 
+class LazyOperator extends Ast
+    compile: (state) ->
+
+        left = @left().compile(state)
+        { result: resultLeft, instructions: castingInstructionsLeft } = ensureType left.result, left.type, TYPES.BOOL, state
+
+        state.releaseTemporaries resultLeft
+
+        right = @right().compile(state)
+        { result: resultRight, instructions: castingInstructionsRight } = ensureType right.result, right.type, TYPES.BOOL, state
+
+        state.releaseTemporaries resultRight
+
+        result = state.getTemporary TYPES.BOOL
+
+        rightInstructionsSize = right.instructions.length + castingInstructionsRight.length + 1
+
+        # This assumes that castings have no side effects
+        instructions = [ left.instructions..., castingInstructionsLeft..., new Assign(result, resultLeft), new @branch(resultLeft, rightInstructionsSize), right.instructions...,
+            castingInstructionsRight..., new Assign(result, resultRight) ]
+
+        return { instructions, result, type: TYPES.BOOL }
+
+
+@And = class And extends LazyOperator
+    branch: BranchFalse
+@Or = class Or extends LazyOperator
+    branch: BranchTrue
 
 
 class Comparison extends BinaryOp
@@ -106,9 +151,15 @@ class Comparison extends BinaryOp
         return { type: TYPES.BOOL, results, instructions }
 
 @Lt = class Lt extends Comparison
+    f: (x, y) -> x < y
 @Lte = class Lte extends Comparison
+    f: (x, y) -> x <= y
 @Gt = class Gt extends Comparison
+    f: (x, y) -> x > y
 @Gte = class Gte extends Comparison
+    f: (x, y) -> x >= y
 @Eq = class Eq extends Comparison
+    f: (x, y) -> x is y
 @Neq = class Neq extends Comparison
+    f: (x, y) -> x isnt y
 

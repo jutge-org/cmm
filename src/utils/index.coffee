@@ -1,6 +1,6 @@
 module.exports = @
 
-@clone = (x) ->
+@clone = clone =  (x) ->
     if Array.isArray x
         x[...]
     else if typeof x is "object"

@@ -158,7 +158,7 @@ operators = [
 bnf =
     {
         prog: [
-            o 'block_includes block_functions EOF',                               -> new Program $2
+            o 'block_includes block_functions EOF',                               -> new ProgramAst $2
         ]
 
         block_includes: [

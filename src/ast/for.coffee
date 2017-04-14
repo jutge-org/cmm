@@ -7,8 +7,6 @@ module.exports = @
 
 @For = class For extends Ast
     compile: (state) ->
-        console.log "For"
-
         [ init, condition, afterIteration, body ] = @children
 
         # Comprovar recursivament la inicialitzacio i el increment, comprovar/castejar que la condicio es un boolea

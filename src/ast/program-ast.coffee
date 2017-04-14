@@ -4,22 +4,25 @@ Error = require '../error'
 { Ast } = require './ast'
 { TYPES } = require './type'
 { CompilationState } = require '../compiler/semantics/compilation-state'
+{ FunctionVar } = require '../compiler/semantics/function-var'
+{ Funcall } = require './funcall'
+{ Program } = require '../compiler/program'
 
 module.exports = @
 
-@Program = class Program extends Ast
+{ ENTRY_FUNCTION } = Program
+
+@ProgramAst = class ProgramAst extends Ast
     ALLOWED_MAIN_RETURN_TYPES = [ TYPES.INT, TYPES.VOID ]
 
-    checkMainIsDefined = (definedVariables) ->
-        main = definedVariables.main?[0]
+    checkMainIsDefined = (functions) ->
+        { main } = functions
         if not main? or main.type isnt TYPES.FUNCTION
             throw Error.MAIN_NOT_DEFINED
         else if main.returnType not in ALLOWED_MAIN_RETURN_TYPES
             throw Error.INVALID_MAIN_TYPE
 
     compile: ->
-        console.log "Program"
-
         [ functionList ] = @children
 
         # Holds information about the current state of the compilation
@@ -27,14 +30,13 @@ module.exports = @
 
         functionList.compile state
 
-        console.log state.functions
+        { functions, variables, addressOffset: globalsSize } = state
 
-        for funcId, func of state.functions
-            console.log "#{funcId}:"
+        checkMainIsDefined functions
 
-            for instruction in func.instructions
-                console.log instruction.toString()
+        entryFunction = new FunctionVar ENTRY_FUNCTION, TYPES.VOID
+        entryFunction.instructions = [ new Funcall 'main', 0 ]
+        state.newFunction entryFunction
+        state.endFunction()
 
-        checkMainIsDefined state.definedVariables
-
-        this
+        new Program variables, functions, globalsSize

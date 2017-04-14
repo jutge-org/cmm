@@ -6,8 +6,6 @@ module.exports = @
 
 @Cout = class Cout extends Ast
     compile: (state) ->
-        console.log "Cout"
-
         # Comprovar/castejar que tots els fills siguin strings
         # Retorna void
 

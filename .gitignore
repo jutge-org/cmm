@@ -41,3 +41,6 @@ build/
 test/programs/
 
 .vscode/
+
+**/*.js
+**/*.js.map

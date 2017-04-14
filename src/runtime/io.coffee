@@ -1,45 +1,44 @@
 assert = require 'assert'
 
-module.exports = class IO
-    @streams:
-        1: ""
-        2: ""
-        0: ""
-        3: ""
+module.exports = @
 
+@IO = class IO
     @STDIN: 0
     @STDOUT: 1
     @STDERR: 2
     @INTERLEAVED: 3
 
-    @reset: ->
-        for stream of IO.streams
-            IO.streams[stream] = ""
+    constructor: ->
+        @streams =
+            1: ""
+            2: ""
+            0: ""
+            3: ""
 
-    @output: (stream, string) ->
+    output: (stream, string) ->
         assert (typeof string is "string")
-        assert IO.streams[stream]?
+        assert @streams[stream]?
 
 
-        IO.streams[IO.INTERLEAVED] += string
+        @streams[IO.INTERLEAVED] += string
 
-        IO.streams[stream] += string
+        @streams[stream] += string
 
-    @setInput: (stream, input) ->
+    setInput: (stream, input) ->
         assert (typeof input is "string")
-        assert IO.streams[stream]?
+        assert @streams[stream]?
 
-        IO.streams[stream] = input.trim().split(/\s+/)
+        @streams[stream] = input.trim().split(/\s+/)
 
-        IO.streams[stream] = [] if IO.streams[stream][0] is ""
+        @streams[stream] = [] if @streams[stream][0] is ""
 
-    @getWord: (stream) ->
-        assert IO.streams[stream]?
-        IO.streams[stream].shift()
+    getWord: (stream) ->
+        assert @streams[stream]?
+        @streams[stream].shift()
 
     # Used to refill when there is some leftover that was not parsed from the word
-    @unshiftWord: (stream, word) ->
-        assert IO.streams[stream]?
-        IO.streams[stream].unshift(word)
+    unshiftWord: (stream, word) ->
+        assert @streams[stream]?
+        @streams[stream].unshift(word)
 
-    @getStream: (stream) -> IO.streams[stream]
+    getStream: (stream) -> @streams[stream]

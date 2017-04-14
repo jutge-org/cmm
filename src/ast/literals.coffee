@@ -13,8 +13,6 @@ module.exports = @
 
 @Literal = class Literal extends Ast
     compile: (state) ->
-        console.log "Literal"
-
         assert @parse, "Literal did not define parse method"
         assert @type, "Literal did not define type"
 
@@ -22,11 +20,11 @@ module.exports = @
 
         @setChild 0, @type.tipify(@parse s)
 
-        reference = state.getTemporary @type
+        { @type, instructions: [], result: this }
 
-        { @type, instructions: [new Assign reference, this], result: reference }
+    read: -> @child()
 
-    getValue: -> @getChild 0
+    getType: -> @type
 
 @DoubleLit = class DoubleLit extends Literal
     parse: parseFloat
@@ -36,7 +34,7 @@ module.exports = @
     parse: parseInt
     type: TYPES.INT
 
-@StringLit = class StringLit extends Literal
+@StringLit = class StringLit extends Literal # Should only accept ascii strings
     parse: (s) -> JSON.parse("{ \"s\": #{s} }").s
     type: TYPES.STRING
 

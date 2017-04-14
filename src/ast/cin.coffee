@@ -8,8 +8,6 @@ module.exports = @
 
 @Cin = class Cin extends Ast
     compile: (state) ->
-        console.log "Cin"
-
         instructions = []
         result = state.getTemporary TYPES.BOOL
 

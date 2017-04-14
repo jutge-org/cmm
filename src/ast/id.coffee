@@ -5,8 +5,6 @@ module.exports = @
 
 @Id = class Id extends Ast
     compile: (state) ->
-        console.log "Id"
-
         [ id ] = @children
 
         variable = state.getVariable id

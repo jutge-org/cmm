@@ -25,6 +25,7 @@ module.exports = @
 
 
 # These are to simplify and beautify some code
+
     child: -> @children[0]
     left: -> @children[0]
     right: -> @children[1]
