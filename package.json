@@ -20,6 +20,7 @@
     "ascii-tree": "^0.3.0",
     "coffeeify": "^2.0.1",
     "commander": "^2.9.0",
+    "fast-dataview": "0.0.2",
     "jison": "^0.4.17",
     "jisonify": "^1.0.4",
     "shell": "^0.3.2"
