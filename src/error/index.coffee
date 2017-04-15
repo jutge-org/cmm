@@ -54,6 +54,6 @@ e "COUT_OF_INVALID_TYPE", 63, "invalid cout parameter"
 
 # Execution errors
 e "GET_VARIABLE_NOT_ASSIGNED", 2, "Cannot get variable <<name>>: hasn't been assigned"
-e "NO_RETURN", 3, "Non-void function <<name>> hasn't returned any value"
+e "NO_RETURN", 3, "return-statement with no value, in function '<<name>>' returning '<<expected>>'"
 e "DIVISION_BY_ZERO", 4, "You divided by zero"
 e "MODULO_BY_ZERO", 5, "You tried to compute a modulo with zero"

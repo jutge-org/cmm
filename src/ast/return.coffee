@@ -1,5 +1,6 @@
 assert = require 'assert'
 
+Error = require '../error'
 { Ast } = require './ast'
 { TYPES, ensureType } = require './type'
 { Assign } = require './assign'
@@ -31,6 +32,10 @@ module.exports = @
             instructions = [ valueInstructions..., castingInstructions..., new Assign(MemoryReference.from(expectedType, null, MemoryReference.RETURN), result) ]
         else # return;i
             actualType = TYPES.VOID
+
+            if actualType isnt expectedType
+                throw Error.NO_RETURN.complete("expected", expectedType.id.toLowerCase(), "name", functionId)
+
             instructions = []
 
         instructions.push new Return
