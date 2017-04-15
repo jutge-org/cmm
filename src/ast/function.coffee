@@ -7,6 +7,9 @@ assert = require 'assert'
 Error = require '../error'
 utils = require '../utils'
 { Return } = require './return'
+{ IntLit } = require './literals'
+{ Assign } = require './assign'
+{ MemoryReference } = require './memory-reference'
 
 module.exports = @
 
@@ -22,7 +25,14 @@ module.exports = @
 
         functionVariable = state.getFunction functionId
 
-        instructionsBody.push new Return # Ensure that all functions have an ending return statement
+        # Main returns 0 by default
+        if functionId is 'main'
+            instructionsBody.push new Assign(MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
+
+        # Ensure that all methods return. By default they all return 0 if no previous return has been specified.
+        # This can be improved with a control flow analysis algorithm which could detect whether a previous return
+        # has been specified
+        instructionsBody.push new Return
 
         functionVariable.instructions = instructionsBody
 

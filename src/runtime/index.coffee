@@ -4,6 +4,8 @@ assert = require 'assert'
 
 { Program: { ENTRY_FUNCTION } } = require '../compiler/program'
 { Memory } = require './memory'
+{ MemoryReference } = require '../ast/memory-reference'
+{ TYPES } = require '../ast/type'
 
 module.exports = @
 
@@ -23,4 +25,6 @@ module.exports = @
         state.instructions[state.pointers.instruction].execute state
         ++state.pointers.instruction
 
-    { stdout: io.getStream(IO.STDOUT), stderr: io.getStream(IO.STDERR), output: io.getStream(IO.INTERLEAVED)}
+    status = MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN).read(memory)
+
+    { stdout: io.getStream(IO.STDOUT), stderr: io.getStream(IO.STDERR), output: io.getStream(IO.INTERLEAVED), status }

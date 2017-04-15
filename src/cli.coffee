@@ -41,11 +41,11 @@ console.log "Compilation successful:"
 program.writeInstructions()
 
 # Run and store output
-{ stdout, stderr, output } = cmm.run program, input
+{ stdout, stderr, output, status } = cmm.run program, input
 
 # Print result
 
-#console.log "exit status code: #{status}"
+console.log "exit status code: #{status}"
 console.log "stdout:"
 process.stdout.write stdout
 console.log "stderr:"
