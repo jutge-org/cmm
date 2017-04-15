@@ -36,8 +36,6 @@ module.exports = @
 
         reference.write memory, @f(value1.read(memory), value2.read(memory))
 
-        yes
-
 class Arithmetic extends BinaryOp
     casting: (operands, state) ->
         expectedType = @castType operands.map((x) -> x.type)

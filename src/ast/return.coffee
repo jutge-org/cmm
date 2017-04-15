@@ -50,4 +50,4 @@ module.exports = @
         state.pointers.stack -= state.function.stackSize
         state.instructions = state.function.instructions
 
-        state.function.id isnt ENTRY_FUNCTION
+        state.finished = state.function.id is ENTRY_FUNCTION

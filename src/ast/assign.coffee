@@ -28,5 +28,3 @@ module.exports = @
     execute: ({ memory }) ->
         [ dest, src ] = @children
         dest.write(memory, src.read(memory))
-
-        yes

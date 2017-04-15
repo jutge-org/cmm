@@ -67,8 +67,6 @@ module.exports = @
         state.function = state.functions[funcId]
         state.instructions = state.function.instructions
 
-        yes
-
 
 
 @ParamPush = class ParamPush extends Ast
@@ -77,5 +75,3 @@ module.exports = @
 
         ref = new StackReference(value.getType(), func.stackSize + offset)
         ref.write(memory, value.read(memory))
-
-        yes

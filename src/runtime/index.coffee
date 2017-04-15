@@ -18,8 +18,9 @@ module.exports = @
 
     state = { memory, instructions, pointers, variables: program.variables, functions: program.functions, controlStack: [], function: func, io }
 
-    while state.instructions[state.pointers.instruction].execute state
+    state.finished = false
+    until state.finished
+        state.instructions[state.pointers.instruction].execute state
         ++state.pointers.instruction
-        #console.log state.instructions[state.pointers.instruction].toString()
 
     { stdout: io.getStream(IO.STDOUT), stderr: io.getStream(IO.STDERR), output: io.getStream(IO.INTERLEAVED)}
