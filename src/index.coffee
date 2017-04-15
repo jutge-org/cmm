@@ -1,7 +1,8 @@
 { compile } = require './compiler'
-{ run } = require './runtime'
+{ run, runSync } = require './runtime'
 
 module.exports = @
 
 @compile = compile
 @run = run
+@runSync = runSync

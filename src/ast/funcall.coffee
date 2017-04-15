@@ -58,19 +58,19 @@ module.exports = @
     execute: (state) ->
         [ funcId, temporaryOffset ] = @children
 
-        state.controlStack.push { function: state.function, instruction: state.pointers.instruction, temporariesOffset: state.pointers.temporaries }
+        state.controlStack.push { func: state.func, instruction: state.pointers.instruction, temporariesOffset: state.pointers.temporaries }
 
         state.pointers.temporaries += temporaryOffset
-        state.pointers.stack += state.function.stackSize
+        state.pointers.stack += state.func.stackSize
         state.pointers.instruction = -1 # It will be incremented after the funcall instruction is executed
 
-        state.function = state.functions[funcId]
-        state.instructions = state.function.instructions
+        state.func = state.functions[funcId]
+        state.instructions = state.func.instructions
 
 
 
 @ParamPush = class ParamPush extends Ast
-    execute: ({ memory, function: func }) ->
+    execute: ({ memory, func }) ->
         [ value, offset ] = @children
 
         ref = new StackReference(value.getType(), func.stackSize + offset)

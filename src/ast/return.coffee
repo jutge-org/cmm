@@ -30,7 +30,7 @@ module.exports = @
             { result, instructions: castingInstructions } = ensureType valueResult, actualType, expectedType, state   
             state.releaseTemporaries result
             instructions = [ valueInstructions..., castingInstructions..., new Assign(MemoryReference.from(expectedType, null, MemoryReference.RETURN), result) ]
-        else # return;i
+        else # return;
             actualType = TYPES.VOID
 
             if actualType isnt expectedType
@@ -46,13 +46,13 @@ module.exports = @
         }
 
     execute: (state) ->
-        { function: func, instruction, temporariesOffset } = state.controlStack.pop()
+        { func, instruction, temporariesOffset } = state.controlStack.pop()
 
         state.pointers.temporaries = temporariesOffset
         state.pointers.instruction = instruction
 
-        state.function = func
-        state.pointers.stack -= state.function.stackSize
-        state.instructions = state.function.instructions
+        state.func = func
+        state.pointers.stack -= state.func.stackSize
+        state.instructions = state.func.instructions
 
-        state.finished = state.function.id is ENTRY_FUNCTION
+        state.finished = state.func.id is ENTRY_FUNCTION
