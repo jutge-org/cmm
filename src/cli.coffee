@@ -33,7 +33,7 @@ try
 catch error
     error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
     console.log error.message
-    console.log error.stack
+    console.log error.stack if error.stack?
     process.exit error.code
 
 console.log "Compilation successful:"
