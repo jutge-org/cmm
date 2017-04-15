@@ -12,39 +12,20 @@ unless code?
         #include <iostream>
         using namespace std;
 
-        // PRE: n enter > 0
-        // POST: suma dels divisors de n
-        int suma_divisors(int n) {
-            int suma = 0;
-            for (int i = 1; i <= n/2; ++i) {
-                if (n%i == 0) suma += i;
-            }
-            return suma;
-        }
-
         int main() {
-            int n;
-            while (cin >> n) {
-                cout << n << ": ";
-                int popi = suma_divisors(n - 2) + suma_divisors(n) + suma_divisors(n + 2);
-                if (popi == n) cout << "popiropis" << endl;
-                else if (popi%n == 0) cout << popi/n << "-popiropis" << endl;
-                else cout << "res" << endl;
-            }
+            cout << "Hello World!" << endl;
         }
         """
 else
-    code = fs.readFileSync code
+    code = fs.readFileSync code, 'utf-8'
 
 
 unless input?
     input =
         """
-        132
         """
 else
-    input = fs.readFileSync input
-
+    input = fs.readFileSync input, 'utf-8'
 
 # Compile
 try
@@ -56,9 +37,8 @@ catch error
     process.exit error.code
 
 console.log "Compilation successful:"
-program.writeInstructions()
-#console.log ast.toString()
 
+program.writeInstructions()
 
 # Run and store output
 { stdout, stderr, output } = cmm.run program, input
