@@ -13,7 +13,7 @@ module.exports = @
 { ENTRY_FUNCTION } = Program
 
 @ProgramAst = class ProgramAst extends Ast
-    ALLOWED_MAIN_RETURN_TYPES = [ TYPES.INT, TYPES.VOID ]
+    ALLOWED_MAIN_RETURN_TYPES = [ TYPES.INT ]
 
     checkMainIsDefined = (functions) ->
         { main } = functions
