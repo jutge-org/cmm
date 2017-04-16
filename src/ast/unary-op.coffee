@@ -24,8 +24,6 @@ module.exports = @
 
         variable.write memory, @f(value.read(memory))
 
-        yes
-
 class Uarithmetic extends UnaryOp
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
@@ -45,40 +43,31 @@ class Uarithmetic extends UnaryOp
 @Usub = class Usub extends Uarithmetic
     f: (x) -> -x
 
-@PreInc = class PreInc extends Uarithmetic
+
+class PreOp extends Uarithmetic
     execute: ({ memory }) ->
         [ dest, value ] = @children
-        result = value.read(memory) + 1
+        result = value.read(memory) + @incr
         value.write(memory, result)
         dest.write(memory, result)
 
-        yes
+@PreInc = class PreInc extends PreOp
+    incr: 1
+@PreDec = class PreDec extends PreOp
+    incr: -1
 
-@PreDec = class PreDec extends Uarithmetic
-    execute: ({ memory }) ->
-        [ dest, value ] = @children
-        result = value.read(memory) - 1
-        value.write(memory, result)
-        dest.write(memory, result)
 
-        yes
-
-@PostInc = class PostInc extends Uarithmetic
+class PostOp extends Uarithmetic
     execute: ({ memory }) ->
         [ destRef, valueRef ] = @children
         value = valueRef.read memory
+        valueRef.write memory, value + @incr
         destRef.write memory, value
-        valueRef.write memory, value + 1
 
-        yes
+@PostInc = class PostInc extends PostOp
+    incr: 1
 @PostDec = class PostDec extends Uarithmetic
-    execute: ({ memory }) ->
-        [ destRef, valueRef ] = @children
-        value = valueRef.read memory
-        destRef.write memory, value
-        valueRef.write memory, value - 1
-
-        yes
+    incr: -1
 
 @Not = class Not extends UnaryOp
     casting: (operand, state) ->
