@@ -125,6 +125,8 @@ lexRules = [
     r /while\b/,                                 'WHILE'
     r /for\b/,                                   'FOR'
 
+    r /const\b/,                                 'CONST'
+
     r /true\b/,                                  'BOOL_LIT'
     r /false\b/,                                 'BOOL_LIT'
     r /[0-9]+(\.[0-9]+)\b/,                      'DOUBLE_LIT'
@@ -202,8 +204,8 @@ bnf =
             o '',                                                                 -> new List
         ]
 
-        arg: [ # TODO: This should basically be a conventional declaration node
-            o 'type id',                                                          -> new FuncArg $1, $2
+        arg: [
+            o 'declaration_specifier_seq id',                                     -> new FuncArg $1, $2
         ]
 
         block_instr: [
@@ -294,7 +296,17 @@ bnf =
         ]
 
         declaration: [
-            o 'type declaration_body',                                            -> new Declaration $1, $2
+            o 'declaration_specifier_seq declaration_body',                       -> new Declaration $1, $2
+        ]
+        
+        declaration_specifier_seq: [
+            o 'declaration_specifier_seq declaration_specifier',                  -> $$.push $2
+            o 'declaration_specifier',                                            -> [$1]
+        ]
+        
+        declaration_specifier: [
+            o 'CONST'
+            o 'type'
         ]
 
         declaration_body: [

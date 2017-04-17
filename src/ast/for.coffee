@@ -49,7 +49,3 @@ module.exports = @
                 new Branch(-(afterInstructions.length + bodyInstructions.length + 1 + castingInstructions.length + conditionInstructions.length + 1))
             ]
         }
-
-
-
-#return { type, variable, instructions }

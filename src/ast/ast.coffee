@@ -24,8 +24,7 @@ module.exports = @
             this[key] = value
 
 
-# These are to simplify and beautify some code
-
+    # These are to simplify and beautify some code
     child: -> @children[0]
     left: -> @children[0]
     right: -> @children[1]

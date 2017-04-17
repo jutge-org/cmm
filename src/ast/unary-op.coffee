@@ -1,3 +1,4 @@
+Error = require '../error'
 { Ast } = require './ast'
 { TYPES, ensureType } = require './type'
 
@@ -43,8 +44,19 @@ class Uarithmetic extends UnaryOp
 @Usub = class Usub extends Uarithmetic
     f: (x) -> -x
 
+class AssignOp extends Uarithmetic
+    compile: (state) ->
+        [ { children: variableId } ] = @children
 
-class PreOp extends Uarithmetic
+        variable = state.getVariable variableId
+
+        if variable.specifiers.const
+            throw Error.CONST_MODIFICATION.complete("name", variable.id)
+
+        super state
+
+
+class PreOp extends AssignOp
     execute: ({ memory }) ->
         [ dest, value ] = @children
         result = value.read(memory) + @incr
@@ -57,7 +69,7 @@ class PreOp extends Uarithmetic
     incr: -1
 
 
-class PostOp extends Uarithmetic
+class PostOp extends AssignOp
     execute: ({ memory }) ->
         [ destRef, valueRef ] = @children
         value = valueRef.read memory

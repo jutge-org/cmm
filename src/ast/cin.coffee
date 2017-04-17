@@ -22,6 +22,9 @@ module.exports = @
             unless variable?
                 throw Error.CIN_VARIABLE_UNDEFINED.complete('name', id)
 
+            if variable.specifiers.const
+                throw Error.CONST_MODIFICATION.complete("name", variable.id)
+
             { type, memoryReference } = variable
 
             unless type.isAssignable

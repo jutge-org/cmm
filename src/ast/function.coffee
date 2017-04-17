@@ -10,6 +10,7 @@ utils = require '../utils'
 { IntLit } = require './literals'
 { Assign } = require './assign'
 { MemoryReference } = require './memory-reference'
+{ Declaration } = require './declaration'
 
 module.exports = @
 
@@ -53,24 +54,26 @@ lastLocations = (locations) ->
 
 
 # TODO: This should basically be a conventional declaration node
-@FuncArg = class FuncArg extends Ast
+@FuncArg = class FuncArg extends Declaration
+    constructor: (specifiers, id) ->
+        super specifiers, [id] # Switch to declaration format
+
     compile: (state) ->
-        [ argType, { children: [ argId ] } ] = @children
+        { type } = @getSpecifiers()
+        [ _, [ { children: [ argId ] } ] ] = @children
 
         { functionId } = state
 
-        if argType is TYPES.VOID
-            throw Error.VOID_FUNCTION_ARGUMENT.complete('function', 'argument', argId)
+        if type is TYPES.VOID
+            throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
+
+        if type is TYPES.STRING
+            throw { generated: yes }
 
         func = state.getFunction functionId
 
         assert func?
-        
-        if argType is TYPES.STRING
-            throw { generated: yes }
 
-        func.argTypes.push argType
+        func.argTypes.push type
 
-        state.defineVariable new Variable argId, argType, isFunctionArgument: yes
-
-        return type: TYPES.VOID, instructions: []
+        super state

@@ -10,6 +10,7 @@ parser.yy = astModule
     try
         ast = parser.parse code
     catch error
+        console.log error
         throw Error.PARSE_ERROR.complete('error', error.message)
 
     ast

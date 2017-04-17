@@ -5,15 +5,20 @@ Error = require '../error'
 module.exports = @
 
 @Assign = class Assign extends Ast
-    compile: (state) ->
+    compile: (state, { isFromDeclaration = no } = {}) ->
         [ variableAst, valueAst ] = @children
-        { children: [ variable ] } = variableAst
+        { children: [ variableId ] } = variableAst
 
         { type: variableType, result: variableReference } = variableAst.compile state
         { type: valueType, instructions: valueInstructions, result: valueReference } = valueAst.compile state
 
         unless variableType.isAssignable
-            throw Error.ASSIGN_OF_NON_ASSIGNABLE.complete('variableName', variable, 'type', variableType.id)
+            throw Error.ASSIGN_OF_NON_ASSIGNABLE.complete('variableName', variableId, 'type', variableType.id)
+
+        variable = state.getVariable variableId
+
+        if not isFromDeclaration and variable.specifiers.const
+            throw Error.CONST_MODIFICATION.complete("name", variable.id)
 
         { instructions: castInstructions, result } = ensureType valueReference, valueType, variableType, state
 

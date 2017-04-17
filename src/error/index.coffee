@@ -52,6 +52,11 @@ e "CIN_OF_NON_ASSIGNABLE", 61, "cin variables must be assignable"
 e "CIN_VARIABLE_UNDEFINED", 62, "cannot cin variable <<name>>: undeclared"
 e "COUT_OF_INVALID_TYPE", 63, "invalid cout parameter"
 
+e "CONST_MODIFICATION", 71, "Modification of read-only variable <<name>>"
+
+e "DUPLICATE_SPECIFIER", 72, "Duplicate declaration specifier <<specifier>>"
+e "NO_TYPE_SPECIFIER", 73, "A type specifier is required for all declarations"
+
 # Execution errors
 e "GET_VARIABLE_NOT_ASSIGNED", 2, "Cannot get variable <<name>>: hasn't been assigned"
 e "NO_RETURN", 3, "return-statement with no value, in function '<<name>>' returning '<<expected>>'"
