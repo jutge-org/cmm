@@ -7,7 +7,7 @@ unwrap = /^function\s*\(\)\s*\{\s*return\s*([\s\S]*);\s*\}/
 
 addLocationData = (first, last) ->
     (obj) ->
-        if typeof obj is "object"
+        if obj isnt null and typeof obj is "object"
             obj.locations =
                 lines:
                     first: first.first_line
