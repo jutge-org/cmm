@@ -5,11 +5,27 @@
 # wrapper and just returning the value directly.
 unwrap = /^function\s*\(\)\s*\{\s*return\s*([\s\S]*);\s*\}/
 
+addLocationData = (first, last) ->
+    (obj) ->
+        if typeof obj is "object"
+            obj.locations =
+                lines:
+                    first: first.first_line
+                    last: last.last_line
+                columns:
+                    first: first.first_column
+                    last: last.last_column
+
+        obj
+
+
 o = (patternString, action, options) ->
     # Remove extra spaces
     patternString = patternString.replace /\s{2,}/g, ' '
 
     return [patternString, '$$ = $1;', options] unless action
+
+    patternCount = patternString.split(' ').length
 
     action = if match = unwrap.exec action then match[1] else "(#{action}())"
 
@@ -19,7 +35,7 @@ o = (patternString, action, options) ->
     # Also objects
     action = action.replace /\b(?:TYPES)/g, 'yy.$&'
 
-    [patternString, (if action.indexOf('$$') >= 0 then action else "$$ = #{action};"), options]
+    [patternString, (if action.indexOf('$$') >= 0 then action else "$$ = #{addLocationData}(@1, @#{patternCount})(#{action});"), options]
 
 
 r = (pattern, value) -> [pattern.toString()[1...-1], if value.match(/\/\*.+\*\//)? then value else "return '#{value}'"]

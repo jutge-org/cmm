@@ -13,6 +13,12 @@ utils = require '../utils'
 
 module.exports = @
 
+lastLocations = (locations) ->
+    {
+        lines: {first: locations.lines.last, last: locations.lines.last}
+        columns: {first: locations.columns.last, last: locations.columns.last}
+    }
+
 @Function = class Function extends Ast
     compile: (state) ->
         [ returnType, { children: [ functionId ] }, argList, instructionList ] = @children
@@ -27,12 +33,17 @@ module.exports = @
 
         # Main returns 0 by default
         if functionId is 'main'
-            instructionsBody.push new Assign(MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
+            returnOassign = new Assign(MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
+            returnOassign.locations = lastLocations(@locations)
+
+            instructionsBody.push returnOassign
 
         # Ensure that all methods return. By default they all return 0 if no previous return has been specified.
         # This can be improved with a control flow analysis algorithm which could detect whether a previous return
         # has been specified
-        instructionsBody.push new Return
+        returnInstruction = new Return
+        returnInstruction.locations = lastLocations(@locations)
+        instructionsBody.push returnInstruction
 
         functionVariable.instructions = instructionsBody
 

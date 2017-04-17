@@ -33,11 +33,16 @@ module.exports = @
 
         state.closeScope()
 
+        instructionsInit.forEach((x) -> x.locations = init.locations)
+        topInstructions = [conditionInstructions..., castingInstructions...]
+        topInstructions.forEach((x) -> x.locations = condition.locations)
+        afterInstructions.forEach((x) -> x.locations = afterIteration.locations)
+
         return {
             type: TYPES.VOID
             instructions: [
                 instructionsInit...,
-                conditionInstructions..., castingInstructions...,
+                topInstructions...,
                 new BranchFalse(castingResult, bodyInstructions.length + afterInstructions.length + 1)
                 bodyInstructions...,
                 afterInstructions...,

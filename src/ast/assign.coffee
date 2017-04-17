@@ -19,9 +19,13 @@ module.exports = @
 
         state.releaseTemporaries result
 
+        instructions = [ valueInstructions..., castInstructions..., new Assign(variableReference, result) ]
+
+        instructions.forEach((x) => x.locations = @locations)
+
         return {
             type: variableType
-            instructions: [ valueInstructions..., castInstructions..., new Assign(variableReference, result) ]
+            instructions
             result: variableReference
         }
 

@@ -12,7 +12,7 @@ module.exports = @
         @streams =
             1: ""
             2: ""
-            0: ""
+            0: []
             3: ""
 
     output: (stream, string) ->
@@ -21,7 +21,6 @@ module.exports = @
 
 
         @streams[IO.INTERLEAVED] += string
-
         @streams[stream] += string
 
     setInput: (stream, input) ->

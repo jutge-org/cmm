@@ -17,4 +17,6 @@ module.exports = @
             instructions = instructions.concat valueInstructions
             instructions.push new Write result
 
+        instructions.forEach((x) => x.locations = @locations)
+
         return { type: TYPES.VOID, instructions }

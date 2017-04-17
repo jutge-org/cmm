@@ -23,3 +23,5 @@ module.exports = @
                 read = yes
 
         booleanReference.write memory, if read then 1 else 0
+
+    isRead: yes

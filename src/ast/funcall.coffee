@@ -51,21 +51,25 @@ module.exports = @
             else
                 null
 
+        instructions.forEach((x) => x.locations = @locations)
+
         return { type: returnType, result, instructions }
 
     # Increase the temporary offset
     # Increase the function stack offset by the current functions stack size
-    execute: (state) ->
+    execute: (vm) ->
         [ funcId, temporaryOffset ] = @children
 
-        state.controlStack.push { func: state.func, instruction: state.pointers.instruction, temporariesOffset: state.pointers.temporaries }
+        vm.controlStack.push { func: vm.func, instruction: vm.pointers.instruction, temporariesOffset: vm.pointers.temporaries }
 
-        state.pointers.temporaries += temporaryOffset
-        state.pointers.stack += state.func.stackSize
-        state.pointers.instruction = -1 # It will be incremented after the funcall instruction is executed
+        vm.pointers.temporaries += temporaryOffset
+        vm.pointers.stack += vm.func.stackSize
+        vm.pointers.instruction = -1 # It will be incremented after the funcall instruction is executed
 
-        state.func = state.functions[funcId]
-        state.instructions = state.func.instructions
+        vm.func = vm.functions[funcId]
+        vm.instructions = vm.func.instructions
+
+    isFuncall: yes
 
 
 

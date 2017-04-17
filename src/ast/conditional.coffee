@@ -26,8 +26,12 @@ module.exports = @
 
         branch = new BranchFalse(castingResult, thenInstructions.length)
 
-        return { type: TYPES.VOID, branch, instructions: [ conditionInstructions..., castingInstructions...,
-                                                 branch, thenInstructions... ] }
+        topInstructions = [ conditionInstructions..., castingInstructions...]
+        topInstructions.forEach((x) => x.locations = conditionAst.locations)
+
+        instructions = [ topInstructions..., branch, thenInstructions... ]
+
+        return { type: TYPES.VOID, branch, instructions }
 
 @IfThenElse = class IfThenElse extends @IfThen
     compile: (state) ->

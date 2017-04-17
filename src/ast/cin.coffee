@@ -37,4 +37,6 @@ module.exports = @
             # Add goto end if tmp is false and it's not the last cin
             # Its result is the bool tmp
 
+        instructions.forEach((x) => x.locations = @locations)
+
         return { type: TYPES.CIN, result, instructions }

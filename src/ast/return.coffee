@@ -40,19 +40,24 @@ module.exports = @
 
         instructions.push new Return
 
+        instructions.forEach((x) => x.locations = @locations)
+
+
         return {
             type: TYPES.VOID,
             instructions
         }
 
-    execute: (state) ->
-        { func, instruction, temporariesOffset } = state.controlStack.pop()
+    execute: (vm) ->
+        { func, instruction, temporariesOffset } = vm.controlStack.pop()
 
-        state.pointers.temporaries = temporariesOffset
-        state.pointers.instruction = instruction
+        vm.pointers.temporaries = temporariesOffset
+        vm.pointers.instruction = instruction
 
-        state.func = func
-        state.pointers.stack -= state.func.stackSize
-        state.instructions = state.func.instructions
+        vm.func = func
+        vm.pointers.stack -= vm.func.stackSize
+        vm.instructions = vm.func.instructions
 
-        state.finished = state.func.id is ENTRY_FUNCTION
+        vm.finished = vm.func.id is ENTRY_FUNCTION
+        
+    isReturn: yes

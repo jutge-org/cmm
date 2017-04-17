@@ -9,49 +9,60 @@ assert = require 'assert'
 
 module.exports = @
 
-init = (program, input) ->
-    func = program.functions[ENTRY_FUNCTION]
-    instructions = func.instructions
-    pointers = { instruction: 0, stack: 0, temporaries: 0 }
-    io = new IO
-    io.setInput IO.STDIN, input
+class VM
+    constructor: (program, input) ->
+        @func = program.functions[ENTRY_FUNCTION]
 
-    state = {
-        memory: new Memory pointers
-        instructions
-        pointers
-        variables: program.variables
-        functions: program.functions
-        controlStack: []
-        func
-        io
-        finished: no
-    }
+        @instructions = @func.instructions
 
-    state
+        @pointers = { instruction: 0, stack: 0, temporaries: 0 }
 
-finish = (state) ->
-    { io, memory } = state
-    status = MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN).read(memory)
+        @io = new IO
+        @io.setInput IO.STDIN, input if input?
 
-    { stdout: io.getStream(IO.STDOUT), stderr: io.getStream(IO.STDERR), output: io.getStream(IO.INTERLEAVED), status, state }
+        @memory = new Memory @pointers
+
+        @controlStack = []
+
+        { @variables, @functions } = program
+
+        @finished = no
+
+        @instruction = @instructions[@pointers.instruction]
+
+    isWaitingForInput: -> @instruction.isRead and @io.getStream(IO.STDIN).length is 0
+
+    computeResults: ->
+        assert @finished, "Try to get results from VM which has not finished execution"
+
+        @status = MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN).read(@memory)
+        @stdout = @io.getStream IO.STDOUT
+        @stderr = @io.getStream IO.STDERR
+        @output = @io.getStream IO.INTERLEAVED
+
+    input: (string) -> @io.setInput(IO.STDIN, string)
 
 @run = (program, input) ->
-    state = init program, input
+    vm = new VM program, input
 
-    until state.finished
-        yield state
-        state.instructions[state.pointers.instruction].execute state
-        ++state.pointers.instruction
+    until vm.finished
+        vm.instruction = vm.instructions[vm.pointers.instruction]
+        yield vm
+        vm.instruction.execute vm
+        ++vm.pointers.instruction
 
-    finish state
+    vm.computeResults()
+
+    yield vm
 
 
 @runSync = (program, input) ->
-    state = init program, input
+    vm = new VM program, input
 
-    until state.finished
-        state.instructions[state.pointers.instruction].execute state
-        ++state.pointers.instruction
+    until vm.finished
+        vm.instructions[vm.pointers.instruction].execute vm
+        ++vm.pointers.instruction
 
-    finish state
+    vm.computeResults()
+
+    vm

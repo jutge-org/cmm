@@ -3,16 +3,16 @@
 module.exports = @
 
 @Branch = class Branch extends Ast
-    execute: (state) ->
+    execute: (vm) ->
         [ jumpOffset ] = @children
-        state.pointers.instruction += jumpOffset
+        vm.pointers.instruction += jumpOffset
 
 @BranchFalse = class BranchFalse extends Ast
-    execute: (state) ->
+    execute: (vm) ->
         [ conditionReference, jumpOffset ] = @children
-        state.pointers.instruction += jumpOffset unless conditionReference.read(state.memory)
+        vm.pointers.instruction += jumpOffset unless conditionReference.read(vm.memory)
 
 @BranchTrue = class BranchTrue extends Ast
-    execute: (state) ->
+    execute: (vm) ->
         [ conditionReference, jumpOffset ] = @children
-        state.pointers.instruction += jumpOffset if conditionReference.read(state.memory)
+        vm.pointers.instruction += jumpOffset if conditionReference.read(vm.memory)

@@ -25,14 +25,17 @@ module.exports = @
 
         state.closeScope()
 
+        topInstructions = [conditionInstructions..., castingInstructions...]
+        topInstructions.forEach((x) -> x.locations = conditionAst.locations)
+
         return {
              type: TYPES.VOID,
              instructions: [
-                 conditionInstructions..., castingInstructions...,
+                 topInstructions...
                  new BranchFalse(castingResult, bodyInstructions.length + 1),
                  bodyInstructions...,
                  # The first +1 accounts for the branchfalse after the condition check.
                  # The second one is to account for the increase to the next instruction that is always made
-                 new Branch(-(bodyInstructions.length + 1 + castingInstructions.length + conditionInstructions.length + 1))
+                 new Branch(-(bodyInstructions.length + 1 + topInstructions.length + 1))
              ]
         }
