@@ -176,12 +176,18 @@ operators = [
 bnf =
     {
         prog: [
-            o 'block_includes block_functions EOF',                               -> new ProgramAst $2
+            o 'top_level_decl_seq EOF',                                           -> new ProgramAst $1
         ]
 
-        block_includes: [
-            o 'block_includes include',                                           ->
-            o '',                                                                 ->
+        top_level_decl_seq: [
+            o 'top_level_decl_seq top_level_decl',                                -> $$.addChild $2
+            o '',                                                                 -> new List
+        ]
+
+        top_level_decl: [
+            o 'include',                                                          -> null # TODO: Implement properly
+            o 'function'
+            o 'declaration ;'
         ]
 
         include: [ # TODO: An include can be anywhere in the top scope, and it should be different from a using statement
@@ -189,13 +195,8 @@ bnf =
             o 'USING NAMESPACE STD ;',                                            ->
         ]
 
-        block_functions: [
-            o 'block_functions function',                                         -> $$.addChild $2
-            o '',                                                                 -> new List
-        ]
-
         function: [
-            o 'type id ( arg_list ) { block_instr }',                             -> new Function $1,$2,$4,$7
+            o 'declaration_specifier_seq id ( arg_list ) { block_instr }',        -> new Function $1,$2,$4,$7
         ]
 
         arg_list: [

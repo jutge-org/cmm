@@ -22,7 +22,14 @@ lastLocations = (locations) ->
 
 @Function = class Function extends Ast
     compile: (state) ->
-        [ returnType, { children: [ functionId ] }, argList, instructionList ] = @children
+        [ returnSpecifiers, { children: [ functionId ] }, argList, instructionList ] = @children
+
+        for specifier in returnSpecifiers
+            if typeof specifier isnt "string"
+                returnType = specifier
+
+        unless returnType
+            throw Error.NO_RETURN_TYPE.complete("function", functionId)
 
         state.newFunction(new FunctionVar functionId, returnType)
 
@@ -50,10 +57,9 @@ lastLocations = (locations) ->
 
         state.endFunction()
 
-        return type: TYPES.VOID, instructions: instructionsBody, id: functionId
+        return type: TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
 
 
-# TODO: This should basically be a conventional declaration node
 @FuncArg = class FuncArg extends Declaration
     constructor: (specifiers, id) ->
         super specifiers, [id] # Switch to declaration format

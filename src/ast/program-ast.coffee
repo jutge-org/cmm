@@ -23,19 +23,19 @@ module.exports = @
             throw Error.INVALID_MAIN_TYPE
 
     compile: ->
-        [ functionList ] = @children
+        [ topDeclarationList ] = @children
 
         # Holds information about the current state of the compilation
         state = new CompilationState
 
-        functionList.compile state
+        { instructions } = topDeclarationList.compile state
 
         { functions, variables, addressOffset: globalsSize } = state
 
         checkMainIsDefined functions
 
         entryFunction = new FunctionVar ENTRY_FUNCTION, TYPES.VOID
-        entryFunction.instructions = [ new Funcall 'main', 0 ]
+        entryFunction.instructions = [ instructions..., new Funcall 'main', 0 ]
         state.newFunction entryFunction
         state.endFunction()
 

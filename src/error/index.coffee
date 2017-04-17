@@ -36,7 +36,9 @@ e "FUNCTION_UNDEFINED", 15, "Cannot call function <<name>>, variable is not decl
 e "CALL_NON_FUNCTION", 16, "Cannot call <<name>>, which is not a function"
 e "INVALID_PARAMETER_COUNT_CALL", 17, "Function <<name>> with <<good>> parameters has been called with wrong number of parameters <<wrong>>"
 e "IOSTREAM_LIBRARY_MISSING", 18, "<<name>> not found. iostream library needed."
-e "ASSIGN_OF_NON_ASSIGNABLE", "Variable <<variableName>> with type <<type>> is not assignable"
+e "ASSIGN_OF_NON_ASSIGNABLE", 19, "Variable <<variableName>> with type <<type>> is not assignable"
+
+e "NO_RETURN_TYPE", 21, "Function <<function>> declared with no return type"
 
 e "VOID_DECLARATION", 30, "Cannot declare a variable with type void: variable <<name>>"
 
