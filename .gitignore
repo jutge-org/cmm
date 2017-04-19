@@ -36,11 +36,14 @@ node_modules
 
 coffee/browser/js/*.js
 
-browser/js/main.js
-browser/js/main.min.js
-browser/js/run.js
-browser/js/run.min.js
-
-build
+build/
 
 test/programs/
+
+.vscode/
+
+**/*.js
+**/*.js.map
+
+quicktest/
+qtest

@@ -4,7 +4,7 @@ fs = require 'fs'
 
 cmm = require '.'
 
-[code, input] = process.argv[2..]
+[ code, input ] = process.argv[2..]
 
 unless code?
     code =
@@ -13,38 +13,42 @@ unless code?
         using namespace std;
 
         int main() {
-            bool found = false;
-            int x;
-            while (not found and cin >> x) found = x == 2;
-            cout << x << endl;
+            cout << "Hello World!" << endl;
         }
         """
 else
-    code = fs.readFileSync code
+    code = fs.readFileSync code, 'utf-8'
+
 
 unless input?
     input =
         """
-        2 0
         """
 else
-    input = fs.readFileSync input
-
+    input = fs.readFileSync input, 'utf-8'
 
 # Compile
-ast = cmm.compile code
-console.log "AST:"
-console.log ast.toString() # Print AST
+try
+    { program, ast } = cmm.compile code
+catch error
+    error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
+    console.log error.message
+    console.log error.stack if error.stack?
+    process.exit error.code
+
+console.log "Compilation successful:"
+
+program.writeInstructions()
 
 # Run and store output
-iterator = cmm.execute(ast, input)
-output = ""
-cmm.events.onstdout((partial_output) -> output += partial_output)
+{ stdout, stderr, output, status } = cmm.runSync program, input
 
-loop
-    { done } = iterator.next()
-    break if done
-
-# Print output
-console.log "Output:"
+# Print result
+console.log "exit status code: #{status}"
+console.log "stdout:"
+process.stdout.write stdout
+console.log "stderr:"
+process.stdout.write stderr
+console.log "Interleaved:"
 process.stdout.write output
+

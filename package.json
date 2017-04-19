@@ -1,7 +1,7 @@
 {
   "name": "c--",
   "version": "1.0.0",
-  "description": "C-- interpreter.",
+  "description": "C-- interpreter",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha",
@@ -16,20 +16,15 @@
   "bugs": {
     "url": "https://github.com/jutge-org/cmm/issues"
   },
-  "homepage": "https://github.com/jutge-org/cmm#readme",
-  "devDependencies": {
-    "browserify": "^13.1.0",
-    "chai": "^3.5.0",
-    "coffeeify": "^2.0.1",
-    "gulp": "^3.9.1",
-    "gulp-uglify": "^2.0.0",
-    "jisonify": "^1.0.4",
-    "mocha": "*",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
-  },
+  "homepage": "https://github.com/jutge-org/cmm/",
   "dependencies": {
     "ascii-tree": "^0.3.0",
+    "coffeeify": "^2.0.1",
+    "fast-dataview": "0.0.2",
+    "jison": "^0.4.17",
+    "mocha": "*",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
     "istanbul": "^0.4.5"
   }
 }
