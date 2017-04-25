@@ -89,7 +89,7 @@ testFolder = (cPath) ->
                     throw "Duplicate program test #{fPath}"
 
                 programs[program] = { tests: {}, path: fPath }
-            else if input = /^(.+)(?:-(.+))?\.in$/g.exec(basename)
+            else if input = /^([^-]+)(?:-(.+))?\.in$/g.exec(basename)
                 [ _, program, name ] = input
                 name ?= program
                 inputs.push([ program, name, fPath ])
