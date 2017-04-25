@@ -4,7 +4,7 @@ module.exports = @
 
 copy = (obj) -> JSON.parse JSON.stringify(obj)
 
-@InterpretationError = class InterpretationError extends Error
+class CmmError extends Error
     constructor: (@code, @message, @generated = yes) ->
     complete: (placeHolder, text, others...) ->
         others.unshift(placeHolder, text)
@@ -17,7 +17,7 @@ copy = (obj) -> JSON.parse JSON.stringify(obj)
             ret.message = ret.message.replace placeHolder, text
         ret
 
-e = (name, code, message) => @[name] = new InterpretationError code, message
+e = (name, code, message) => @[name] = new CmmError code, message
 
 # Example of use: error = require './error'; throw error.VARIABLE_ALREADY_DEFINED
 
@@ -65,8 +65,7 @@ e "CONST_MODIFICATION", 71, "Modification of read-only variable <<name>>"
 e "DUPLICATE_SPECIFIER", 72, "Duplicate declaration specifier <<specifier>>"
 e "NO_TYPE_SPECIFIER", 73, "A type specifier is required for all declarations"
 
+
 # Execution errors
-e "GET_VARIABLE_NOT_ASSIGNED", 2, "Cannot get variable <<name>>: hasn't been assigned"
-e "NO_RETURN", 3, "return-statement with no value, in function '<<name>>' returning '<<expected>>'"
-e "DIVISION_BY_ZERO", 4, "You divided by zero"
-e "MODULO_BY_ZERO", 5, "You tried to compute a modulo with zero"
+e "DIVISION_BY_ZERO", 136, "Floating point exception: division by zero"
+e "MODULO_BY_ZERO", 137, "Floating point exception: modulo by zero"

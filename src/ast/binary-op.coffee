@@ -31,10 +31,12 @@ module.exports = @
 
         return { instructions, result, type }
 
-    execute: ({ memory }) ->
+    execute: (state) ->
+        { memory } = state
+
         [ reference, value1, value2 ] = @children
 
-        reference.write memory, @f(value1.read(memory), value2.read(memory))
+        reference.write memory, @f(value1.read(memory), value2.read(memory), state)
 
 class Arithmetic extends BinaryOp
     casting: (operands, state) ->
@@ -63,8 +65,8 @@ class SimpleArithmetic extends Arithmetic
     f: (x, y) -> x*y
 
 class IntDiv extends BinaryOp
-    f: (x, y) ->
-        throw Error.DIVISION_BY_ZERO if y is 0
+    f: (x, y, state) ->
+        state.executionError Error.DIVISION_BY_ZERO if y is 0
         x/y
 
 class DoubleDiv extends BinaryOp
@@ -89,8 +91,8 @@ class DoubleDiv extends BinaryOp
 
         TYPES.INT
 
-    f: (x, y) ->
-        throw Error.MODULO_BY_ZERO if y is 0
+    f: (x, y, state) ->
+        state.executionError Error.MODULO_BY_ZERO if y is 0
         x%y
 
 
