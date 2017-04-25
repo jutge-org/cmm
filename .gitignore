@@ -38,7 +38,7 @@ coffee/browser/js/*.js
 
 build/
 
-test/programs/
+test/real-programs/pro1-set/
 
 .vscode/
 
@@ -47,3 +47,5 @@ test/programs/
 
 quicktest/
 qtest
+
+test/real-programs/pro1-set
