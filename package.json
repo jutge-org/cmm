@@ -22,9 +22,12 @@
     "coffeeify": "^2.0.1",
     "fast-dataview": "0.0.2",
     "jison": "^0.4.17",
-    "mocha": "*",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "istanbul": "^0.4.5"
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.3.0"
   }
 }
