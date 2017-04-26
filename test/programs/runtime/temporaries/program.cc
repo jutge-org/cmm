@@ -15,6 +15,9 @@ int rec(int x) {
 }
 
 int f(int x) {
+    // This generates a deep expression tree, which requires some temporaries to not be
+    // overwritten by posterior temporary computations. Also, these temporaries have to be saved
+    // on function calls to avoid being overwritten.
     return ((5.8 + 3)/(2*3)) - ((5+2)*(3.5/3)) * ((5.8 + 3)/(2*3)) - ((5+2)*(rec(x)/3.5));
 }
 
