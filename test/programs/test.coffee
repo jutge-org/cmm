@@ -38,16 +38,16 @@ testProgram = (name, { path: fPath, tests }) ->
 
     header = header[1].trim()
 
-    description = /description\(([\s\S]+)\)/.exec(header)
+    description = /description{([^}]+)}/.exec(header)
 
     unless description?
         throw "Test #{fPath} did not define a description in its header"
 
-    description = description[1].trim().replace(/\\\(/, '(').replace(/\\\)/, ')')
+    description = description[1].trim()
 
-    expectedCompilationError = parseInt(/compilation-error\((.+)\)/.exec(header)?[1] ? "0")
+    expectedCompilationError = parseInt(/compilation-error{(\d+)}/.exec(header)?[1] ? "0")
 
-    expectedStatus = parseInt(/status\((.+)\)/.exec(header)?[1] ? "0")
+    expectedStatus = parseInt(/status{(\d+)}/.exec(header)?[1] ? "0")
 
     if Object.keys(tests).length > 0
         describe("#{name}: #{description}", ->
