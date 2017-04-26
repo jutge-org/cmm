@@ -73,6 +73,8 @@ testFolder = (cPath) ->
         inputs = []
         outputs = []
 
+        @timeout(500)
+
         for element in fs.readdirSync(cPath)
             fPath = path.join(cPath, element)
 
