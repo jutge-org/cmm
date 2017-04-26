@@ -19,7 +19,6 @@ module.exports = @
         assert (typeof string is "string")
         assert @streams[stream]?
 
-
         @streams[IO.INTERLEAVED] += string
         @streams[stream] += string
 
@@ -28,7 +27,6 @@ module.exports = @
         assert @streams[stream]?
 
         @streams[stream] = input.trim().split(/\s+/)
-
         @streams[stream] = [] if @streams[stream][0] is ""
 
     getWord: (stream) ->
