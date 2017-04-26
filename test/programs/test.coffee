@@ -38,7 +38,7 @@ testProgram = (name, { path: fPath, tests }) ->
 
     header = header[1].trim()
 
-    description = /description\((.+)\)/.exec(header)
+    description = /description\(([\s\S]+)\)/.exec(header)
 
     unless description?
         throw "Test #{fPath} did not define a description in its header"
