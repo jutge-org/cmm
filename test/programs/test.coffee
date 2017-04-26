@@ -43,7 +43,7 @@ testProgram = (name, { path: fPath, tests }) ->
     unless description?
         throw "Test #{fPath} did not define a description in its header"
 
-    description = description[1].trim()
+    description = description[1].trim().replace(/\\\(/, '(').replace(/\\\)/, ')')
 
     expectedCompilationError = parseInt(/compilation-error\((.+)\)/.exec(header)?[1] ? "0")
 
