@@ -78,7 +78,7 @@ class PostOp extends AssignOp
 
 @PostInc = class PostInc extends PostOp
     incr: 1
-@PostDec = class PostDec extends Uarithmetic
+@PostDec = class PostDec extends PostOp
     incr: -1
 
 @Not = class Not extends UnaryOp
