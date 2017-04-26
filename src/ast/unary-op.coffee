@@ -10,6 +10,8 @@ module.exports = @
 
         operand = value.compile state
 
+        @checkType?(operand.type)
+
         { type, result: castingResult, instructions: castingInstructions } = @casting operand, state
 
         state.releaseTemporaries castingResult
@@ -65,7 +67,13 @@ class PreOp extends AssignOp
 
 @PreInc = class PreInc extends PreOp
     incr: 1
-@PreDec = class PreDec extends PreOp
+
+@PreDec = class PreDec extends PreOp # TODO: No ha de compilar per booleans
+    checkType: (type) ->
+        if type is TYPES.BOOL
+            throw Error.INVALID_BOOL_DEC
+
+
     incr: -1
 
 
@@ -78,7 +86,12 @@ class PostOp extends AssignOp
 
 @PostInc = class PostInc extends PostOp
     incr: 1
-@PostDec = class PostDec extends PostOp
+
+@PostDec = class PostDec extends PostOp # TODO: No ha de compilar per booleans
+    checkType: (type) ->
+        if type is TYPES.BOOL
+            throw Error.INVALID_BOOL_DEC
+
     incr: -1
 
 @Not = class Not extends UnaryOp

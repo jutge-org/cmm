@@ -46,6 +46,9 @@ e "INVALID_CAST", 20, "Cannot cast type <<origin>> to type <<dest>>"
 
 e "NON_INTEGRAL_MODULO", 40, "Both operands to modulo operation must be integrals"
 
+e "INVALID_BOOL_DEC", 41, "Invalid use of boolean expression as operand to 'operator--'"
+
+
 e "MAIN_NOT_DEFINED", 50, "You must define a main function"
 e "INVALID_MAIN_TYPE", 51, "Main must return int"
 
