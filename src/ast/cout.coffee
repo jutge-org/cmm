@@ -12,7 +12,7 @@ module.exports = @
         instructions = []
 
         for value in @children
-            { type, result, instructions: valueInstructions } = value.compile state
+            { result, instructions: valueInstructions } = value.compile state
             state.releaseTemporaries result
             instructions = instructions.concat valueInstructions
             instructions.push new Write result
