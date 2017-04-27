@@ -1,5 +1,5 @@
 /*
-    description(Should not throw floating point exception, also tests different inf/nan results)
+    description{Should not throw floating point exception, also tests different inf/nan results}
 */
 
 #include <iostream>

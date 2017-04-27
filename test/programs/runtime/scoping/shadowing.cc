@@ -1,6 +1,6 @@
 /*
 
- description(Checks that variable shadowing works correctly preserving each scope's values)
+ description{Checks that variable shadowing works correctly preserving each scope's values}
 
  */
 

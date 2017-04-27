@@ -1,6 +1,6 @@
 /*
 
-description(Test that temporaries are properly scoped and not get overwritten on function calls)
+description{Test that temporaries are properly scoped and not get overwritten on function calls}
 
 */
 

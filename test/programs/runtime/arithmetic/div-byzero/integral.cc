@@ -1,6 +1,6 @@
 /*
-    description(Should throw floating point exception)
-    status(136)
+    description{Should throw floating point exception}
+    status{136}
 */
 
 #include <iostream>
