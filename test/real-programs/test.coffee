@@ -52,12 +52,12 @@ runTest = (testSetName, testName, testPath) ->
         console.log error
         printSeparator()
         printTestFailureInfo(output)
-        assert(0, 1, "Execution error")
+        assert(false, "Execution error")
 
     if output isnt expectedOutput
         console.log "Invalid output for test set #{testSetName} on #{testName} (problemid-submissionid-sampletestid):"
         printTestFailureInfo(output)
-        assert(0, 1, "Invalid output")
+        assert(false, "Invalid output")
 
 runTestSet = (testSetFolder) ->
     describe "Test set #{testSetFolder}", ->
