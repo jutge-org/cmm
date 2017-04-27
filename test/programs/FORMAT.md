@@ -11,9 +11,9 @@ The properties of the test are described using a pseudo-json format:
 
 /*
 
-description(This test prints 'Hello World')
-compilation-error(0)
-status(0)
+description{This test prints 'Hello World'}
+compilation-error{0}
+status{0}
 
 */
 
