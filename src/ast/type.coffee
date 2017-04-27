@@ -4,6 +4,9 @@ assert = require 'assert'
 utils = require '../utils'
 Error = require '../error'
 
+ASCII_MAP = (String.fromCharCode(char) for char in [0...128]).join("") + # ASCII
+            "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ" # Extended ASCII
+
 class Type extends Ast
     constructor: (@id, {
                     @castings = {}
@@ -76,11 +79,12 @@ identity = (x) -> x
         size: 8
         bytes: 1
         isIntegral: yes
+        isNumeric: yes
         castings:
             INT: identity
             DOUBLE: identity
             BOOL: (x) -> x isnt 0
-            COUT: String.fromCharCode
+            COUT: (x) -> ASCII_MAP[x&0x000000FF]
 
         stdTypeName: 'Int8'
     }
