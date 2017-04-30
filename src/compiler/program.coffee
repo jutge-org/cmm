@@ -2,6 +2,7 @@ module.exports = @
 
 @Program = class Program
     @ENTRY_FUNCTION: ".text"
+    @MAIN_FUNCTION: "main"
 
     constructor: (@variables, @functions, @globalsSize) ->
 

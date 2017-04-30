@@ -3,7 +3,7 @@ assert = require 'assert'
 { Ast } = require './ast'
 { TYPES } = require './type'
 { FunctionVar } = require '../compiler/semantics/function-var'
-{ Variable } = require '../compiler/semantics/variable'
+{ Program: { MAIN_FUNCTION } } = require '../compiler/program'
 Error = require '../error'
 utils = require '../utils'
 { Return } = require './return'
@@ -40,7 +40,7 @@ lastLocations = (locations) ->
         functionVariable = state.getFunction functionId
 
         # Main returns 0 by default
-        if functionId is 'main'
+        if functionId is MAIN_FUNCTION
             returnOassign = new Assign(MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
             returnOassign.locations = lastLocations(@locations)
 

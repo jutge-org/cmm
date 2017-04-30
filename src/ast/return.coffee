@@ -5,7 +5,7 @@ Error = require '../error'
 { TYPES, ensureType } = require './type'
 { Assign } = require './assign'
 { MemoryReference } = require './memory-reference'
-{ Program: { ENTRY_FUNCTION } } = require '../compiler/program'
+{ Program: { MAIN_FUNCTION } } = require '../compiler/program'
 
 module.exports = @
 
@@ -54,10 +54,10 @@ module.exports = @
         vm.pointers.temporaries = temporariesOffset
         vm.pointers.instruction = instruction
 
+        vm.finished = vm.func.id is MAIN_FUNCTION
+
         vm.func = func
         vm.pointers.stack -= vm.func.stackSize
         vm.instructions = vm.func.instructions
-
-        vm.finished = vm.func.id is ENTRY_FUNCTION
         
     isReturn: yes

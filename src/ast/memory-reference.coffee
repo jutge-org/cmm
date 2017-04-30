@@ -34,8 +34,6 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
                 when @RETURN then new ReturnReference(type)
                 else assert false
 
-    getValue: -> #TODO: Access memory and return
-
     getType: -> @children[0]
     getAddress: -> @children[1]
 
