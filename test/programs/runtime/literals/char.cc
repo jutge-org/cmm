@@ -1,0 +1,106 @@
+/*
+    description{Tests char literal parsing}
+*/
+
+#include <iostream>
+using namespace std;
+
+void print(char c) { cout << c << endl; }
+
+int main() {
+    print('\n');
+    print('!');
+    print('"');
+    print('#');
+    print('$');
+    print('%');
+    print('&');
+    print('\'');
+    print('(');
+    print(')');
+    print('*');
+    print('+');
+    print(',');
+    print('-');
+    print('.');
+    print('/');
+    print('0');
+    print('1');
+    print('2');
+    print('3');
+    print('4');
+    print('5');
+    print('6');
+    print('7');
+    print('8');
+    print('9');
+    print(':');
+    print(';');
+    print('<');
+    print('=');
+    print('>');
+    print('?');
+    print('@');
+    print('A');
+    print('B');
+    print('C');
+    print('D');
+    print('E');
+    print('F');
+    print('G');
+    print('H');
+    print('I');
+    print('J');
+    print('K');
+    print('L');
+    print('M');
+    print('N');
+    print('O');
+    print('P');
+    print('Q');
+    print('R');
+    print('S');
+    print('T');
+    print('U');
+    print('V');
+    print('W');
+    print('X');
+    print('Y');
+    print('Z');
+    print('[');
+    print('\\');
+    print(']');
+    print('^');
+    print('_');
+    print('`');
+    print('a');
+    print('b');
+    print('c');
+    print('d');
+    print('e');
+    print('f');
+    print('g');
+    print('h');
+    print('i');
+    print('j');
+    print('k');
+    print('l');
+    print('m');
+    print('n');
+    print('o');
+    print('p');
+    print('q');
+    print('r');
+    print('s');
+    print('t');
+    print('u');
+    print('v');
+    print('w');
+    print('x');
+    print('y');
+    print('z');
+    print('{');
+    print('|');
+    print('}');
+    print('~');
+}
