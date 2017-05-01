@@ -129,7 +129,7 @@ lexRules = [
 
     r /true\b/,                                  'BOOL_LIT'
     r /false\b/,                                 'BOOL_LIT'
-    r /[0-9]+(\.[0-9]+)\b/,                      'DOUBLE_LIT'
+    r /[0-9]*(\.[0-9]+)\b/,                      'DOUBLE_LIT'
     r /([1-9][0-9]*|0)/,                         'INT_LIT'
     r /'([^\\\']|\\.)'/,                         'CHAR_LIT'
     r /"([^\\\"]|\\.)*"/,                        'STRING_LIT'
