@@ -30,13 +30,19 @@ module.exports = @
 
         instructions = []
 
-        offset = 0
+        paramPushResults = []
         for param, i in paramList
             { type: actualType, instructions: paramInstructions, result: paramResult } = param.compile state 
             { instructions: castingInstructions, result: castingResult } = ensureType paramResult, actualType, expectedParamTypes[i], state
-            state.releaseTemporaries castingResult
-            instructions = instructions.concat([ paramInstructions..., castingInstructions..., new ParamPush castingResult, offset ])
-            offset += castingResult.getType().bytes
+            paramPushResults.push castingResult
+            instructions = instructions.concat([ paramInstructions..., castingInstructions... ])
+
+        offset = 0
+        for paramPushResult in paramPushResults
+            state.releaseTemporaries paramPushResult
+            instructions.push new ParamPush paramPushResult, offset
+            offset += paramPushResult.getType().bytes
+
     
         # Need to copy the temporaries that are currently being used because otherwise
         # they could be written over by the function being called
