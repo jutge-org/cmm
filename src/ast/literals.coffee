@@ -39,7 +39,13 @@ module.exports = @
     type: TYPES.STRING
 
 @CharLit = class CharLit extends Literal
-    parse: (s) -> JSON.parse("{ \"s\": \"#{s[1...-1]}\" }").s.charCodeAt(0)
+    parse: (s) ->
+        s = s[1...-1]
+        if s is "\\'"
+            s = "'"
+        else if s is "\""
+            s = "\\\""
+        JSON.parse("{ \"s\": \"#{s}\" }").s.charCodeAt(0)
     type: TYPES.CHAR
 
 @BoolLit = class BoolLit extends Literal
