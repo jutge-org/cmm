@@ -27,6 +27,19 @@ class Type extends Ast
 
     getSymbol: -> @id
 
+digits = (x) ->
+    x = Math.floor x
+    c = 0
+    while x > 0
+        ++c
+        x //= 10
+    c
+
+roundCout = (x) ->
+    d = digits(x)
+    decimalPlacesRounder = 10**(6 - d)
+    x = Math.round(x*decimalPlacesRounder)/decimalPlacesRounder
+
 identity = (x) -> x
 
 @TYPES = TYPES =
@@ -64,6 +77,12 @@ identity = (x) -> x
                 else if x is Number.NEGATIVE_INFINITY
                     "-inf"
                 else
+                    abs = Math.abs(x)
+                    if abs >= 1000000 or (abs <= 0.000001 and abs isnt 0)
+                        [ d, o ] = x.toExponential().split('e')
+                        x = roundCout(d) + 'e' + o
+                    else
+                        x = roundCout(x)
                     x.toString()
 
         stdTypeName: 'Float64'
