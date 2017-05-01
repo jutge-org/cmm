@@ -259,8 +259,18 @@ bnf =
             o 'WHILE ( expr ) instruction_body',                                  -> new While $3, $5
         ]
 
+        optional_expr: [
+            o 'expr'
+            o '',                                                                 -> no
+        ]
+
+        optional_basic_stmt: [
+            o 'basic_stmt'
+            o '',                                                                 -> no
+        ]
+
         for: [
-            o 'FOR ( basic_stmt ; expr ; basic_stmt ) instruction_body',          -> new For $3, $5, $7, $9
+            o 'FOR ( optional_basic_stmt ; optional_expr ; optional_expr ) instruction_body',          -> new For $3, $5, $7, $9
         ]
 
         else: [

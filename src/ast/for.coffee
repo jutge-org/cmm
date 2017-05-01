@@ -2,6 +2,7 @@
 { TYPES, ensureType } = require './type'
 utils = require '../utils'
 { Branch, BranchFalse } = require './branch'
+{ BoolLit } = require './literals'
 
 module.exports = @
 
@@ -17,9 +18,17 @@ module.exports = @
 
         state.openScope()
 
-        { instructions: instructionsInit } = init.compile state
+        if init isnt no
+            { instructions: instructionsInit } = init.compile state
+        else
+            instructionsInit = []
 
-        { type: conditionType, instructions: conditionInstructions, result: conditionResult } = condition.compile state
+        if condition isnt no
+            { type: conditionType, instructions: conditionInstructions, result: conditionResult } = condition.compile state
+        else
+            conditionInstructions = []
+            conditionType = TYPES.BOOL
+            conditionResult = new BoolLit 1
 
         { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, TYPES.BOOL, state
 
@@ -27,7 +36,10 @@ module.exports = @
 
         { instructions: bodyInstructions } = body.compile state
 
-        { instructions: afterInstructions, result: afterResult } = afterIteration.compile state
+        if afterIteration isnt no
+            { instructions: afterInstructions, result: afterResult } = afterIteration.compile state
+        else
+            afterInstructions = []
 
         state.releaseTemporaries afterResult if afterResult?
 
