@@ -157,8 +157,8 @@ lexRules = [
 # Operators at the top of this list have higher precedence than the ones lower
 operators = [
     [ 'right',   'THEN', 'ELSE' ],
-    [ 'left',    'a++', 'a--', '[]' ],
-    [ 'right',   '++a', '--a' ],
+    [ 'left',    '[' ],
+    [ 'nonassoc', '++', '--' ]
     [ 'right',   '!', 'u+', 'u-' ],
     [ 'left',    '*', '/', '%' ],
     [ 'left',    '+', '-' ],
@@ -424,15 +424,15 @@ bnf =
             o '- expr',                                                          (-> new Usub $2), prec: "u-"
             o '+ expr',                                                          (-> new Uadd $2), prec: "u+"
             o '! expr',                                                           -> new Not $2
-            o '++ expr',                                                           (-> new PreInc $2), prec: "++a"
-            o '-- expr',                                                           (-> new PreDec $2), prec: "--a"
+            o '++ expr',                                                          -> new PreInc $2
+            o '-- expr',                                                          -> new PreDec $2
             o 'funcall'
             o 'id'
-            o 'expr accessor',                                                   (-> new ArrayReference $1, $2), prec: "[]"
+            o 'expr accessor',                                                    -> new ArrayReference $1, $2
             o '( expr )',                                                         -> $2
             o 'literal'
-            o 'expr ++',                                                           (-> new PostInc $1), prec: "a++"
-            o 'expr --',                                                           (-> new PostDec $1), prec: "a--"
+            o 'expr ++',                                                          -> new PostInc $1
+            o 'expr --',                                                          -> new PostDec $1
             o 'cin'
         ]
 
