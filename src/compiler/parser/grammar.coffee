@@ -99,11 +99,14 @@ lexRules = [
 
     r /=/,                                       '='
 
+
     r /;/,                                       ';'
-    r /\{/,                                      '{'
-    r /\}/,                                      '}'
+    r /{/,                                       '{'
+    r /}/,                                       '}'
     r /\(/,                                      '('
     r /\)/,                                      ')'
+    r /\[/,                                      '['
+    r /]/,                                       ']'
     r /,/,                                       ','
 
     r /#/,                                       '#'
@@ -213,7 +216,7 @@ bnf =
         ]
 
         arg: [
-            o 'declaration_specifier_seq id',                                     -> new FuncArg $1, $2
+            o 'declaration_specifier_seq decl_var_reference',                     -> new FuncArg $1, $2
         ]
 
         block_instr: [
@@ -309,8 +312,17 @@ bnf =
             o '{ block_instr }',                                                  -> $2
         ]
 
-        direct_assign: [
-            o 'id = expr',                                                        -> new Assign $1, $3 # Note the first child should always be the id. See hack note on direct assign
+        decl_assign: [
+            o 'decl_var_reference = decl_value',                                  -> new Assign $1, $3 # Note the first child should always be the id. See hack note on direct assign
+        ]
+
+        decl_value: [
+            o 'expr'
+            o 'initializer'
+        ]
+
+        initializer: [
+            o 'array_initializer'
         ]
 
         declaration: [
@@ -328,11 +340,46 @@ bnf =
         ]
 
         declaration_body: [
-            o 'declaration_body , direct_assign',                                 -> $$.push $3.child(), $3 # HACK: Assumes direct_assign's first child is the id
-            o 'declaration_body , id',                                            -> $$.push $3
-            o 'direct_assign',                                                    -> [$1.child(), $1] # Basically avoids having to treat the assign case specially. A new declaration is made before the assign
-            o 'id',                                                               -> [$1]
+            o 'declaration_body , decl_assign',                                   -> $$.push $3.child(), $3 # HACK: Assumes direct_assign's first child is the id
+            o 'declaration_body , decl_var_reference',                            -> $$.push $3
+            o 'decl_assign',                                                      -> [$1.child(), $1] # Basically avoids having to treat the assign case specially. A new declaration is made before the assign
+            o 'decl_var_reference',                                               -> [$1]
         ]
+
+        decl_var_reference: [
+            o 'id'
+            o 'id decl_accessor_list' # TODO
+        ]
+
+        var_reference: [
+            o 'id'
+            o 'id accessor_list' # TODO
+        ]
+
+        decl_accessor_list: [
+            o 'decl_accessor decl_accessor_list' # TODO
+            o 'decl_accessor'
+        ]
+
+        decl_accessor: [
+            o '[ INT_LIT ]' # TODO
+            o '[ ]' # TODO
+        ]
+
+        accessor_list: [
+            o '[ expr ] accessor_list' # TODO
+            o '[ expr ]'
+        ]
+
+        array_initializer: [
+            o '{ value_list }',                                                   -> $2
+        ]
+
+        value_list: [
+            o 'literal , value_list' # TODO
+            o 'literal'
+        ]
+
 
         type: [ # Maybe create this dinamically?
             o 'INT',                                                              -> TYPES[$1.toUpperCase()]
@@ -341,6 +388,14 @@ bnf =
             o 'BOOL',                                                             -> TYPES[$1.toUpperCase()]
             o 'STRING',                                                           -> TYPES[$1.toUpperCase()]
             o 'VOID',                                                             -> TYPES[$1.toUpperCase()]
+        ]
+
+        literal: [
+            o 'DOUBLE_LIT',                                                       -> new DoubleLit $1
+            o 'INT_LIT',                                                          -> new IntLit $1
+            o 'CHAR_LIT',                                                         -> new CharLit $1
+            o 'BOOL_LIT',                                                         -> new BoolLit $1
+            o 'STRING_LIT',                                                       -> new StringLit $1
         ]
 
         expr: [
@@ -357,11 +412,12 @@ bnf =
             o 'expr >= expr',                                                     -> new Gte $1, $3
             o 'expr == expr',                                                     -> new Eq $1, $3
             o 'expr != expr',                                                     -> new Neq $1, $3
-            o 'id += expr',                                                       -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
-            o 'id -= expr',                                                       -> new Assign $1, new Sub(Ast.copyOf($1), $3)
-            o 'id *= expr',                                                       -> new Assign $1, new Mul(Ast.copyOf($1), $3)
-            o 'id /= expr',                                                       -> new Assign $1, new Div(Ast.copyOf($1), $3)
-            o 'id %= expr',                                                       -> new Assign $1, new Mod(Ast.copyOf($1), $3)
+            o 'var_reference += expr',                                           -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
+            o 'var_reference -= expr',                                           -> new Assign $1, new Sub(Ast.copyOf($1), $3)
+            o 'var_reference *= expr',                                           -> new Assign $1, new Mul(Ast.copyOf($1), $3)
+            o 'var_reference /= expr',                                           -> new Assign $1, new Div(Ast.copyOf($1), $3)
+            o 'var_reference %= expr',                                           -> new Assign $1, new Mod(Ast.copyOf($1), $3)
+            o 'var_reference =  expr',                                           -> new Assign $1, $3
             o '- expr',                                                          (-> new Usub $2), prec: "u-"
             o '+ expr',                                                          (-> new Uadd $2), prec: "u+"
             o '! expr',                                                           -> new Not $2
@@ -369,13 +425,8 @@ bnf =
             o '-- id',                                                           (-> new PreDec $2), prec: "--a"
             o 'id ++',                                                           (-> new PostInc $1), prec: "a++"
             o 'id --',                                                           (-> new PostDec $1), prec: "a--"
-            o 'DOUBLE_LIT',                                                       -> new DoubleLit $1
-            o 'INT_LIT',                                                          -> new IntLit $1
-            o 'CHAR_LIT',                                                         -> new CharLit $1
-            o 'BOOL_LIT',                                                         -> new BoolLit $1
-            o 'STRING_LIT',                                                       -> new StringLit $1
-            o 'direct_assign'
-            o 'id'
+            o 'literal'
+            o 'var_reference'
             o 'cin'
             o 'funcall'
             o '( expr )',                                                         -> $2
