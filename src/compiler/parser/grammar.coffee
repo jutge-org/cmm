@@ -157,7 +157,7 @@ lexRules = [
 # Operators at the top of this list have higher precedence than the ones lower
 operators = [
     [ 'right',   'THEN', 'ELSE' ],
-    [ 'left',    'a++', 'a--' ],
+    [ 'left',    'a++', 'a--', '[]' ],
     [ 'right',   '++a', '--a' ],
     [ 'right',   '!', 'u+', 'u-' ],
     [ 'left',    '*', '/', '%' ],
@@ -348,27 +348,17 @@ bnf =
 
         decl_var_reference: [
             o 'id'
-            o 'id decl_accessor_list' # TODO
-        ]
-
-        var_reference: [
-            o 'id'
-            o 'id accessor_list' # TODO
+            o 'id decl_accessor_list',                                            -> new ArrayDeclaration $1, $2
         ]
 
         decl_accessor_list: [
-            o 'decl_accessor decl_accessor_list' # TODO
-            o 'decl_accessor'
+            o 'decl_accessor decl_accessor_list',                                 -> $$.push $1
+            o 'decl_accessor',                                                    -> [$1]
         ]
 
         decl_accessor: [
-            o '[ INT_LIT ]' # TODO
-            o '[ ]' # TODO
-        ]
-
-        accessor_list: [
-            o '[ expr ] accessor_list' # TODO
-            o '[ expr ]'
+            o '[ INT_LIT ]',                                                      -> $2
+            o '[ ]',                                                              -> null
         ]
 
         array_initializer: [
@@ -376,10 +366,23 @@ bnf =
         ]
 
         value_list: [
-            o 'literal , value_list' # TODO
-            o 'literal'
+            o 'literal , value_list',                                             -> $$.push $3
+            o 'literal',                                                          -> $1
         ]
 
+        accessor: [
+            o '[ expr ]',                                                         -> $2
+        ]
+
+        accessor_list: [
+            o 'accessor accessor_list',                                           -> $$.push $1
+            o 'accessor',                                                         -> [$1]
+        ]
+
+        var_reference: [
+            o 'id'
+            o 'id accessor_list',                                                 -> new ArrayReference $1, $2
+        ]
 
         type: [ # Maybe create this dinamically?
             o 'INT',                                                              -> TYPES[$1.toUpperCase()]
@@ -412,24 +415,25 @@ bnf =
             o 'expr >= expr',                                                     -> new Gte $1, $3
             o 'expr == expr',                                                     -> new Eq $1, $3
             o 'expr != expr',                                                     -> new Neq $1, $3
-            o 'var_reference += expr',                                           -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
-            o 'var_reference -= expr',                                           -> new Assign $1, new Sub(Ast.copyOf($1), $3)
-            o 'var_reference *= expr',                                           -> new Assign $1, new Mul(Ast.copyOf($1), $3)
-            o 'var_reference /= expr',                                           -> new Assign $1, new Div(Ast.copyOf($1), $3)
-            o 'var_reference %= expr',                                           -> new Assign $1, new Mod(Ast.copyOf($1), $3)
-            o 'var_reference =  expr',                                           -> new Assign $1, $3
+            o 'expr += expr',                                                     -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
+            o 'expr -= expr',                                                     -> new Assign $1, new Sub(Ast.copyOf($1), $3)
+            o 'expr *= expr',                                                     -> new Assign $1, new Mul(Ast.copyOf($1), $3)
+            o 'expr /= expr',                                                     -> new Assign $1, new Div(Ast.copyOf($1), $3)
+            o 'expr %= expr',                                                     -> new Assign $1, new Mod(Ast.copyOf($1), $3)
+            o 'expr = expr',                                                      -> new Assign $1, $3
             o '- expr',                                                          (-> new Usub $2), prec: "u-"
             o '+ expr',                                                          (-> new Uadd $2), prec: "u+"
             o '! expr',                                                           -> new Not $2
-            o '++ id',                                                           (-> new PreInc $2), prec: "++a"
-            o '-- id',                                                           (-> new PreDec $2), prec: "--a"
-            o 'id ++',                                                           (-> new PostInc $1), prec: "a++"
-            o 'id --',                                                           (-> new PostDec $1), prec: "a--"
-            o 'literal'
-            o 'var_reference'
-            o 'cin'
+            o '++ expr',                                                           (-> new PreInc $2), prec: "++a"
+            o '-- expr',                                                           (-> new PreDec $2), prec: "--a"
             o 'funcall'
+            o 'id'
+            o 'expr accessor',                                                   (-> new ArrayReference $1, $2), prec: "[]"
             o '( expr )',                                                         -> $2
+            o 'literal'
+            o 'expr ++',                                                           (-> new PostInc $1), prec: "a++"
+            o 'expr --',                                                           (-> new PostDec $1), prec: "a--"
+            o 'cin'
         ]
 
         id: [

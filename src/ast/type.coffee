@@ -10,7 +10,6 @@ ASCII_MAP = (String.fromCharCode(char) for char in [0...128]).join("") + # ASCII
 class Type extends Ast
     constructor: (@id, {
                     @castings = {}
-                    @size
                     @bytes
                     @stdTypeName
                     @isIntegral = no
@@ -26,6 +25,24 @@ class Type extends Ast
             @tipify = (x) -> x
 
     getSymbol: -> @id
+
+
+
+class Array extends Type
+    constructor: (@sizes, @type) ->
+
+        super 'ARRAY', {}
+
+    getSymbol: -> "Array<#{type.getSymbol()}>#{("[#{size}]" for size in @sizes).join("")}"
+
+    equals: (other) ->
+        if @type isnt other.type or @sizes.length isnt other.sizes.length
+            no
+        else
+            for size, i in @sizes
+                if size isnt other.sizes[i]
+                    return no
+            yes
 
 digits = (x) ->
     x = Math.floor x
@@ -48,7 +65,6 @@ identity = (x) -> x
     }
 
     INT: new Type 'INT', {
-        size: 32
         bytes: 4
         isIntegral: yes
         isNumeric: yes
@@ -62,7 +78,6 @@ identity = (x) -> x
     }
 
     DOUBLE: new Type 'DOUBLE', {
-        size: 64
         bytes: 8
         isNumeric: yes
         castings:
@@ -95,7 +110,6 @@ identity = (x) -> x
     }
 
     CHAR: new Type 'CHAR', {
-        size: 8
         bytes: 1
         isIntegral: yes
         isNumeric: yes
@@ -109,7 +123,6 @@ identity = (x) -> x
     }
 
     BOOL: new Type 'BOOL', {
-        size: 1
         bytes: 1
         isIntegral: yes
         castings:
