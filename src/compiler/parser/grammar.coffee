@@ -379,11 +379,6 @@ bnf =
             o 'accessor',                                                         -> [$1]
         ]
 
-        var_reference: [
-            o 'id'
-            o 'id accessor_list',                                                 -> new ArrayReference $1, $2
-        ]
-
         type: [ # Maybe create this dinamically?
             o 'INT',                                                              -> TYPES[$1.toUpperCase()]
             o 'DOUBLE',                                                           -> TYPES[$1.toUpperCase()]
