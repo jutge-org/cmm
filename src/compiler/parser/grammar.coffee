@@ -206,11 +206,11 @@ bnf =
         ]
 
         function: [
-            o 'declaration_specifier_seq id ( arg_list ) { block_instr }',        -> new Function $1,$2,$4,$7
+            o 'declaration_specifier_seq id ( arg_seq ) { block_instr }',         -> new Function $1,$2,$4,$7
         ]
 
-        arg_list: [
-            o 'arg_list , arg',                                                   -> $$.addChild $3
+        arg_seq: [
+            o 'arg_seq , arg',                                                    -> $$.addChild $3
             o 'arg',                                                              -> new List $1
             o '',                                                                 -> new List
         ]
@@ -246,12 +246,12 @@ bnf =
         ]
 
         funcall: [
-            o 'id ( param_list )',                                                -> new Funcall $1,$3
+            o 'id ( param_seq )',                                                 -> new Funcall $1,$3
             o 'id ( VOID )',                                                      -> new Funcall $1, new List
         ]
 
-        param_list: [
-            o 'param_list , param',                                               -> $$.push $3
+        param_seq: [
+            o 'param_seq , param',                                                -> $$.push $3
             o 'param',                                                            -> [$1]
             o '',                                                                 -> []
         ]
@@ -313,7 +313,7 @@ bnf =
         ]
 
         decl_assign: [
-            o 'decl_var_reference = decl_value',                                  -> new Assign $1, $3 # Note the first child should always be the id. See hack note on direct assign
+            o 'decl_var_reference = decl_value',                                  -> new DeclarationAssign $1, $3 # Note the first child should always be the id. See hack note on direct assign
         ]
 
         decl_value: [
@@ -326,7 +326,7 @@ bnf =
         ]
 
         declaration: [
-            o 'declaration_specifier_seq declaration_body',                       -> new Declaration $1, $2
+            o 'declaration_specifier_seq declaration_body',                       -> new DeclarationGroup $1, $2
         ]
         
         declaration_specifier_seq: [
@@ -340,43 +340,43 @@ bnf =
         ]
 
         declaration_body: [
-            o 'declaration_body , decl_assign',                                   -> $$.push $3.child(), $3 # HACK: Assumes direct_assign's first child is the id
+            o 'declaration_body , decl_assign',                                   -> $$.push $3
             o 'declaration_body , decl_var_reference',                            -> $$.push $3
-            o 'decl_assign',                                                      -> [$1.child(), $1] # Basically avoids having to treat the assign case specially. A new declaration is made before the assign
+            o 'decl_assign',                                                      -> [$1]
             o 'decl_var_reference',                                               -> [$1]
         ]
 
         decl_var_reference: [
-            o 'id'
-            o 'id decl_accessor_list',                                            -> new ArrayDeclaration $1, $2
+            o 'id',                                                               -> new IdDeclaration $1
+            o 'id dimensions_seq',                                                -> new ArrayDeclaration $1, $2
         ]
 
-        decl_accessor_list: [
-            o 'decl_accessor decl_accessor_list',                                 -> $$.push $1
-            o 'decl_accessor',                                                    -> [$1]
+        dimensions_seq: [
+            o 'dimension dimensions_seq',                                         -> $$.push $1
+            o 'dimension',                                                        -> [$1]
         ]
 
-        decl_accessor: [
+        dimension: [
             o '[ INT_LIT ]',                                                      -> $2
             o '[ ]',                                                              -> null
         ]
 
         array_initializer: [
-            o '{ value_list }',                                                   -> $2
+            o '{ initializer_value_seq }',                                        -> new ArrayInitializer $2
         ]
 
-        value_list: [
-            o 'literal , value_list',                                             -> $$.push $3
-            o 'literal',                                                          -> $1
+        array_initializer_value_seq: [ # TODO: Extend this to allow any expression (not only literals). Requires to implement a constant expression evaluator
+            o 'array_initializer_value , value_seq',                              -> $$.push $3
+            o 'array_initializer_value',                                          -> [$1]
+        ]
+
+        array_initializer_value: [
+            o 'literal'
+            o 'initializer'
         ]
 
         accessor: [
             o '[ expr ]',                                                         -> $2
-        ]
-
-        accessor_list: [
-            o 'accessor accessor_list',                                           -> $$.push $1
-            o 'accessor',                                                         -> [$1]
         ]
 
         type: [ # Maybe create this dinamically?
