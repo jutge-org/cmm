@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType } = require './type'
 utils = require '../utils'
 { Branch, BranchFalse } = require './branch'
 
@@ -15,7 +15,7 @@ module.exports = @
 
         { type: conditionType, instructions: conditionInstructions, result: conditionResult } = conditionAst.compile state
 
-        { result: castingResult, instructions: castingInstructions } = ensureType conditionResult, conditionType, TYPES.BOOL, state
+        { result: castingResult, instructions: castingInstructions } = ensureType conditionResult, conditionType, BASIC_TYPES.BOOL, state
 
         state.releaseTemporaries castingResult
 
@@ -29,7 +29,7 @@ module.exports = @
         topInstructions.forEach((x) -> x.locations = conditionAst.locations)
 
         return {
-             type: TYPES.VOID,
+             type: BASIC_TYPES.VOID,
              instructions: [
                  topInstructions...
                  new BranchFalse(castingResult, bodyInstructions.length + 1),

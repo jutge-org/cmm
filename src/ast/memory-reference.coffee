@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ TYPES } = require './type'
+{ BASIC_TYPES } = require './type'
 
 module.exports = @
 
@@ -24,7 +24,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
         super type, address
 
     @from: (type, value, store) ->
-        if type is TYPES.STRING
+        if type is BASIC_TYPES.STRING
             new StringReference value
         else
             switch store
@@ -68,4 +68,4 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     read: -> @child()
     write: (_, value) -> @setChild 0, value
 
-    getType: -> TYPES.STRING
+    getType: -> BASIC_TYPES.STRING

@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType } = require './type'
 
 module.exports = @
 
@@ -32,8 +32,8 @@ class Uarithmetic extends UnaryOp
         { type: operandType, result: operandResult } = operand
 
         unless operandType.isNumeric
-            { result, instructions } = ensureType operandResult, operandType, TYPES.INT, state
-            type = TYPES.INT
+            { result, instructions } = ensureType operandResult, operandType, BASIC_TYPES.INT, state
+            type = BASIC_TYPES.INT
         else
             type = operandType
             result = operandResult
@@ -70,7 +70,7 @@ class PreOp extends AssignOp
 
 @PreDec = class PreDec extends PreOp # TODO: No ha de compilar per booleans
     checkType: (type) ->
-        if type is TYPES.BOOL
+        if type is BASIC_TYPES.BOOL
             throw Error.INVALID_BOOL_DEC
 
 
@@ -89,7 +89,7 @@ class PostOp extends AssignOp
 
 @PostDec = class PostDec extends PostOp # TODO: No ha de compilar per booleans
     checkType: (type) ->
-        if type is TYPES.BOOL
+        if type is BASIC_TYPES.BOOL
             throw Error.INVALID_BOOL_DEC
 
     incr: -1
@@ -98,8 +98,8 @@ class PostOp extends AssignOp
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
-        { result, instructions } = ensureType operandResult, operandType, TYPES.BOOL, state
+        { result, instructions } = ensureType operandResult, operandType, BASIC_TYPES.BOOL, state
 
-        { type: TYPES.BOOL, result, instructions }
+        { type: BASIC_TYPES.BOOL, result, instructions }
 
     f: (x) -> not x

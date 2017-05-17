@@ -33,7 +33,7 @@ o = (patternString, action, options) ->
     action = action.replace /\bnew /g, '$&yy.'
     action = action.replace /\b(?:Ast.copyOf)\b/g, 'yy.$&'
     # Also objects
-    action = action.replace /\b(?:TYPES)/g, 'yy.$&'
+    action = action.replace /\b(?:BASIC_TYPES)/g, 'yy.$&'
 
     [patternString, (if action.indexOf('$$') >= 0 then action else "$$ = #{addLocationData}(@1, @#{patternCount})(#{action});"), options]
 
@@ -380,12 +380,12 @@ bnf =
         ]
 
         type: [ # Maybe create this dinamically?
-            o 'INT',                                                              -> TYPES[$1.toUpperCase()]
-            o 'DOUBLE',                                                           -> TYPES[$1.toUpperCase()]
-            o 'CHAR',                                                             -> TYPES[$1.toUpperCase()]
-            o 'BOOL',                                                             -> TYPES[$1.toUpperCase()]
-            o 'STRING',                                                           -> TYPES[$1.toUpperCase()]
-            o 'VOID',                                                             -> TYPES[$1.toUpperCase()]
+            o 'INT',                                                              -> BASIC_TYPES[$1.toUpperCase()]
+            o 'DOUBLE',                                                           -> BASIC_TYPES[$1.toUpperCase()]
+            o 'CHAR',                                                             -> BASIC_TYPES[$1.toUpperCase()]
+            o 'BOOL',                                                             -> BASIC_TYPES[$1.toUpperCase()]
+            o 'STRING',                                                           -> BASIC_TYPES[$1.toUpperCase()]
+            o 'VOID',                                                             -> BASIC_TYPES[$1.toUpperCase()]
         ]
 
         literal: [

@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType } = require './type'
 utils = require '../utils'
 { Branch, BranchFalse } = require './branch'
 { BoolLit } = require './literals'
@@ -27,10 +27,10 @@ module.exports = @
             { type: conditionType, instructions: conditionInstructions, result: conditionResult } = condition.compile state
         else
             conditionInstructions = []
-            conditionType = TYPES.BOOL
+            conditionType = BASIC_TYPES.BOOL
             conditionResult = new BoolLit 1
 
-        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, TYPES.BOOL, state
+        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, BASIC_TYPES.BOOL, state
 
         state.releaseTemporaries castingResult if castingResult?
 
@@ -51,7 +51,7 @@ module.exports = @
         afterInstructions.forEach((x) -> x.locations = afterIteration.locations)
 
         return {
-            type: TYPES.VOID
+            type: BASIC_TYPES.VOID
             instructions: [
                 instructionsInit...,
                 topInstructions...,

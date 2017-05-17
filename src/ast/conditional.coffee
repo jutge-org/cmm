@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType } = require './type'
 { Branch, BranchFalse } = require './branch'
 
 module.exports = @
@@ -14,7 +14,7 @@ module.exports = @
 
         { type: conditionType, result: conditionResult, instructions: conditionInstructions } = conditionAst.compile state
 
-        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, TYPES.BOOL, state
+        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, BASIC_TYPES.BOOL, state
 
         state.releaseTemporaries castingResult
 
@@ -31,7 +31,7 @@ module.exports = @
 
         instructions = [ topInstructions..., branch, thenInstructions... ]
 
-        return { type: TYPES.VOID, branch, instructions }
+        return { type: BASIC_TYPES.VOID, branch, instructions }
 
 @IfThenElse = class IfThenElse extends @IfThen
     compile: (state) ->

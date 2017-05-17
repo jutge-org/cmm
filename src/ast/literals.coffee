@@ -2,7 +2,7 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 
-{ TYPES } = require './type'
+{ BASIC_TYPES } = require './type'
 { T0 } = require './memory-reference'
 { Assign } = require './assign'
 
@@ -28,15 +28,15 @@ module.exports = @
 
 @DoubleLit = class DoubleLit extends Literal
     parse: parseFloat
-    type: TYPES.DOUBLE
+    type: BASIC_TYPES.DOUBLE
 
 @IntLit = class IntLit extends Literal
     parse: parseInt
-    type: TYPES.INT
+    type: BASIC_TYPES.INT
 
 @StringLit = class StringLit extends Literal # Should only accept ascii strings
     parse: (s) -> JSON.parse("{ \"s\": #{s} }").s
-    type: TYPES.STRING
+    type: BASIC_TYPES.STRING
 
 @CharLit = class CharLit extends Literal
     parse: (s) ->
@@ -46,8 +46,8 @@ module.exports = @
         else if s is "\""
             s = "\\\""
         JSON.parse("{ \"s\": \"#{s}\" }").s.charCodeAt(0)
-    type: TYPES.CHAR
+    type: BASIC_TYPES.CHAR
 
 @BoolLit = class BoolLit extends Literal
     parse: (s) -> s is "true"
-    type: TYPES.BOOL
+    type: BASIC_TYPES.BOOL

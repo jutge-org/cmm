@@ -68,6 +68,8 @@ e "CONST_MODIFICATION", 71, "Modification of read-only variable <<name>>"
 e "DUPLICATE_SPECIFIER", 72, "Duplicate declaration specifier <<specifier>>"
 e "NO_TYPE_SPECIFIER", 73, "A type specifier is required for all declarations"
 
+e "ALL_BOUNDS_EXCEPT_FIRST", 80, "Multidimensional array '<<id>>' must have bounds for all dimensions except the first"
+e "STORAGE_UNKNOWN", 81, "Storage size of '<<id>>' isn't known"
 
 # Execution errors
 e "DIVISION_BY_ZERO", 136, "Floating point exception: division by zero"

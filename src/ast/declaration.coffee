@@ -1,12 +1,14 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ TYPES } = require './type'
+{ BASIC_TYPES, Array } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
+{ Initializer } = require './initializer'
+{ Assign } = require './assign'
 
 module.exports = @
 
-@Declaration = class Declaration extends Ast
+@DeclarationGroup = class DeclarationGroup extends Ast
     getSpecifiers: ->
         [ specifiersList ] = @children
 
@@ -41,12 +43,47 @@ module.exports = @
         instructions = []
 
         for declaration in declarations
-            if declaration instanceof Id
-                { children: id } = declaration
+            { instructions: declarationInstructions } = declaration.compile(state, { specifiers, type })
+            instructions = instructions.concat declarationInstructions
 
-                state.defineVariable(new Variable id, type, { specifiers })
-            else # Is assign and has already been previously declared (ensured by grammar action)
-                { instructions: declarationInstructions } = declaration.compile(state, { isFromDeclaration: yes })
-                instructions = instructions.concat declarationInstructions
+        return { type: BASIC_TYPES.VOID, instructions }
 
-        return { type: TYPES.VOID, instructions }
+@ArrayDeclaration = class ArrayDeclaration extends Ast
+    compile: (state, { specifiers, type }) ->
+        [ { children: [ id ] }, dimensions ] = @children
+
+        { isFunctionArgument } = state
+
+        for dimension in dimensions[1..] when dimension is null
+            throw Error.ALL_BOUNDS_EXCEPT_FIRST.complete('id', id)
+
+        unless isFunctionArgument or dimensions[0] isnt null
+            throw Error.STORAGE_UNKNOWN.complete('id', id)
+
+        state.defineVariable new Variable(id, new Array(dimensions, type), { specifiers })
+
+        { instructions: [], id }
+
+@IdDeclaration = class IdDeclaration extends Ast
+    compile: (state, { specifiers, type }) ->
+        [ idAst ] = @children
+
+        { children: [ id ]  } = idAst
+
+        state.defineVariable(new Variable id, type, { specifiers })
+
+        { instructions: [], id }
+
+@DeclarationAssign = class DeclarationAssign extends Ast
+    compile: (state, { specifiers, type }) ->
+        [ declaration, value ] = @children
+
+        { id } = declaration.compile state, { specifiers, type }
+
+        if value instanceof Initializer
+            value.compile(state, { id })
+        else
+            (new Assign(new Id(id), value)).compile(state, { isFromDeclaration: yes })
+
+
+

@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType } = require './type'
 Error = require '../error'
 { MemoryReference, StackReference } = require './memory-reference'
 { Assign } = require './assign'
@@ -22,7 +22,7 @@ module.exports = @
 
         { type, returnType, argTypes: expectedParamTypes } = func
 
-        unless type is TYPES.FUNCTION
+        unless type is BASIC_TYPES.FUNCTION
             throw Error.CALL_NON_FUNCTION.complete('name', funcId)
 
         if paramList.length isnt expectedParamTypes.length
@@ -49,7 +49,7 @@ module.exports = @
         instructions.push new Funcall(funcId, state.temporaryAddressOffset)
 
         result =
-            if returnType isnt TYPES.VOID
+            if returnType isnt BASIC_TYPES.VOID
                 tmp = state.getTemporary returnType
                 returnReference = MemoryReference.from(returnType, null, MemoryReference.RETURN)
                 instructions.push new Assign(tmp, returnReference)

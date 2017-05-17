@@ -2,7 +2,7 @@ DataView = require 'fast-dataview'
 
 module.exports = @
 
-{ TYPES: { LARGEST_ASSIGNABLE: { bytes: largestAssignableBytes } } } = require '../ast/type'
+{ BASIC_TYPES: { LARGEST_ASSIGNABLE: { bytes: largestAssignableBytes } } } = require '../ast/type'
 
 GB = 1024
 

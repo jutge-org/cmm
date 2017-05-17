@@ -26,12 +26,23 @@ class Type extends Ast
 
     getSymbol: -> @id
 
+    canCastTo: (otherType) -> @castings[otherType.id]?
+
+    instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
 
-class Array extends Type
+
+@Array = class Array extends Type
     constructor: (@sizes, @type) ->
-
         super 'ARRAY', {}
+
+        @bytes =
+            if @sizes[0] isnt null
+                prod = @type.bytes
+                prod *= size for size in sizes
+                prod
+            else
+                4 # TODO: Should be BASIC_TYPES.POINTER.SIZE
 
     getSymbol: -> "Array<#{type.getSymbol()}>#{("[#{size}]" for size in @sizes).join("")}"
 
@@ -43,6 +54,13 @@ class Array extends Type
                 if size isnt other.sizes[i]
                     return no
             yes
+
+    canCastTo: (otherType) ->
+        no
+        # TODO: Implement
+
+    instructionsForCast: (otherType, result, memoryReference) ->
+        # TODO: Implement
 
 digits = (x) ->
     x = Math.floor x
@@ -59,7 +77,7 @@ roundCout = (x) ->
 
 identity = (x) -> x
 
-@TYPES = TYPES =
+@BASIC_TYPES = BASIC_TYPES =
     VOID: new Type 'VOID', {
         isAssignable: no
     }
@@ -148,9 +166,9 @@ identity = (x) -> x
         isAssignable: no
     }
 
-@TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @TYPES when type.isAssignable), 'bytes').arg
+@BASIC_TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @BASIC_TYPES when type.isAssignable), 'bytes').arg
 
-Object.freeze @TYPES
+Object.freeze @BASIC_TYPES
 
 class Casting extends Ast
     constructor: (@cast, children...) ->
@@ -163,7 +181,7 @@ class Casting extends Ast
 
         yes
 
-for typeId, type of TYPES
+for typeId, type of BASIC_TYPES
     type.castingGenerator = {}
     for castingId, fn of type.castings
         do (fn) ->
@@ -177,10 +195,10 @@ for typeId, type of TYPES
     assert expectedType instanceof Type
 
     if actualType isnt expectedType
-        if actualType.castings[expectedType.id]?
+        if actualType.canCastTo(expectedType)
             state.releaseTemporaries memoryReference if releaseReference
             result = state.getTemporary expectedType
-            { instructions: [ actualType.castingGenerator[expectedType.id](result, memoryReference) ], result }
+            { instructions: actualType.instructionsForCast(expectedType, result, memoryReference), result }
         else
             throw Error.INVALID_CAST.complete('origin', actualType.id, 'dest', expectedType.id)
     else

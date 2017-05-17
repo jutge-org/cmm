@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ TYPES } = require './type'
+{ BASIC_TYPES } = require './type'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
 Error = require '../error'
@@ -10,7 +10,7 @@ utils = require '../utils'
 { IntLit } = require './literals'
 { Assign } = require './assign'
 { MemoryReference } = require './memory-reference'
-{ Declaration } = require './declaration'
+{ DeclarationGroup } = require './declaration'
 
 module.exports = @
 
@@ -41,7 +41,7 @@ lastLocations = (locations) ->
 
         # Main returns 0 by default
         if functionId is MAIN_FUNCTION
-            returnOassign = new Assign(MemoryReference.from(TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
+            returnOassign = new Assign(MemoryReference.from(BASIC_TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
             returnOassign.locations = lastLocations(@locations)
 
             instructionsBody.push returnOassign
@@ -57,10 +57,10 @@ lastLocations = (locations) ->
 
         state.endFunction()
 
-        return type: TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
+        return type: BASIC_TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
 
 
-@FuncArg = class FuncArg extends Declaration
+@FuncArg = class FuncArg extends DeclarationGroup
     constructor: (specifiers, id) ->
         super specifiers, [id] # Switch to declaration format
 
@@ -70,10 +70,10 @@ lastLocations = (locations) ->
 
         { functionId } = state
 
-        if type is TYPES.VOID
+        if type is BASIC_TYPES.VOID
             throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
 
-        if type is TYPES.STRING
+        if type is BASIC_TYPES.STRING
             throw { generated: yes }
 
         func = state.getFunction functionId
@@ -82,4 +82,8 @@ lastLocations = (locations) ->
 
         func.argTypes.push type
 
+        state.isFunctionArgument = yes # Array declaration checks are different (first dimension can be ommited)
+
         super state
+
+        state.isFunctionArgument = no

@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ TYPES } = require './type'
+{ BASIC_TYPES } = require './type'
 Error = require '../error'
 { Read } = require './read'
 { BranchFalse } = require './branch'
@@ -9,7 +9,7 @@ module.exports = @
 @Cin = class Cin extends Ast
     compile: (state) ->
         instructions = []
-        result = state.getTemporary TYPES.BOOL
+        result = state.getTemporary BASIC_TYPES.BOOL
 
         for idAst, i in @children
             id = idAst.child()
@@ -42,4 +42,4 @@ module.exports = @
 
         instructions.forEach((x) => x.locations = @locations)
 
-        return { type: TYPES.CIN, result, instructions }
+        return { type: BASIC_TYPES.CIN, result, instructions }
