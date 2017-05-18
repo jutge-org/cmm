@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType, EXPR_TYPES } = require './type'
 Error = require '../error'
 { MemoryReference, StackReference } = require './memory-reference'
 { Assign } = require './assign'
@@ -59,7 +59,7 @@ module.exports = @
 
         instructions.forEach((x) => x.locations = @locations)
 
-        return { type: returnType, result, instructions }
+        return { type: returnType, result, instructions, exprType: EXPR_TYPES.RVALUE }
 
     # Increase the temporary offset
     # Increase the function stack offset by the current functions stack size

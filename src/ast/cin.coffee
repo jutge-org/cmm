@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES } = require './type'
+{ BASIC_TYPES, EXPR_TYPES } = require './type'
 Error = require '../error'
 { Read } = require './read'
 { BranchFalse } = require './branch'
@@ -42,4 +42,4 @@ module.exports = @
 
         instructions.forEach((x) => x.locations = @locations)
 
-        return { type: BASIC_TYPES.CIN, result, instructions }
+        return { type: BASIC_TYPES.CIN, result, instructions, exprType: EXPR_TYPES.RVALUE }

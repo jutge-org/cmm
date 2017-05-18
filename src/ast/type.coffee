@@ -77,6 +77,12 @@ roundCout = (x) ->
 
 identity = (x) -> x
 
+
+@EXPR_TYPES = {
+    RVALUE: 'RVALUE'
+    LVALUE: 'LVALUE'
+}
+
 @BASIC_TYPES = BASIC_TYPES =
     VOID: new Type 'VOID', {
         isAssignable: no

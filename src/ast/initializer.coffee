@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ ensureType, BASIC_TYPES } = require './type'
+{ ensureType, BASIC_TYPES, EXPR_TYPES } = require './type'
 
 module.exports = @
 
@@ -10,3 +10,5 @@ module.exports = @
         # TODO: Implement
 
         values = @children
+
+        { exprType: EXPR_TYPES.RVALUE }

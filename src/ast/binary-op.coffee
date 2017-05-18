@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType, EXPR_TYPES } = require './type'
 { BranchFalse, BranchTrue } = require './branch'
 { Assign } = require './assign'
 Error = require '../error'
@@ -29,7 +29,7 @@ module.exports = @
         instructions = [ left.instructions..., right.instructions...,
                          castingInstructions..., new @constructor(result, leftResult, rightResult) ]
 
-        return { instructions, result, type }
+        return { instructions, result, type, exprType: EXPR_TYPES.RVALUE }
 
     execute: (state) ->
         { memory } = state
@@ -96,11 +96,6 @@ class DoubleDiv extends BinaryOp
         x%y
 
 
-
-class LogicArithmetic extends Arithmetic
-    castType: -> BASIC_TYPES.BOOL
-
-
 class LazyOperator extends Ast
     compile: (state) ->
 
@@ -122,7 +117,7 @@ class LazyOperator extends Ast
         instructions = [ left.instructions..., castingInstructionsLeft..., new Assign(result, resultLeft), new @branch(resultLeft, rightInstructionsSize), right.instructions...,
             castingInstructionsRight..., new Assign(result, resultRight) ]
 
-        return { instructions, result, type: BASIC_TYPES.BOOL }
+        return { instructions, result, type: BASIC_TYPES.BOOL, exprType: EXPR_TYPES.RVALUE }
 
 
 @And = class And extends LazyOperator

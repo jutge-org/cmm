@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType } = require './type'
+{ BASIC_TYPES, ensureType, EXPR_TYPES } = require './type'
 
 module.exports = @
 
@@ -10,8 +10,6 @@ module.exports = @
 
         operand = value.compile state
 
-        @checkType?(operand.type)
-
         { type, result: castingResult, instructions: castingInstructions } = @casting operand, state
 
         state.releaseTemporaries castingResult
@@ -20,7 +18,7 @@ module.exports = @
 
         instructions = [ operand.instructions..., castingInstructions..., new @constructor(result, castingResult) ]
 
-        return { instructions, type, result }
+        return { instructions, type, result, exprType: EXPR_TYPES.RVALUE }
 
     execute: ({ memory }) ->
         [ variable, value ] = @children
@@ -46,53 +44,6 @@ class Uarithmetic extends UnaryOp
 @Usub = class Usub extends Uarithmetic
     f: (x) -> -x
 
-class AssignOp extends Uarithmetic
-    compile: (state) ->
-        [ { children: variableId } ] = @children
-
-        variable = state.getVariable variableId
-
-        if variable.specifiers.const
-            throw Error.CONST_MODIFICATION.complete("name", variable.id)
-
-        super state
-
-
-class PreOp extends AssignOp
-    execute: ({ memory }) ->
-        [ dest, value ] = @children
-        result = value.read(memory) + @incr
-        value.write(memory, result)
-        dest.write(memory, result)
-
-@PreInc = class PreInc extends PreOp
-    incr: 1
-
-@PreDec = class PreDec extends PreOp # TODO: No ha de compilar per booleans
-    checkType: (type) ->
-        if type is BASIC_TYPES.BOOL
-            throw Error.INVALID_BOOL_DEC
-
-
-    incr: -1
-
-
-class PostOp extends AssignOp
-    execute: ({ memory }) ->
-        [ destRef, valueRef ] = @children
-        value = valueRef.read memory
-        valueRef.write memory, value + @incr
-        destRef.write memory, value
-
-@PostInc = class PostInc extends PostOp
-    incr: 1
-
-@PostDec = class PostDec extends PostOp # TODO: No ha de compilar per booleans
-    checkType: (type) ->
-        if type is BASIC_TYPES.BOOL
-            throw Error.INVALID_BOOL_DEC
-
-    incr: -1
 
 @Not = class Not extends UnaryOp
     casting: (operand, state) ->

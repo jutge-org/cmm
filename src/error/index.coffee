@@ -29,6 +29,7 @@ e "PARSE_ERROR", 100, "Parsing error:\n<<error>>"
 e "VARIABLE_REDEFINITION", 10, "Cannot define variable <<name>>: already defined in this scope"
 e "GET_VARIABLE_NOT_DEFINED", 11, "Cannot get variable <<name>>: not defined in this scope"
 e "SET_VARIABLE_NOT_DEFINED", 12, "Cannot set variable <<name>>: not defined in this scope"
+e "REF_VARIABLE_NOT_DEFINED", 13, "Cannot reference variable <<name>>: not defined in this scope"
 
 e "FUNCTION_REDEFINITION", 13, "Cannot define function <<name>>: already defined"
 e "VOID_FUNCTION_ARGUMENT", 14, "Cannot define a function argument with void type: function <<function>>, argument <<argument>>"
@@ -36,7 +37,8 @@ e "FUNCTION_UNDEFINED", 15, "Cannot call function <<name>>, variable is not decl
 e "CALL_NON_FUNCTION", 16, "Cannot call <<name>>, which is not a function"
 e "INVALID_PARAMETER_COUNT_CALL", 17, "Function <<name>> with <<good>> parameters has been called with wrong number of parameters <<wrong>>"
 e "IOSTREAM_LIBRARY_MISSING", 18, "<<name>> not found. iostream library needed."
-e "ASSIGN_OF_NON_ASSIGNABLE", 19, "Variable <<variableName>> with type <<type>> is not assignable"
+e "ASSIGN_OF_NON_ASSIGNABLE", 19, "Variable is not assignable"
+e "LVALUE_ASSIGN", 20, "lvalue required as left operand of assignment"
 
 e "NO_RETURN_TYPE", 21, "Function <<function>> declared with no return type"
 

@@ -2,7 +2,7 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 
-{ BASIC_TYPES } = require './type'
+{ BASIC_TYPES, EXPR_TYPES } = require './type'
 { T0 } = require './memory-reference'
 { Assign } = require './assign'
 
@@ -20,7 +20,7 @@ module.exports = @
 
         @setChild 0, @type.tipify(@parse s)
 
-        { @type, instructions: [], result: this }
+        { @type, instructions: [], result: this, exprType: EXPR_TYPES.RVALUE }
 
     read: -> @child()
 

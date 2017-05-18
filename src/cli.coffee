@@ -31,12 +31,14 @@ else
 try
     { program, ast } = cmm.compile code
 catch error
-    error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
+    error.message = "Semantic error:\n#{error?.message}" if error?.code isnt 100
     console.log error.message
     console.log error.stack if error.stack?
     process.exit error.code
 
 console.log "Compilation successful:"
+
+console.log ast.toString()
 
 program.writeInstructions()
 
