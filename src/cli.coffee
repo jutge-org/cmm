@@ -31,7 +31,9 @@ else
 try
     { program, ast } = cmm.compile code
 catch error
-    error.message = "Semantic error:\n#{error?.message}" if error?.code isnt 100
+    unless error?
+        throw "Invalid error thrown. Check error names"
+    error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
     console.log error.message
     console.log error.stack if error.stack?
     process.exit error.code
