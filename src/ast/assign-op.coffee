@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES } = require './type'
+{ PRIMITIVE_TYPES } = require './type'
 { Add } = require './binary-op'
 { IntLit } = require './literals'
 { Assign } = require './assign'
@@ -23,7 +23,7 @@ class PreOp extends Ast
     incr: "-1"
 
     checkType: (type) ->
-        if type is BASIC_TYPES.BOOL
+        if type is PRIMITIVE_TYPES.BOOL
             throw Error.INVALID_BOOL_DEC
 
 
@@ -50,5 +50,5 @@ class PostOp extends Ast
     incr: "-1"
 
     checkType: (type) ->
-        if type is BASIC_TYPES.BOOL
+        if type is PRIMITIVE_TYPES.BOOL
             throw Error.INVALID_BOOL_DEC

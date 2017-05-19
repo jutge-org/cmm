@@ -33,7 +33,7 @@ o = (patternString, action, options) ->
     action = action.replace /\bnew /g, '$&yy.'
     action = action.replace /\b(?:Ast.copyOf)\b/g, 'yy.$&'
     # Also objects
-    action = action.replace /\b(?:BASIC_TYPES)/g, 'yy.$&'
+    action = action.replace /\b(?:PRIMITIVE_TYPES)/g, 'yy.$&'
 
     [patternString, (if action.indexOf('$$') >= 0 then action else "$$ = #{addLocationData}(@1, @#{patternCount})(#{action});"), options]
 
@@ -168,6 +168,7 @@ operators = [
     [ 'left',    '&&' ],
     [ 'left',    '||' ],
     [ 'right',   '+=', '-=', '*=', '/=', '%=', '=' ]
+    [ 'left', 'CIN' ]
 ]
 
 # Grammatical Rules
@@ -292,8 +293,8 @@ bnf =
         ]
 
         block_cin: [
-            o 'block_cin >> id',                                                  -> $$.addChild $3
-            o '>> id',                                                            -> new Cin $2
+            o 'block_cin >> expr',                                                -> $$.addChild $3
+            o '>> expr',                                                          -> new Cin $2
         ]
 
         cout: [
@@ -352,7 +353,7 @@ bnf =
         ]
 
         dimensions_seq: [
-            o 'dimension dimensions_seq',                                         -> $$.push $1
+            o 'dimensions_seq dimension',                                         -> $$.push $2
             o 'dimension',                                                        -> [$1]
         ]
 
@@ -380,12 +381,12 @@ bnf =
         ]
 
         type: [ # Maybe create this dinamically?
-            o 'INT',                                                              -> BASIC_TYPES[$1.toUpperCase()]
-            o 'DOUBLE',                                                           -> BASIC_TYPES[$1.toUpperCase()]
-            o 'CHAR',                                                             -> BASIC_TYPES[$1.toUpperCase()]
-            o 'BOOL',                                                             -> BASIC_TYPES[$1.toUpperCase()]
-            o 'STRING',                                                           -> BASIC_TYPES[$1.toUpperCase()]
-            o 'VOID',                                                             -> BASIC_TYPES[$1.toUpperCase()]
+            o 'INT',                                                              -> PRIMITIVE_TYPES[$1.toUpperCase()]
+            o 'DOUBLE',                                                           -> PRIMITIVE_TYPES[$1.toUpperCase()]
+            o 'CHAR',                                                             -> PRIMITIVE_TYPES[$1.toUpperCase()]
+            o 'BOOL',                                                             -> PRIMITIVE_TYPES[$1.toUpperCase()]
+            o 'STRING',                                                           -> PRIMITIVE_TYPES[$1.toUpperCase()]
+            o 'VOID',                                                             -> PRIMITIVE_TYPES[$1.toUpperCase()]
         ]
 
         literal: [

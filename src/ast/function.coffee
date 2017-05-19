@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ BASIC_TYPES } = require './type'
+{ PRIMITIVE_TYPES } = require './type'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
 Error = require '../error'
@@ -41,7 +41,7 @@ lastLocations = (locations) ->
 
         # Main returns 0 by default
         if functionId is MAIN_FUNCTION
-            returnOassign = new Assign(MemoryReference.from(BASIC_TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
+            returnOassign = new Assign(MemoryReference.from(PRIMITIVE_TYPES.INT, null, MemoryReference.RETURN), new IntLit(0))
             returnOassign.locations = lastLocations(@locations)
 
             instructionsBody.push returnOassign
@@ -57,7 +57,7 @@ lastLocations = (locations) ->
 
         state.endFunction()
 
-        return type: BASIC_TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
+        return type: PRIMITIVE_TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
 
 
 @FuncArg = class FuncArg extends DeclarationGroup
@@ -70,10 +70,10 @@ lastLocations = (locations) ->
 
         { functionId } = state
 
-        if type is BASIC_TYPES.VOID
+        if type is PRIMITIVE_TYPES.VOID
             throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
 
-        if type is BASIC_TYPES.STRING
+        if type is PRIMITIVE_TYPES.STRING
             throw { generated: yes }
 
         func = state.getFunction functionId

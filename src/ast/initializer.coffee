@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ ensureType, BASIC_TYPES, EXPR_TYPES } = require './type'
+{ ensureType, PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
 
 module.exports = @
 

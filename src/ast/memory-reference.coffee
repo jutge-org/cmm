@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ BASIC_TYPES } = require './type'
+{ PRIMITIVE_TYPES } = require './type'
 
 module.exports = @
 
@@ -15,7 +15,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     @RETURN: 3
 
     constructor: (type, address) ->
-        assert type.isAssignable
+        assert type.isReferenceable
 
         @get = 'get' + type.stdTypeName
         @set = 'set' + type.stdTypeName
@@ -24,7 +24,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
         super type, address
 
     @from: (type, value, store) ->
-        if type is BASIC_TYPES.STRING
+        if type is PRIMITIVE_TYPES.STRING
             new StringReference value
         else
             switch store
@@ -41,6 +41,28 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     write: (memory, value) -> memory[@address >>> 31][@set](@address & 0x7FFFFFFF, value)
 
     # [ type, address ] =  @children
+
+
+@PointerMemoryReference = class PointerMemoryReference extends Ast
+    constructor: (type, @baseAddressRef, @indexAddressRef) ->
+        assert type.isAssignable
+
+        @get = 'get' + type.stdTypeName
+        @set = 'set' + type.stdTypeName
+
+        @elementBytes = type.bytes
+
+        super type, @baseAddressRef, @indexAddressRef
+
+    getType: -> @children[0]
+    getAddress: (memory) -> @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
+
+    read: (memory) ->
+        address = @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
+        memory[address >>> 31][@get](address & 0x7FFFFFFF)
+    write: (memory, value) ->
+        address = @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
+        memory[address >>> 31][@set](address & 0x7FFFFFFF, value)
 
 @ReturnReference = class ReturnReference extends MemoryReference
     constructor: (type) -> super type, 0
@@ -68,4 +90,16 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     read: -> @child()
     write: (_, value) -> @setChild 0, value
 
-    getType: -> BASIC_TYPES.STRING
+    getType: -> PRIMITIVE_TYPES.STRING
+
+@GetAddress = class GetAddress extends Ast
+    execute: ({ memory }) ->
+        [ destReference, reference ] = @children
+
+        destReference.write(memory, reference.getAddress())
+
+@Leal = class Leal extends Ast
+    execute: ({ memory }) ->
+        [ destReference, baseReference, indexReference, elementSize ] = @children
+
+        destReference.write(memory, baseReference.read(memory) + indexReference.read(memory)*elementSize)

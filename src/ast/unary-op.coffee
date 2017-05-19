@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType, EXPR_TYPES } = require './type'
+{ PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
 
 module.exports = @
 
@@ -30,8 +30,8 @@ class Uarithmetic extends UnaryOp
         { type: operandType, result: operandResult } = operand
 
         unless operandType.isNumeric
-            { result, instructions } = ensureType operandResult, operandType, BASIC_TYPES.INT, state
-            type = BASIC_TYPES.INT
+            { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.INT, state
+            type = PRIMITIVE_TYPES.INT
         else
             type = operandType
             result = operandResult
@@ -49,8 +49,8 @@ class Uarithmetic extends UnaryOp
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
-        { result, instructions } = ensureType operandResult, operandType, BASIC_TYPES.BOOL, state
+        { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.BOOL, state
 
-        { type: BASIC_TYPES.BOOL, result, instructions }
+        { type: PRIMITIVE_TYPES.BOOL, result, instructions }
 
     f: (x) -> not x

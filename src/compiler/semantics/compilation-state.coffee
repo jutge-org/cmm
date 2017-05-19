@@ -59,7 +59,7 @@ module.exports = @
         else
             @variables[id] = {}
 
-        if variable.type.isAssignable
+        if variable.type.isReferenceable
             variable.memoryReference = MemoryReference.from(variable.type, @addressOffset, if @scopeLevel > 0 then 1 else 0)
             @addressOffset += variable.type.bytes
 

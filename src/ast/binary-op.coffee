@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType, EXPR_TYPES } = require './type'
+{ PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
 { BranchFalse, BranchTrue } = require './branch'
 { Assign } = require './assign'
 Error = require '../error'
@@ -55,7 +55,7 @@ class Arithmetic extends BinaryOp
         return { type: expectedType, results, instructions }
 
 class SimpleArithmetic extends Arithmetic
-    castType: (operandTypes) -> if BASIC_TYPES.DOUBLE in operandTypes then BASIC_TYPES.DOUBLE else BASIC_TYPES.INT
+    castType: (operandTypes) -> if PRIMITIVE_TYPES.DOUBLE in operandTypes then PRIMITIVE_TYPES.DOUBLE else PRIMITIVE_TYPES.INT
 
 @Add = class Add extends SimpleArithmetic
     f: (x, y) -> x+y
@@ -78,8 +78,8 @@ class DoubleDiv extends BinaryOp
 
         @constructor =
             switch resultType
-                when BASIC_TYPES.INT then IntDiv
-                when BASIC_TYPES.DOUBLE then DoubleDiv
+                when PRIMITIVE_TYPES.INT then IntDiv
+                when PRIMITIVE_TYPES.DOUBLE then DoubleDiv
                 else assert false
 
         return resultType
@@ -89,7 +89,7 @@ class DoubleDiv extends BinaryOp
         unless typeLeft.isIntegral and typeRight.isIntegral
             throw Error.NON_INTEGRAL_MODULO
 
-        BASIC_TYPES.INT
+        PRIMITIVE_TYPES.INT
 
     f: (x, y, state) ->
         state.executionError Error.MODULO_BY_ZERO if y is 0
@@ -100,16 +100,16 @@ class LazyOperator extends Ast
     compile: (state) ->
 
         left = @left().compile(state)
-        { result: resultLeft, instructions: castingInstructionsLeft } = ensureType left.result, left.type, BASIC_TYPES.BOOL, state
+        { result: resultLeft, instructions: castingInstructionsLeft } = ensureType left.result, left.type, PRIMITIVE_TYPES.BOOL, state
 
         state.releaseTemporaries resultLeft
 
         right = @right().compile(state)
-        { result: resultRight, instructions: castingInstructionsRight } = ensureType right.result, right.type, BASIC_TYPES.BOOL, state
+        { result: resultRight, instructions: castingInstructionsRight } = ensureType right.result, right.type, PRIMITIVE_TYPES.BOOL, state
 
         state.releaseTemporaries resultRight
 
-        result = state.getTemporary BASIC_TYPES.BOOL
+        result = state.getTemporary PRIMITIVE_TYPES.BOOL
 
         rightInstructionsSize = right.instructions.length + castingInstructionsRight.length + 1
 
@@ -117,7 +117,7 @@ class LazyOperator extends Ast
         instructions = [ left.instructions..., castingInstructionsLeft..., new Assign(result, resultLeft), new @branch(resultLeft, rightInstructionsSize), right.instructions...,
             castingInstructionsRight..., new Assign(result, resultRight) ]
 
-        return { instructions, result, type: BASIC_TYPES.BOOL, exprType: EXPR_TYPES.RVALUE }
+        return { instructions, result, type: PRIMITIVE_TYPES.BOOL, exprType: EXPR_TYPES.RVALUE }
 
 
 @And = class And extends LazyOperator
@@ -143,7 +143,7 @@ class Comparison extends BinaryOp
             results = operands.map((x) -> x.result)
             instructions = []
 
-        return { type: BASIC_TYPES.BOOL, results, instructions }
+        return { type: PRIMITIVE_TYPES.BOOL, results, instructions }
 
 @Lt = class Lt extends Comparison
     f: (x, y) -> x < y

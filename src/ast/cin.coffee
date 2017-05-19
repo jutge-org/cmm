@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES, EXPR_TYPES } = require './type'
+{ PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
 Error = require '../error'
 { Read } = require './read'
 { BranchFalse } = require './branch'
@@ -9,15 +9,20 @@ module.exports = @
 @Cin = class Cin extends Ast
     compile: (state) ->
         instructions = []
-        result = state.getTemporary BASIC_TYPES.BOOL
+        result = state.getTemporary PRIMITIVE_TYPES.BOOL
 
-        for idAst, i in @children
-            id = idAst.child()
+        for destAst, i in @children
+            { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions } = destAst.compile state
 
-            # Comprovar que tots els fills son ids i que tenen tipus assignable
-            # retorna cin
+            state.releaseTemporaries memoryReference
 
-            variable = state.getVariable id
+            unless type.isAssignable
+                throw Error.CIN_OF_NON_ASSIGNABLE
+
+            unless exprType is EXPR_TYPES.LVALUE
+                throw Error.LVALUE_CIN
+
+            variable = state.getVariable lvalueId
 
             unless variable?
                 throw Error.CIN_VARIABLE_UNDEFINED.complete('name', id)
@@ -25,16 +30,11 @@ module.exports = @
             if variable.specifiers.const
                 throw Error.CONST_MODIFICATION.complete("name", variable.id)
 
-            { type, memoryReference } = variable
-
-            unless type.isAssignable
-                throw Error.CIN_OF_NON_ASSIGNABLE
-
-            instructions = instructions.concat(new Read result, memoryReference)
+            instructions = instructions.concat([ destInstructions..., new Read result, memoryReference ])
 
             if i isnt @children.length - 1
                 jumpOffset = @children.length - i - 1
-                instructions = instructions.concat(new BranchFalse result, +jumpOffset)
+                instructions.push(new BranchFalse result, +jumpOffset)
 
             # Add read instruction with variable's reference cin (tmp with bool, same for all cin's), (id reference)
             # Add goto end if tmp is false and it's not the last cin
@@ -42,4 +42,4 @@ module.exports = @
 
         instructions.forEach((x) => x.locations = @locations)
 
-        return { type: BASIC_TYPES.CIN, result, instructions, exprType: EXPR_TYPES.RVALUE }
+        return { type: PRIMITIVE_TYPES.CIN, result, instructions, exprType: EXPR_TYPES.RVALUE }

@@ -5,7 +5,7 @@ assert = require 'assert'
 { Program: { ENTRY_FUNCTION } } = require '../compiler/program'
 { Memory } = require './memory'
 { MemoryReference } = require '../ast/memory-reference'
-{ BASIC_TYPES } = require '../ast/type'
+{ PRIMITIVE_TYPES } = require '../ast/type'
 
 module.exports = @
 
@@ -35,7 +35,7 @@ class VM
     computeResults: ->
         assert @finished, "Try to get results from VM which has not finished execution"
 
-        @status ?= MemoryReference.from(BASIC_TYPES.INT, null, MemoryReference.RETURN).read(@memory)
+        @status ?= MemoryReference.from(PRIMITIVE_TYPES.INT, null, MemoryReference.RETURN).read(@memory)
         @stdout = @io.getStream IO.STDOUT
         @stderr = @io.getStream IO.STDERR
         @output = @io.getStream IO.INTERLEAVED

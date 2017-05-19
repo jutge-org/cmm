@@ -38,7 +38,10 @@ e "CALL_NON_FUNCTION", 16, "Cannot call <<name>>, which is not a function"
 e "INVALID_PARAMETER_COUNT_CALL", 17, "Function <<name>> with <<good>> parameters has been called with wrong number of parameters <<wrong>>"
 e "IOSTREAM_LIBRARY_MISSING", 18, "<<name>> not found. iostream library needed."
 e "ASSIGN_OF_NON_ASSIGNABLE", 19, "Variable <<variableName>> with type <<type>> is not assignable"
-e "LVALUE_ASSIGN", 20, "lvalue required as left operand of assignment"
+e "LVALUE_ASSIGN", 190, "lvalue required as left operand of assignment"
+e "ASSIGN_TO_ARRAY", 191, "invalid array assignment"
+e "INVALID_ARRAY_SUBSCRIPT", 192, "invalid types '<<type>>[<<typeSubscript>>]' for array subscript"
+e "LVALUE_CIN", 193, "lvalue required as operand of cin"
 
 e "NO_RETURN_TYPE", 21, "Function <<function>> declared with no return type"
 

@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ BASIC_TYPES } = require './type'
+{ PRIMITIVE_TYPES } = require './type'
 { Write } = require './write'
 
 module.exports = @
@@ -19,4 +19,4 @@ module.exports = @
 
         instructions.forEach((x) => x.locations = @locations)
 
-        return { type: BASIC_TYPES.VOID, instructions }
+        return { type: PRIMITIVE_TYPES.VOID, instructions }

@@ -1,11 +1,11 @@
-{ BASIC_TYPES } = require '../ast/type'
+{ PRIMITIVE_TYPES } = require '../ast/type'
 
 module.exports = @
 
 @parseInput = (word, type) ->
 # FIXME: This should be rewritten, it's totally broken
     switch type
-        when BASIC_TYPES.INT
+        when PRIMITIVE_TYPES.INT
             unless /[0-9\-]/.test(word[0])
                 index = 0
             else
@@ -22,7 +22,7 @@ module.exports = @
             else
                 value: parseInt word
                 leftover: ""
-        when BASIC_TYPES.DOUBLE
+        when PRIMITIVE_TYPES.DOUBLE
             index = 0
             end = no
             foundDot = no
@@ -53,7 +53,7 @@ module.exports = @
                 value: parseFloat word
                 leftover: ""
 
-        when BASIC_TYPES.BOOL
+        when PRIMITIVE_TYPES.BOOL
             value = parseInt word
             if value not in [0,1]
                 leftover: word
@@ -61,10 +61,10 @@ module.exports = @
             else
                 value: value is 1
                 leftover: word[1..]
-        when BASIC_TYPES.STRING
+        when PRIMITIVE_TYPES.STRING
             value: word
             leftover: ""
-        when BASIC_TYPES.CHAR
+        when PRIMITIVE_TYPES.CHAR
             value: word.charCodeAt 0
             leftover: word[1..]
         else

@@ -2,7 +2,7 @@ assert = require 'assert'
 
 Error = require '../error'
 { Ast } = require './ast'
-{ BASIC_TYPES, ensureType } = require './type'
+{ PRIMITIVE_TYPES, ensureType } = require './type'
 { Assign } = require './assign'
 { MemoryReference } = require './memory-reference'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
@@ -31,7 +31,7 @@ module.exports = @
             state.releaseTemporaries result
             instructions = [ valueInstructions..., castingInstructions..., new Assign(MemoryReference.from(expectedType, null, MemoryReference.RETURN), result) ]
         else # return;
-            actualType = BASIC_TYPES.VOID
+            actualType = PRIMITIVE_TYPES.VOID
 
             if actualType isnt expectedType
                 throw Error.NO_RETURN.complete("expected", expectedType.id.toLowerCase(), "name", functionId)
@@ -44,7 +44,7 @@ module.exports = @
 
 
         return {
-            type: BASIC_TYPES.VOID,
+            type: PRIMITIVE_TYPES.VOID,
             instructions
         }
 

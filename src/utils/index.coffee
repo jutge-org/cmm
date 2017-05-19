@@ -51,3 +51,12 @@ module.exports = @
         newInstance[key] = clone obj[key]
 
     return newInstance
+
+@pad = (s, c, t, { end = no } = {}) ->
+    length = s.length
+    padding = (c for i in [length...t]).join("")
+
+    if end
+        s + padding
+    else
+        padding + s

@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ BASIC_TYPES, Array } = require './type'
+{ PRIMITIVE_TYPES, Array } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
 { Initializer } = require './initializer'
@@ -46,7 +46,7 @@ module.exports = @
             { instructions: declarationInstructions } = declaration.compile(state, { specifiers, type })
             instructions = instructions.concat declarationInstructions
 
-        return { type: BASIC_TYPES.VOID, instructions }
+        return { type: PRIMITIVE_TYPES.VOID, instructions }
 
 @ArrayDeclaration = class ArrayDeclaration extends Ast
     compile: (state, { specifiers, type }) ->
@@ -68,7 +68,7 @@ module.exports = @
     compile: (state, { specifiers, type }) ->
         [ idAst ] = @children
 
-        { children: [ id ]  } = idAst
+        { children: [ id ] } = idAst
 
         state.defineVariable(new Variable id, type, { specifiers })
 

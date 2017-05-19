@@ -15,6 +15,7 @@ class Type extends Ast
                     @isIntegral = no
                     @isNumeric  = no
                     @isAssignable = yes
+                    @isReferenceable = @isAssignable
                  } = {}) ->
         super()
 
@@ -24,30 +25,43 @@ class Type extends Ast
         else
             @tipify = (x) -> x
 
-    getSymbol: -> @id
+    getSymbol: -> @id.toLowerCase()
 
     canCastTo: (otherType) -> @castings[otherType.id]?
 
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
 
+@Pointer = class Pointer extends Type
+    @bytes: 4
+
+    constructor: (@elementType) ->
+        super 'POINTER', {
+            stdTypeName: 'Uint32',
+            castings:
+                COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
+        }
+
+        @bytes = Pointer.bytes
+
 
 @Array = class Array extends Type
-    constructor: (@sizes, @type) ->
-        super 'ARRAY', {}
+    constructor: (@sizes, @baseElementType) ->
+        super 'ARRAY', { isAssignable: no, isReferenceable: yes }
 
         @bytes =
             if @sizes[0] isnt null
-                prod = @type.bytes
-                prod *= size for size in sizes
+                prod = @baseElementType.bytes
+                prod *= size for size in @sizes
                 prod
             else
-                4 # TODO: Should be BASIC_TYPES.POINTER.SIZE
+                Pointer.bytes
 
-    getSymbol: -> "Array<#{type.getSymbol()}>#{("[#{size}]" for size in @sizes).join("")}"
+
+    getSymbol: -> "#{@baseElementType.getSymbol()} #{("[#{size}]" for size in @sizes).join("")}"
 
     equals: (other) ->
-        if @type isnt other.type or @sizes.length isnt other.sizes.length
+        if @baseElementType isnt other.baseElementType or @sizes.length isnt other.sizes.length
             no
         else
             for size, i in @sizes
@@ -56,11 +70,28 @@ class Type extends Ast
             yes
 
     canCastTo: (otherType) ->
-        no
-        # TODO: Implement
+        if otherType instanceof Array and otherType.baseElementType is @baseElementType
+            for size, i in @sizes when size isnt otherType.sizes[i]
+                return false
+            return true
+        else
+            return false
+
 
     instructionsForCast: (otherType, result, memoryReference) ->
         # TODO: Implement
+        []
+
+    getElementType: ->
+        if @sizes.length > 1
+            new Array @sizes[1..], @baseElementType
+        else
+            @baseElementType
+
+    isArray: yes
+
+
+
 
 digits = (x) ->
     x = Math.floor x
@@ -83,7 +114,7 @@ identity = (x) -> x
     LVALUE: 'LVALUE'
 }
 
-@BASIC_TYPES = BASIC_TYPES =
+@PRIMITIVE_TYPES = PRIMITIVE_TYPES =
     VOID: new Type 'VOID', {
         isAssignable: no
     }
@@ -172,9 +203,9 @@ identity = (x) -> x
         isAssignable: no
     }
 
-@BASIC_TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @BASIC_TYPES when type.isAssignable), 'bytes').arg
+@PRIMITIVE_TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @PRIMITIVE_TYPES when type.isAssignable), 'bytes').arg
 
-Object.freeze @BASIC_TYPES
+Object.freeze @PRIMITIVE_TYPES
 
 class Casting extends Ast
     constructor: (@cast, children...) ->
@@ -187,7 +218,7 @@ class Casting extends Ast
 
         yes
 
-for typeId, type of BASIC_TYPES
+for typeId, type of PRIMITIVE_TYPES
     type.castingGenerator = {}
     for castingId, fn of type.castings
         do (fn) ->
@@ -196,16 +227,16 @@ for typeId, type of BASIC_TYPES
 # Returns a list of instructions necessary to cast memoryReference from
 # actualType to expectedType. Could be empty
 # The result is written in the same memory location as the input memoryReference
-@ensureType = (memoryReference, actualType, expectedType, state, { releaseReference = yes } = {}) ->
+@ensureType = (memoryReference, actualType, expectedType, state, { releaseReference = yes, onReference } = {}) ->
     assert actualType instanceof Type
     assert expectedType instanceof Type
 
     if actualType isnt expectedType
         if actualType.canCastTo(expectedType)
             state.releaseTemporaries memoryReference if releaseReference
-            result = state.getTemporary expectedType
+            result = onReference ? state.getTemporary expectedType
             { instructions: actualType.instructionsForCast(expectedType, result, memoryReference), result }
         else
-            throw Error.INVALID_CAST.complete('origin', actualType.id, 'dest', expectedType.id)
+            throw Error.INVALID_CAST.complete('origin', actualType.getSymbol(), 'dest', expectedType.getSymbol())
     else
         { instructions: [], result: memoryReference }
