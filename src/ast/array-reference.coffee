@@ -9,11 +9,11 @@ module.exports = @
     compile: (state) ->
         [ variable, index ] = @children
 
-        { type, exprType, lvalueId, result: variableResult, instructions: variableInstructions } = variable.compile state
+        { type, lvalueId, result: variableResult, instructions: variableInstructions } = variable.compile state
 
         { result: indexResult, instructions: indexInstructions, type: indexType } = index.compile state
 
-        unless exprType is EXPR_TYPES.LVALUE
+        unless type.isArray or type.isPointer
             throw Error.INVALID_ARRAY_SUBSCRIPT.complete("type", type.getSymbol(), "typeSubscript", indexType.getSymbol())
 
         { instructions: indexCastInstructions, result: indexCastResult } = ensureType indexResult, indexType, PRIMITIVE_TYPES.INT, state
