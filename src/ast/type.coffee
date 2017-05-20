@@ -27,7 +27,8 @@ class Type extends Ast
 
     getSymbol: -> @id.toLowerCase()
 
-    canCastTo: (otherType) -> @castings[otherType.id]?
+    canCastTo: (otherType, { strict = no } = {}) ->
+        (strict and otherType.id is @id) or (not strict and @castings[otherType.id]?)
 
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
@@ -43,6 +44,12 @@ class Type extends Ast
         }
 
         @bytes = Pointer.bytes
+
+    isPointer: yes
+
+    getSymbol: -> "#{@elementType.getSymbol()}*"
+
+    getElementType: -> @elementType
 
 
 @Array = class Array extends Type
@@ -69,13 +76,15 @@ class Type extends Ast
                     return no
             yes
 
-    canCastTo: (otherType) ->
-        if otherType instanceof Array and otherType.baseElementType is @baseElementType
-            for size, i in @sizes when size isnt otherType.sizes[i]
-                return false
-            return true
+    canCastTo: (otherType, { strict = no } = {}) ->
+        console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
+        if otherType.isArray
+            return (not strict or @sizes[0] is otherType.sizes[0]) and @getElementType().canCastTo(otherType.getElementType(), { strict: yes })
+        else if otherType.isPointer
+            return not strict and @getElementType().canCastTo(otherType.getElementType(), { strict: yes }) # TODO: This may be wrong
         else
             return false
+
 
 
     instructionsForCast: (otherType, result, memoryReference) ->

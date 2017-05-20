@@ -33,7 +33,9 @@ lastLocations = (locations) ->
 
         state.newFunction(new FunctionVar functionId, returnType)
 
+        state.beginFunctionArgumentDefinitions() # Array declaration checks are different (first dimension can be ommited)
         argList.compile state
+        state.endFunctionArgumentDefinitions()
         
         { instructions: instructionsBody } = instructionList.compile state
 
@@ -66,24 +68,8 @@ lastLocations = (locations) ->
 
     compile: (state) ->
         { type } = @getSpecifiers()
-        [ _, [ { children: [ argId ] } ] ] = @children
 
-        { functionId } = state
-
-        if type is PRIMITIVE_TYPES.VOID
-            throw Error.VOID_FUNCTION_ARGUMENT.complete('function', functionId, 'argument', argId)
-
-        if type is PRIMITIVE_TYPES.STRING
+        if type is PRIMITIVE_TYPES.STRING # TODO: Remove when strings are properly implemented
             throw { generated: yes }
 
-        func = state.getFunction functionId
-
-        assert func?
-
-        func.argTypes.push type
-
-        state.isFunctionArgument = yes # Array declaration checks are different (first dimension can be ommited)
-
         super state
-
-        state.isFunctionArgument = no

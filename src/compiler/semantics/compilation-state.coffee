@@ -14,6 +14,7 @@ module.exports = @
         @addressOffset = 0 # So as to define the offset of each local/global variable in the function stack/heap
         @temporaryAddressOffset = 0
         @variablesCopyStack = []
+        @insideFunctionArgumentDefinitions = no
 
     openScope: ->
         variablesCopy = {}
@@ -53,6 +54,13 @@ module.exports = @
     defineVariable: (variable, onError) ->
         { id } = variable
 
+        variable.isFunctionArgument = @insideFunctionArgumentDefinitions
+
+        if variable.isFunctionArgument
+            func = @getFunction()
+            assert func?
+            func.argTypes.push variable.type
+
         if @variables[id]?
             if @variables[id][@scopeLevel]?
                 throw (onError ? Error.VARIABLE_REDEFINITION.complete("name", id))
@@ -80,16 +88,25 @@ module.exports = @
         return null
 
 
-    getFunction: (id) -> @functions[id]
+    getFunction: (id = @functionId) -> @functions[id]
 
     getTemporary: (type) ->
+        #console.log "Get #{type.bytes}"
         ret = MemoryReference.from(type, @temporaryAddressOffset, MemoryReference.TMP)
         @temporaryAddressOffset += type.bytes # TODO: Check that it doesn't go over 4096
         ret
 
     # HACK: This assumes that the released temporary is the one that was last requested
     releaseTemporaries: (references...) ->
+
         for reference in references
             if reference.isTemporary
+                #console.log "Release #{reference.getType().bytes}, on #{reference.getAddress()}"
                 @temporaryAddressOffset -= reference.getType().bytes
                 assert @temporaryAddressOffset >= 0
+
+    iAmInsideFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions
+
+    beginFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions = yes
+
+    endFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions = no

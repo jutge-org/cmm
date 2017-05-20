@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES, Array } = require './type'
+{ PRIMITIVE_TYPES, Array, Pointer } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
 { Initializer } = require './initializer'
@@ -55,16 +55,20 @@ module.exports = @
         if type is PRIMITIVE_TYPES.VOID
             throw Error.VOID_ARRAY_DECLARATION.complete('name', id)
 
-        { isFunctionArgument } = state
-
         for dimension in dimensions[1..] when dimension is null
             throw Error.ALL_BOUNDS_EXCEPT_FIRST.complete('id', id)
 
-        unless isFunctionArgument or dimensions[0] isnt null
+        insideFunctionArgumentDefinitions = state.iAmInsideFunctionArgumentDefinitions()
+
+        unless insideFunctionArgumentDefinitions or dimensions[0] isnt null
             throw Error.STORAGE_UNKNOWN.complete('id', id)
 
+        arrayType = new Array(dimensions, type)
 
-        state.defineVariable new Variable(id, new Array(dimensions, type), { specifiers })
+        if insideFunctionArgumentDefinitions
+            state.defineVariable new Variable(id, new Pointer(arrayType.getElementType()))
+        else
+            state.defineVariable new Variable(id, arrayType, { specifiers })
 
         { instructions: [], id }
 

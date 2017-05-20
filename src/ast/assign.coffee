@@ -16,13 +16,11 @@ module.exports = @
 
         state.releaseTemporaries destReference
 
-        state.releaseTemporaries result
-
         unless exprType is EXPR_TYPES.LVALUE
             throw Error.LVALUE_ASSIGN
 
         unless destType.isAssignable # HACK: Assumes that every lvalue expression returns a lvalueId, which may not be true for expressions such as *(a + 2) = 3, a being a pointer
-            throw Error.ASSIGN_OF_NON_ASSIGNABLE.complete('variableName', lvalueId, 'type', destType.id)
+            throw Error.ASSIGN_OF_NON_ASSIGNABLE.complete('variableName', lvalueId, 'type', destType.getSymbol())
 
         if destType instanceof Array
             throw Error.ASSIGN_TO_ARRAY

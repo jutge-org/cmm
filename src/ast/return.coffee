@@ -34,7 +34,7 @@ module.exports = @
             actualType = PRIMITIVE_TYPES.VOID
 
             if actualType isnt expectedType
-                throw Error.NO_RETURN.complete("expected", expectedType.id.toLowerCase(), "name", functionId)
+                throw Error.NO_RETURN.complete("expected", expectedType.getSymbol(), "name", functionId)
 
             instructions = []
 
