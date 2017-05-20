@@ -45,7 +45,8 @@ e "LVALUE_CIN", 193, "lvalue required as operand of cin"
 
 e "NO_RETURN_TYPE", 21, "Function <<function>> declared with no return type"
 
-e "VOID_DECLARATION", 30, "Cannot declare a variable with type void: variable <<name>>"
+e "VOID_DECLARATION", 30, "Variable or field '<<name>>' declared void"
+e "VOID_ARRAY_DECLARATION", 31, "Declaration of '<<name>>' as array of void"
 
 e "INVALID_CAST", 20, "Cannot cast type <<origin>> to type <<dest>>"
 

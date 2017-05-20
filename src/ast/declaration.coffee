@@ -52,6 +52,9 @@ module.exports = @
     compile: (state, { specifiers, type }) ->
         [ { children: [ id ] }, dimensions ] = @children
 
+        if type is PRIMITIVE_TYPES.VOID
+            throw Error.VOID_ARRAY_DECLARATION.complete('name', id)
+
         { isFunctionArgument } = state
 
         for dimension in dimensions[1..] when dimension is null
@@ -59,6 +62,7 @@ module.exports = @
 
         unless isFunctionArgument or dimensions[0] isnt null
             throw Error.STORAGE_UNKNOWN.complete('id', id)
+
 
         state.defineVariable new Variable(id, new Array(dimensions, type), { specifiers })
 
@@ -69,6 +73,9 @@ module.exports = @
         [ idAst ] = @children
 
         { children: [ id ] } = idAst
+
+        if type is PRIMITIVE_TYPES.VOID
+            throw Error.VOID_DECLARATION.complete('name', id)
 
         state.defineVariable(new Variable id, type, { specifiers })
 
