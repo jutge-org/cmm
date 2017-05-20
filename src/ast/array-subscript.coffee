@@ -5,7 +5,7 @@ Error = require '../error'
 
 module.exports = @
 
-@ArrayReference = class ArrayReference extends Ast
+@ArraySubscript = class ArraySubscript extends Ast
     compile: (state) ->
         [ variable, index ] = @children
 
@@ -25,7 +25,6 @@ module.exports = @
         type = type.getElementType()
 
         instructions = [ variableInstructions..., indexInstructions..., indexCastInstructions... ]
-
 
         if type.isArray
             result = state.getTemporary new Pointer(type.getElementType())

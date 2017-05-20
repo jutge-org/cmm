@@ -424,7 +424,7 @@ bnf =
             o '-- expr',                                                          -> new PreDec $2
             o 'funcall'
             o 'id'
-            o 'expr accessor',                                                    -> new ArrayReference $1, $2
+            o 'expr accessor',                                                    -> new ArraySubscript $1, $2
             o '( expr )',                                                         -> $2
             o 'literal'
             o 'expr ++',                                                          -> new PostInc $1
