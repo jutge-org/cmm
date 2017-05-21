@@ -4,7 +4,7 @@
 module.exports = @
 
 @FunctionVar = class extends Variable
-    constructor: (id, @returnType, { @argTypes = [], specifiers } = {}) ->
-        super id, PRIMITIVE_TYPES.FUNCTION, { specifiers }
+    constructor: (id, type, { specifiers } = {}) ->
+        super id, type, { specifiers }
 
-        @localsSize = 0
+        @stackSize = 0

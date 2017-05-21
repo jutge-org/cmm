@@ -20,9 +20,9 @@ module.exports = @
         unless func?
             throw Error.FUNCTION_UNDEFINED.complete('name', funcId)
 
-        { type, returnType, argTypes: expectedParamTypes } = func
+        { type, type: { returnType, argTypes: expectedParamTypes } } = func
 
-        unless type is PRIMITIVE_TYPES.FUNCTION
+        unless type.isFunction
             throw Error.CALL_NON_FUNCTION.complete('name', funcId)
 
         if paramList.length isnt expectedParamTypes.length

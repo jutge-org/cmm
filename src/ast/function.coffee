@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES } = require './type'
+{ PRIMITIVE_TYPES, FunctionType } = require './type'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
 Error = require '../error'
@@ -31,7 +31,7 @@ lastLocations = (locations) ->
         unless returnType
             throw Error.NO_RETURN_TYPE.complete("function", functionId)
 
-        state.newFunction(new FunctionVar functionId, returnType)
+        state.newFunction(new FunctionVar(functionId, new FunctionType(returnType)))
 
         state.beginFunctionArgumentDefinitions() # Array declaration checks are different (first dimension can be ommited)
         argList.compile state

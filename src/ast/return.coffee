@@ -23,7 +23,7 @@ module.exports = @
 
         assert func?
 
-        { returnType: expectedType } = func
+        { type: { returnType: expectedType } } = func
 
         if value? # return (something);
             { type: actualType, instructions: valueInstructions, result: valueResult } = value.compile state

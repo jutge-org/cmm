@@ -100,7 +100,14 @@ class Type extends Ast
     isArray: yes
 
 
+@FunctionType = class FunctionType extends Type
+    constructor: (@returnType, @argTypes = []) ->
 
+    canCastTo: -> no
+
+    getSymbol: -> "#{@returnType}(#{(argType for argType in @argTypes).join(', ') })"
+
+    isFunction: yes
 
 digits = (x) ->
     x = Math.floor x

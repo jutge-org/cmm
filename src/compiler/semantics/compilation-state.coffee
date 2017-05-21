@@ -59,7 +59,7 @@ module.exports = @
         if variable.isFunctionArgument
             func = @getFunction()
             assert func?
-            func.argTypes.push variable.type
+            func.type.argTypes.push variable.type
 
         if @variables[id]?
             if @variables[id][@scopeLevel]?
