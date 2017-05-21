@@ -1,6 +1,7 @@
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES } = require './type'
+{ PRIMITIVE_TYPES, ensureType } = require './type'
 { Write } = require './write'
+Error = require '../error'
 
 module.exports = @
 
@@ -9,10 +10,14 @@ module.exports = @
         instructions = []
 
         for value in @children
-            { result, instructions: valueInstructions } = value.compile state
+            { result, instructions: valueInstructions, type } = value.compile state
+
+            unless type.canCastTo(PRIMITIVE_TYPES.COUT)
+                throw Error.CANNOT_COUT_TYPE.complete("type", type.getSymbol())
 
             state.releaseTemporaries result
-            instructions = instructions.concat valueInstructions
+
+            instructions = instructions.concat [ valueInstructions ]
             instructions.push new Write result
 
         instructions.forEach((x) => x.locations = @locations)
