@@ -33,7 +33,7 @@ class Type extends Ast
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
 
-@Pointer = class Pointer extends Type
+@PointerType = class PointerType extends Type
     @bytes: 4
 
     constructor: (@elementType) ->
@@ -43,7 +43,7 @@ class Type extends Ast
                 COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
         }
 
-        @bytes = Pointer.bytes
+        @bytes = PointerType.bytes
 
     isPointer: yes
 
@@ -51,6 +51,8 @@ class Type extends Ast
 
     getElementType: -> @elementType
 
+    # TODO: Implicit conversion pointer->bool
+    #
 
 @Array = class Array extends Type
     constructor: (@sizes, @baseElementType) ->
@@ -62,7 +64,7 @@ class Type extends Ast
                 prod *= size for size in @sizes
                 prod
             else
-                Pointer.bytes
+                PointerType.bytes
 
 
     getSymbol: -> "#{@baseElementType.getSymbol()} #{("[#{size}]" for size in @sizes).join("")}"

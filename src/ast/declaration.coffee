@@ -1,6 +1,6 @@
 Error = require '../error'
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES, Array, Pointer } = require './type'
+{ PRIMITIVE_TYPES, Array, PointerType } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
 { Assign } = require './assign'
@@ -65,7 +65,7 @@ module.exports = @
         arrayType = new Array(dimensions, type)
 
         if insideFunctionArgumentDefinitions
-            state.defineVariable new Variable(id, new Pointer(arrayType.getElementType()))
+            state.defineVariable new Variable(id, new PointerType(arrayType.getElementType()))
         else
             state.defineVariable new Variable(id, arrayType, { specifiers })
 

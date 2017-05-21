@@ -71,6 +71,8 @@ lexRules = [
     r /%/,                                       '%'
     r /\+/,                                      '+'
 
+    r /&/,                                       '&'
+
     r /!=/,                                      '!=' # NOTE: Order matters, != is before ! to avoid matching !
 
     r /or\b/,                                    '||'
@@ -143,6 +145,7 @@ lexRules = [
     r /([1-9][0-9]*|0)/,                         'INT_LIT'
     r /'([^\\\']|\\.)'/,                         'CHAR_LIT'
     r /"([^\\\"]|\\.)*"/,                        'STRING_LIT'
+    r /"nullptr\b"/,                             'NULLPTR'
 
     r /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*/,   'ID'
 
@@ -159,7 +162,7 @@ operators = [
     [ 'right',   'THEN', 'ELSE' ],
     [ 'left',    '[' ],
     [ 'nonassoc', '++', '--' ]
-    [ 'right',   '!', 'u+', 'u-' ],
+    [ 'right',   '!', 'u+', 'u-', 'deref', 'ref' ],
     [ 'left',    '*', '/', '%' ],
     [ 'left',    '+', '-' ],
     [ 'left',    '>>', '<<' ],
@@ -246,7 +249,7 @@ bnf =
             o 'RETURN',                                                           -> new Return
         ]
 
-        funcall: [
+        funcall: [ # TODO: Replace id by expr
             o 'id ( param_seq )',                                                 -> new Funcall $1,$3
             o 'id ( VOID )',                                                      -> new Funcall $1, new List
         ]
@@ -351,12 +354,9 @@ bnf =
 
         decl_var_reference: [
             o 'id',                                                               -> new IdDeclaration $1
-            o 'id dimensions_seq',                                                -> new ArrayDeclaration $1, $2
-        ]
-
-        dimensions_seq: [
-            o 'dimensions_seq dimension',                                         -> $$.push $2
-            o 'dimension',                                                        -> [$1]
+            o 'decl_var_reference dimension',                                     -> new ArrayDeclaration $1, $2
+            o '* decl_var_reference',                                            (-> new PointerDeclaration $2), prec: "deref"
+            o '( decl_var_reference )',                                           -> $2
         ]
 
         dimension: [
@@ -399,6 +399,7 @@ bnf =
             o 'CHAR_LIT',                                                         -> new CharLit $1
             o 'BOOL_LIT',                                                         -> new BoolLit $1
             o 'STRING_LIT',                                                       -> new StringLit $1
+            o 'NULLPTR',                                                          -> new NullPtr
         ]
 
         expr: [
@@ -426,6 +427,8 @@ bnf =
             o '! expr',                                                           -> new Not $2
             o '++ expr',                                                          -> new PreInc $2
             o '-- expr',                                                          -> new PreDec $2
+            o '& expr',                                                          (-> new AddressOf $2), prec: "ref"
+            o '* expr',                                                          (-> new Pointer $2), prec: "deref"
             o 'funcall'
             o 'id'
             o 'expr accessor',                                                    -> new ArraySubscript $1, $2
