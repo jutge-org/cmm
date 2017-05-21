@@ -14,8 +14,6 @@ module.exports = @
         for destAst, i in @children
             { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions } = destAst.compile state
 
-            state.releaseTemporaries memoryReference
-
             unless type.isAssignable
                 throw Error.CIN_OF_NON_ASSIGNABLE
 
@@ -29,6 +27,8 @@ module.exports = @
 
             if variable.specifiers.const
                 throw Error.CONST_MODIFICATION.complete("name", variable.id)
+
+            state.releaseTemporaries memoryReference
 
             instructions = instructions.concat([ destInstructions..., new Read result, memoryReference ])
 
