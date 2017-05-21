@@ -241,8 +241,6 @@ for typeId, type of PRIMITIVE_TYPES
     assert expectedType instanceof Type
 
     if actualType isnt expectedType
-        console.log actualType
-        console.log expectedType
         if actualType.canCastTo(expectedType)
             state.releaseTemporaries memoryReference if releaseReference
             result = onReference ? state.getTemporary expectedType

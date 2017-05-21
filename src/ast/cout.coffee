@@ -17,7 +17,7 @@ module.exports = @
 
             state.releaseTemporaries result
 
-            instructions = instructions.concat [ valueInstructions ]
+            instructions = instructions.concat valueInstructions
             instructions.push new Write result
 
         instructions.forEach((x) => x.locations = @locations)
