@@ -64,6 +64,7 @@ module.exports = @
 
         arrayType = new Array(dimensions, type)
 
+        # TODO: Adapt to new declaration AST structure
         if insideFunctionArgumentDefinitions
             state.defineVariable new Variable(id, new PointerType(arrayType.getElementType()))
         else
@@ -80,9 +81,13 @@ module.exports = @
         if type is PRIMITIVE_TYPES.VOID
             throw Error.VOID_DECLARATION.complete('name', id)
 
-        state.defineVariable(new Variable id, type, { specifiers })
+        state.defineVariable(new Variable id, type, { specifiers }) # TODO: Adapt to new declaration AST structure
 
         { instructions: [], id }
+
+@PointerDeclaration = class PointerDeclaration extends Ast
+    compile: (state, { specifiers, type }) ->
+        # TODO: Implement
 
 @DeclarationAssign = class DeclarationAssign extends Ast
     compile: (state, { specifiers, type }) ->

@@ -54,7 +54,7 @@ class Type extends Ast
     # TODO: Implicit conversion pointer->bool
     #
 
-@Array = class Array extends Type
+@Array = class Array extends Type # TODO: Adapt to new declaration structure, single size, multidimensional arrays encoded as elements
     constructor: (@sizes, @baseElementType) ->
         super 'ARRAY', { isAssignable: no, isReferenceable: yes }
 
