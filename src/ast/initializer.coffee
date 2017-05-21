@@ -1,3 +1,6 @@
+module.exports = {}
+
+###
 { Ast } = require './ast'
 { ensureType, PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
 
@@ -11,4 +14,5 @@ module.exports = @
 
         values = @children
 
-        { exprType: EXPR_TYPES.RVALUE }
+        { exprType: EXPR_TYPES.RVALUE, instructions: [] }
+###

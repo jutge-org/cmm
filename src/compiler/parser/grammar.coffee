@@ -319,12 +319,14 @@ bnf =
 
         decl_value: [
             o 'expr'
-            o 'initializer'
+            #o 'initializer'
         ]
 
+        ###
         initializer: [
             o 'array_initializer'
         ]
+        ###
 
         declaration: [
             o 'declaration_specifier_seq declaration_body',                       -> new DeclarationGroup $1, $2
@@ -362,12 +364,13 @@ bnf =
             o '[ ]',                                                              -> null
         ]
 
+        ###
         array_initializer: [
-            o '{ initializer_value_seq }',                                        -> new ArrayInitializer $2
+            o '{ array_initializer_value_seq }',                                  -> new ArrayInitializer $2
         ]
 
         array_initializer_value_seq: [ # TODO: Extend this to allow any expression (not only literals). Requires to implement a constant expression evaluator
-            o 'array_initializer_value , value_seq',                              -> $$.push $3
+            o 'array_initializer_value_seq , array_initializer_value',            -> $$.push $3
             o 'array_initializer_value',                                          -> [$1]
         ]
 
@@ -375,6 +378,7 @@ bnf =
             o 'literal'
             o 'initializer'
         ]
+        ###
 
         accessor: [
             o '[ expr ]',                                                         -> $2
