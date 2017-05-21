@@ -14,8 +14,6 @@ module.exports = @
 
         { instructions: castInstructions, result } = ensureType valueReference, valueType, destType, state, { onReference: destReference }
 
-        state.releaseTemporaries destReference
-
         unless exprType is EXPR_TYPES.LVALUE
             throw Error.LVALUE_ASSIGN
 
@@ -29,6 +27,8 @@ module.exports = @
 
         if not isFromDeclaration and variable.specifiers.const
             throw Error.CONST_MODIFICATION.complete("name", variable.id)
+
+        state.releaseTemporaries destReference
 
         instructions = [ valueInstructions..., destInstructions..., castInstructions... ]
 
