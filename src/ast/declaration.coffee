@@ -3,7 +3,6 @@ Error = require '../error'
 { PRIMITIVE_TYPES, Array, Pointer } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
-{ Initializer } = require './initializer'
 { Assign } = require './assign'
 
 module.exports = @
@@ -91,10 +90,7 @@ module.exports = @
 
         { id } = declaration.compile state, { specifiers, type }
 
-        if value instanceof Initializer
-            value.compile(state, { id })
-        else
-            (new Assign(new Id(id), value)).compile(state, { isFromDeclaration: yes })
+        (new Assign(new Id(id), value)).compile(state, { isFromDeclaration: yes })
 
 
 
