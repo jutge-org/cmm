@@ -87,7 +87,7 @@ e "LVALUE_ADDRESSING", 84, "Lvalue required as unary '&' operand"
 e "ASSIGNABLE_ADDRESSING", 85, "Assignable type required as unary '&' operand"
 e "INVALID_DEREFERENCE_TYPE", 86, "invalid type argument of unary '*' (have '<<type>>')"
 
-e "UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE", 93, "Cannot perform pointer arithmetic on a pointer to incomplete type <<type>>"
+e "UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE", 93, "Cannot perform pointer arithmetic on a pointer to incomplete type '<<type>>'"
 
 e "STRING_POINTER", 201, "String pointers are not supported"
 e "STRING_ARRAY", 202, "String arrays are not supported"

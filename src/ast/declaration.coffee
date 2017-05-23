@@ -96,13 +96,10 @@ module.exports = @
         if type is PRIMITIVE_TYPES.STRING
             throw Error.STRING_POINTER
 
-        if type.isArray and not type.size?
-            if state.iAmInsideFunctionArgumentDefinitions()
-                throw Error.POINTER_UNBOUND_SIZE.complete("type", type.getSymbol(), "id", id)
+        if type.isArray and not type.size? and state.iAmInsideFunctionArgumentDefinitions()
+            throw Error.POINTER_UNBOUND_SIZE.complete("type", type.getSymbol(), "id", id)
 
-            isIncomplete = yes
-
-        type = new Pointer type, { isValueConst: specifiers?.const, isIncomplete }
+        type = new Pointer type, { isValueConst: specifiers?.const }
 
         [ innerDeclarationAst ] = @children
 

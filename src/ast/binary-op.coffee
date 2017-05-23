@@ -82,8 +82,14 @@ class MaybePointerArithmetic extends SimpleArithmetic
         unless ref.nonPointer.type.isIntegral
             invalidOperands(ref[ref.left], ref[ref.right])
 
+        elementType = ref.pointer.type.getElementType()
 
-        ref.nonPointer = (new Mul({ compile: -> { type: PRIMITIVE_TYPES.INT, result: ref.nonPointer.result, instructions: ref.nonPointer.instructions } }, new IntLit(ref.pointer.type.getElementType().bytes))).compile(state)
+        if elementType.isIncomplete
+            throw Error.UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE.complete("type", elementType)
+
+        { bytes } = elementType
+
+        ref.nonPointer = (new Mul({ compile: -> { type: PRIMITIVE_TYPES.INT, result: ref.nonPointer.result, instructions: ref.nonPointer.instructions } }, new IntLit(bytes))).compile(state)
 
         state.releaseTemporaries ref[ref.left].result, ref[ref.right].result
 

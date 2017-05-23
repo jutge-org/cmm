@@ -36,7 +36,7 @@ class Type extends Ast
 @Pointer = class Pointer extends Type
     @bytes: 4
 
-    constructor: (@elementType, { @isValueConst = no } = {}) ->
+    constructor: (@elementType, { @isValueConst = no, @isIncomplete = no } = {}) ->
         super 'POINTER', {
             stdTypeName: 'Uint32',
             castings:
@@ -90,7 +90,10 @@ class NullPtr extends Type
     constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
         super 'ARRAY', { isAssignable: no, isReferenceable: yes }
 
-        @bytes = @elementType.bytes*@size;
+        if not @size?
+            @isIncomplete = yes
+        else
+            @bytes = @elementType.bytes*@size;
 
 
     getSymbol: (sizesCarry = []) ->
