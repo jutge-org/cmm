@@ -33,71 +33,87 @@ class Type extends Ast
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
 
-@PointerType = class PointerType extends Type
+@Pointer = class Pointer extends Type
     @bytes: 4
 
-    constructor: (@elementType) ->
+    constructor: (@elementType, { @isValueConst = no } = {}) ->
         super 'POINTER', {
             stdTypeName: 'Uint32',
             castings:
                 COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
         }
 
-        @bytes = PointerType.bytes
+        @bytes = Pointer.bytes
 
     isPointer: yes
 
-    getSymbol: -> "#{@elementType.getSymbol()}*"
+    getSymbol: ->
+        if @isValueConst
+            if @elementType.isPointer
+                "#{@elementType.getSymbol()} const*"
+            else
+                "const #{@elementType.getSymbol()}*"
+        else if @elementType.isArray
+            "(*)(#{@elementType.getSymbol()})"
+        else
+            "#{@elementType.getSymbol()}*"
 
     getElementType: -> @elementType
 
-    # TODO: Implicit conversion pointer->bool
-    #
+    canCastTo: (otherType, { strict = no, allConst = yes } = {}) ->
+        #console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
+        if not strict and otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.VOID, PRIMITIVE_TYPES.COUT ]
+            return yes
+        else if otherType.isPointer
+            if @isValueConst and not otherType.isValueConst
+                return false
+            else if otherType.isValueConst isnt @isValueConst
+                return allConst and @getElementType().canCastTo(otherType.getElementType(), { strict: yes, allConst: (allConst and otherType.isValueConst) })
+            else
+                return @getElementType().canCastTo(otherType.getElementType(), { strict: yes, allConst: (allConst and otherType.isValueConst) })
+        else
+            return false
 
-@Array = class Array extends Type # TODO: Adapt to new declaration structure, single size, multidimensional arrays encoded as elements
-    constructor: (@sizes, @baseElementType) ->
+    instructionsForCast: (otherType, result, memoryReference) -> []
+
+class NullPtr extends Type
+    constructor: ->
+        super 'NULLPTR', { isAssignable: no }
+
+    getSymbol: -> "std::nullptr_t"
+
+    canCastTo: (otherType) -> otherType.isPointer
+
+    instructionsForCast: -> []
+
+@Array = class Array extends Type
+    constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
         super 'ARRAY', { isAssignable: no, isReferenceable: yes }
 
-        @bytes =
-            if @sizes[0] isnt null
-                prod = @baseElementType.bytes
-                prod *= size for size in @sizes
-                prod
-            else
-                PointerType.bytes
+        @bytes = @elementType.bytes*@size;
 
 
-    getSymbol: -> "#{@baseElementType.getSymbol()} #{("[#{size}]" for size in @sizes).join("")}"
-
-    equals: (other) ->
-        if @baseElementType isnt other.baseElementType or @sizes.length isnt other.sizes.length
-            no
+    getSymbol: (sizesCarry = []) ->
+        if @elementType.isArray
+            @elementType.getSymbol(sizesCarry.concat([@size]))
         else
-            for size, i in @sizes
-                if size isnt other.sizes[i]
-                    return no
-            yes
+            "#{@elementType.getSymbol()} #{(('[' + (size ? '') + ']') for size in sizesCarry.concat(@size)).join("")}"
 
     canCastTo: (otherType, { strict = no } = {}) ->
-        console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
-        if otherType.isArray
-            return (not strict or @sizes[0] is otherType.sizes[0]) and @getElementType().canCastTo(otherType.getElementType(), { strict: yes })
+        #console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
+        if not strict and otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.VOID, PRIMITIVE_TYPES.COUT ]
+            return yes
+        else if otherType.isArray
+            return (not strict or @size is otherType.size) and @getElementType().canCastTo(otherType.getElementType(), { strict: yes })
         else if otherType.isPointer
             return not strict and @getElementType().canCastTo(otherType.getElementType(), { strict: yes }) # TODO: This may be wrong
         else
             return false
 
 
+    instructionsForCast: (otherType, result, memoryReference) -> [ ]
 
-    instructionsForCast: (otherType, result, memoryReference) ->
-        # TODO: Implement
-        []
-
-    getElementType: ->
-        if @sizes.length > 1
-            new Array @sizes[1..], @baseElementType
-        else
-            @baseElementType
+    getElementType: -> @elementType
 
     isArray: yes
 
@@ -135,6 +151,7 @@ identity = (x) -> x
 @PRIMITIVE_TYPES = PRIMITIVE_TYPES =
     VOID: new Type 'VOID', {
         isAssignable: no
+        bytes: 1
     }
 
     INT: new Type 'INT', {
@@ -220,6 +237,8 @@ identity = (x) -> x
     COUT: new Type 'COUT', {
         isAssignable: no
     }
+
+    NULLPTR: new NullPtr
 
 @PRIMITIVE_TYPES.LARGEST_ASSIGNABLE = utils.max((type for k, type of @PRIMITIVE_TYPES when type.isAssignable), 'bytes').arg
 

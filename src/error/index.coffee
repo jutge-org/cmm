@@ -43,6 +43,11 @@ e "ASSIGN_TO_ARRAY", 191, "invalid array assignment"
 e "INVALID_ARRAY_SUBSCRIPT", 192, "invalid types '<<type>>[<<typeSubscript>>]' for array subscript"
 e "LVALUE_CIN", 193, "lvalue required as operand of cin"
 
+
+e "INVALID_OPERANDS", 194, "Invalid operands '<<typel>>' and '<<typer>>' to operation"
+
+e "WRONG_ARGUMENT_UNARY_MINUS", 195, "Wrong type argument to unary minus"
+
 e "NO_RETURN_TYPE", 21, "Function '<<function>>' declared with no return type"
 
 e "VOID_DECLARATION", 30, "Variable or field '<<name>>' declared void"
@@ -76,6 +81,17 @@ e "NO_TYPE_SPECIFIER", 73, "A type specifier is required for all declarations"
 
 e "ALL_BOUNDS_EXCEPT_FIRST", 80, "Multidimensional array '<<id>>' must have bounds for all dimensions except the first"
 e "STORAGE_UNKNOWN", 81, "Storage size of '<<id>>' isn't known"
+e "POINTER_UNBOUND_SIZE", 82, "Parameter '<<id>>' includes pointer to array of unknown bound '<<type>>'"
+e "ARRAY_SIZE_NEGATIVE", 83, "Size of array '<<id>>' is negative"
+e "LVALUE_ADDRESSING", 84, "Lvalue required as unary '&' operand"
+e "ASSIGNABLE_ADDRESSING", 85, "Assignable type required as unary '&' operand"
+e "INVALID_DEREFERENCE_TYPE", 86, "invalid type argument of unary '*' (have '<<type>>')"
+
+e "UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE", 93, "Cannot perform pointer arithmetic on a pointer to incomplete type <<type>>"
+
+e "STRING_POINTER", 201, "String pointers are not supported"
+e "STRING_ARRAY", 202, "String arrays are not supported"
+e "STRING_ADDRESSING", 203, "String addressing is not supported"
 
 # Execution errors
 e "DIVISION_BY_ZERO", 136, "Floating point exception: division by zero"

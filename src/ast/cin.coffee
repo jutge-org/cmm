@@ -12,7 +12,7 @@ module.exports = @
         result = state.getTemporary PRIMITIVE_TYPES.BOOL
 
         for destAst, i in @children
-            { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions } = destAst.compile state
+            { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions, isConst } = destAst.compile state
 
             unless type.isAssignable
                 throw Error.CIN_OF_NON_ASSIGNABLE
@@ -20,13 +20,8 @@ module.exports = @
             unless exprType is EXPR_TYPES.LVALUE
                 throw Error.LVALUE_CIN
 
-            variable = state.getVariable lvalueId
-
-            unless variable?
-                throw Error.CIN_VARIABLE_UNDEFINED.complete('name', id)
-
-            if variable.specifiers.const
-                throw Error.CONST_MODIFICATION.complete("name", variable.id)
+            if isConst
+                throw Error.CONST_MODIFICATION.complete("name", lvalueId)
 
             state.releaseTemporaries memoryReference
 

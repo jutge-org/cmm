@@ -1,7 +1,7 @@
 { Ast } = require './ast'
 Error = require '../error'
-{ EXPR_TYPES, PointerType } = require './type'
-{ GetAddress } = require './memory-reference'
+{ EXPR_TYPES, Pointer } = require './type'
+{ AddressOf } = require './address-of'
 
 module.exports = @
 
@@ -15,10 +15,10 @@ module.exports = @
             throw Error.REF_VARIABLE_NOT_DEFINED.complete('name', id)
 
         if variable.type.isArray
-            result = state.getTemporary new PointerType(variable.type.getElementType())
-            instructions = [ new GetAddress result, variable.memoryReference ]
+            result = state.getTemporary new Pointer(variable.type.getElementType())
+            instructions = [ new AddressOf result, variable.memoryReference ]
         else
             result = variable.memoryReference
             instructions = []
 
-        return { type: variable.type, result, instructions, exprType: EXPR_TYPES.LVALUE, lvalueId: id }
+        return { type: variable.type, result, instructions, exprType: EXPR_TYPES.LVALUE, lvalueId: id, isConst: variable.specifiers?.const }

@@ -2,7 +2,7 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 
-{ PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
+{ PRIMITIVE_TYPES, EXPR_TYPES, Pointer } = require './type'
 { T0 } = require './memory-reference'
 { Assign } = require './assign'
 
@@ -51,3 +51,7 @@ module.exports = @
 @BoolLit = class BoolLit extends Literal
     parse: (s) -> s is "true"
     type: PRIMITIVE_TYPES.BOOL
+
+@NullPtr = class NullPtr extends Literal
+    parse: -> 0
+    type: PRIMITIVE_TYPES.NULLPTR

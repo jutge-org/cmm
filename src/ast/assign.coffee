@@ -10,7 +10,7 @@ module.exports = @
 
         { type: valueType, instructions: valueInstructions, result: valueReference } = valueAst.compile state
 
-        { type: destType, result: destReference, exprType, lvalueId, instructions: destInstructions } = destAst.compile state
+        { type: destType, result: destReference, exprType, lvalueId, instructions: destInstructions, isConst } = destAst.compile state
 
         { instructions: castInstructions, result } = ensureType valueReference, valueType, destType, state, { onReference: destReference }
 
@@ -23,10 +23,8 @@ module.exports = @
         if destType instanceof Array
             throw Error.ASSIGN_TO_ARRAY
 
-        variable = state.getVariable lvalueId
-
-        if not isFromDeclaration and variable.specifiers.const
-            throw Error.CONST_MODIFICATION.complete("name", variable.id)
+        if not isFromDeclaration and isConst
+            throw Error.CONST_MODIFICATION.complete("name", lvalueId)
 
         state.releaseTemporaries destReference
 

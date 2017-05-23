@@ -15,7 +15,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     @RETURN: 3
 
     constructor: (type, address) ->
-        assert type.isReferenceable
+        #assert type.isReferenceable
 
         @get = 'get' + type.stdTypeName
         @set = 'set' + type.stdTypeName
@@ -45,7 +45,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
 @PointerMemoryReference = class PointerMemoryReference extends Ast
     constructor: (type, @baseAddressRef, @indexAddressRef) ->
-        assert type.isAssignable
+        #assert type.isAssignable
 
         @get = 'get' + type.stdTypeName
         @set = 'set' + type.stdTypeName
@@ -91,12 +91,6 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     write: (_, value) -> @setChild 0, value
 
     getType: -> PRIMITIVE_TYPES.STRING
-
-@GetAddress = class GetAddress extends Ast
-    execute: ({ memory }) ->
-        [ destReference, reference ] = @children
-
-        destReference.write(memory, reference.getAddress())
 
 @Leal = class Leal extends Ast
     execute: ({ memory }) ->

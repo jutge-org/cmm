@@ -25,9 +25,29 @@ module.exports = @
 
         variable.write memory, @f(value.read(memory))
 
-class Uarithmetic extends UnaryOp
+@Uadd = class Uadd extends UnaryOp
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
+
+        unless operandType.isNumeric or operandType.isPointer
+            { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.INT, state
+            type = PRIMITIVE_TYPES.INT
+        else
+            type = operandType
+            result = operandResult
+            instructions = []
+
+        { type, result, instructions }
+
+    f: (x) -> +x
+
+
+@Usub = class Usub extends UnaryOp
+    casting: (operand, state) ->
+        { type: operandType, result: operandResult } = operand
+
+        if operandType.isPointer
+            throw Error.WRONG_ARGUMENT_UNARY_MINUS
 
         unless operandType.isNumeric
             { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.INT, state
@@ -39,9 +59,6 @@ class Uarithmetic extends UnaryOp
 
         { type, result, instructions }
 
-@Uadd = class Uadd extends Uarithmetic
-    f: (x) -> +x
-@Usub = class Usub extends Uarithmetic
     f: (x) -> -x
 
 

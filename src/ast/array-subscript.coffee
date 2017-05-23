@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-{ ensureType, PRIMITIVE_TYPES, EXPR_TYPES, PointerType } = require './type'
+{ ensureType, PRIMITIVE_TYPES, EXPR_TYPES, Pointer } = require './type'
 { PointerMemoryReference, Leal } = require './memory-reference'
 Error = require '../error'
 
@@ -22,22 +22,26 @@ module.exports = @
 
         state.releaseTemporaries variableResult
 
+        isConst = type.isValueConst
+
         type = type.getElementType()
 
         instructions = [ variableInstructions..., indexInstructions..., indexCastInstructions... ]
 
         if type.isArray
-            result = state.getTemporary new PointerType(type.getElementType())
+            result = state.getTemporary new Pointer(type.getElementType())
 
             instructions.push(new Leal(result, variableResult, indexCastResult, type.bytes))
         else
             result = new PointerMemoryReference(type, variableResult, indexCastResult)
 
         {
-            exprType: EXPR_TYPES.LVALUE, lvalueId,
+            exprType: EXPR_TYPES.LVALUE,
+            lvalueId,
             instructions,
             result,
-            type
+            type,
+            isConst
         }
 
 

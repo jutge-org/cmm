@@ -2,13 +2,26 @@
 { PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
 { BranchFalse, BranchTrue } = require './branch'
 { Assign } = require './assign'
+{ IntLit } = require './literals'
 Error = require '../error'
 utils = require '../utils'
 module.exports = @
 
+# TODO: Pointers and arrays should only be allowed to perform + and - operations, and only with integrals (pointer is not integral)
+# TODO: Also, when a pointer/array is within the operation, the returned value IS an lvalue
+# TODO: Check if pointer has incomplete type, in that case operations cannot be performed
+
+invalidOperands = (left, right) ->
+    throw Error.INVALID_OPERANDS.complete("typel", left.type, "typer", right.type)
+
 @BinaryOp = class BinaryOp extends Ast
+    pointerCase: invalidOperands
+
     compile: (state) ->
         [ left, right ] = @children.map((x) -> x.compile(state))
+
+        if left.type.isPointer or right.type.isPointer
+            return @pointerCase(left, right, state)
 
         operands = [ left, right ]
 
@@ -57,10 +70,38 @@ class Arithmetic extends BinaryOp
 class SimpleArithmetic extends Arithmetic
     castType: (operandTypes) -> if PRIMITIVE_TYPES.DOUBLE in operandTypes then PRIMITIVE_TYPES.DOUBLE else PRIMITIVE_TYPES.INT
 
-@Add = class Add extends SimpleArithmetic
+
+class MaybePointerArithmetic extends SimpleArithmetic
+    pointerCase: (left, right, state) ->
+        ref =
+            if left.type.isPointer
+                { pointer: left, left: 'pointer', nonPointer: right, right: 'nonPointer'}
+            else
+                { pointer: right, left: 'nonPointer', nonPointer: left, right: 'pointer'}
+
+        unless ref.nonPointer.type.isIntegral
+            invalidOperands(ref[ref.left], ref[ref.right])
+
+
+        ref.nonPointer = (new Mul({ compile: -> { type: PRIMITIVE_TYPES.INT, result: ref.nonPointer.result, instructions: ref.nonPointer.instructions } }, new IntLit(ref.pointer.type.getElementType().bytes))).compile(state)
+
+        state.releaseTemporaries ref[ref.left].result, ref[ref.right].result
+
+        result = state.getTemporary ref.pointer.type
+
+        instructions = [ ref[ref.left].instructions..., ref[ref.right].instructions..., new @constructor(result, ref[ref.left].result, ref[ref.right].result) ]
+
+        { result, instructions, type: ref.pointer.type, lvalueId: 'unknown', exprType: EXPR_TYPES.LVALUE }
+
+
+@Add = class Add extends MaybePointerArithmetic
     f: (x, y) -> x+y
-@Sub = class Sub extends SimpleArithmetic
+
+
+@Sub = class Sub extends MaybePointerArithmetic
     f: (x, y) -> x-y
+
+
 @Mul = class Mul extends SimpleArithmetic
     f: (x, y) -> x*y
 

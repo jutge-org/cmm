@@ -141,11 +141,11 @@ lexRules = [
 
     r /true\b/,                                  'BOOL_LIT'
     r /false\b/,                                 'BOOL_LIT'
-    r /[0-9]*(\.[0-9]+)\b/,                      'DOUBLE_LIT'
-    r /([1-9][0-9]*|0)/,                         'INT_LIT'
-    r /'([^\\\']|\\.)'/,                         'CHAR_LIT'
-    r /"([^\\\"]|\\.)*"/,                        'STRING_LIT'
-    r /"nullptr\b"/,                             'NULLPTR'
+    r /-?[0-9]*(\.[0-9]+)\b/,                    'DOUBLE_LIT'
+    r /-?([1-9][0-9]*|0)/,                       'INT_LIT'
+    r /'([^\\']|\\.)'/,                          'CHAR_LIT'
+    r /"([^\\"]|\\.)*"/,                         'STRING_LIT'
+    r /nullptr\b/,                               'NULLPTR'
 
     r /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*/,   'ID'
 
@@ -352,10 +352,15 @@ bnf =
             o 'decl_var_reference',                                               -> [$1]
         ]
 
+        maybe_const_decl_var_reference: [
+            o 'decl_var_reference'
+        ]
+
         decl_var_reference: [
             o 'id',                                                               -> new IdDeclaration $1
             o 'decl_var_reference dimension',                                     -> new ArrayDeclaration $1, $2
             o '* decl_var_reference',                                            (-> new PointerDeclaration $2), prec: "deref"
+            o '* CONST decl_var_reference',                                      (-> new PointerDeclaration(new ConstDeclaration($3))), prec: "deref"
             o '( decl_var_reference )',                                           -> $2
         ]
 
@@ -428,7 +433,7 @@ bnf =
             o '++ expr',                                                          -> new PreInc $2
             o '-- expr',                                                          -> new PreDec $2
             o '& expr',                                                          (-> new AddressOf $2), prec: "ref"
-            o '* expr',                                                          (-> new Pointer $2), prec: "deref"
+            o '* expr',                                                          (-> new Dereference $2), prec: "deref"
             o 'funcall'
             o 'id'
             o 'expr accessor',                                                    -> new ArraySubscript $1, $2
