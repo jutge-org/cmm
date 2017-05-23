@@ -352,10 +352,6 @@ bnf =
             o 'decl_var_reference',                                               -> [$1]
         ]
 
-        maybe_const_decl_var_reference: [
-            o 'decl_var_reference'
-        ]
-
         decl_var_reference: [
             o 'id',                                                               -> new IdDeclaration $1
             o 'decl_var_reference dimension',                                     -> new ArrayDeclaration $1, $2
