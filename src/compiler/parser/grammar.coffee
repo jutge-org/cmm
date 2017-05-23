@@ -146,6 +146,7 @@ lexRules = [
     r /'([^\\']|\\.)'/,                          'CHAR_LIT'
     r /"([^\\"]|\\.)*"/,                         'STRING_LIT'
     r /nullptr\b/,                               'NULLPTR'
+    r /NULL\b/,                                  'NULLPTR'
 
     r /([a-z]|[A-Z]|_)([a-z]|[A-Z]|_|[0-9])*/,   'ID'
 
