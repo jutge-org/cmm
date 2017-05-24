@@ -39,7 +39,8 @@ module.exports = @
             type: destType
             instructions
             result: destReference
-            exprType: EXPR_TYPES.RVALUE
+            exprType: EXPR_TYPES.LVALUE
+            lvalueId: 'unknown'
         }
 
     execute: ({ memory }) ->
