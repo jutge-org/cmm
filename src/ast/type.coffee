@@ -32,6 +32,8 @@ class Type extends Ast
 
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
 
+isVoidPointer = (type) -> type.isPointer and type.getElementType() is PRIMITIVE_TYPES.VOID
+isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isValueConst
 
 @Pointer = class Pointer extends Type
     @bytes: 4
@@ -62,7 +64,7 @@ class Type extends Ast
 
     canCastTo: (otherType, { strict = no, allConst = yes } = {}) ->
         #console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
-        if not strict and otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.VOID, PRIMITIVE_TYPES.COUT ]
+        if not strict and (otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.COUT ] or (isVoidPointer(otherType) and isConstConversionValid(this, otherType)))
             return yes
         else if otherType.isPointer
             if @isValueConst and not otherType.isValueConst
@@ -104,12 +106,15 @@ class NullPtr extends Type
 
     canCastTo: (otherType, { strict = no } = {}) ->
         #console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
-        if not strict and otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.VOID, PRIMITIVE_TYPES.COUT ]
+        if not strict and (otherType in [ PRIMITIVE_TYPES.BOOL, PRIMITIVE_TYPES.COUT ] or (isVoidPointer(otherType) and isConstConversionValid(this, otherType)))
             return yes
         else if otherType.isArray
             return (not strict or @size is otherType.size) and @getElementType().canCastTo(otherType.getElementType(), { strict: yes })
         else if otherType.isPointer
-            return not strict and @getElementType().canCastTo(otherType.getElementType(), { strict: yes }) # TODO: This may be wrong
+            if @isValueConst and not otherType.isValueConst
+                return false
+            else
+                return not strict and @getElementType().canCastTo(otherType.getElementType(), { strict: yes })
         else
             return false
 
