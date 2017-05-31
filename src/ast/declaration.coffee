@@ -34,7 +34,8 @@ module.exports = @
         { specifiers, type }
 
     findId = (declarationAst) ->
-        while declarationAst not instanceof IdDeclaration
+        # Here typedeclaration is for new expressions
+        until declarationAst instanceof IdDeclaration
             declarationAst = declarationAst.child()
 
         { children: [ { children: [ id ] } ] } = declarationAst
@@ -54,26 +55,6 @@ module.exports = @
 
         return { type: PRIMITIVE_TYPES.VOID, instructions }
 
-@ArrayDeclaration = class ArrayDeclaration extends Ast
-    compile: (state, { specifiers, type, id }) ->
-        [ innerDeclarationAst, dimension ] = @children
-
-        if dimension < 0
-            throw Error.ARRAY_SIZE_NEGATIVE.complete('id', id)
-
-        if type is PRIMITIVE_TYPES.VOID
-            throw Error.VOID_ARRAY_DECLARATION.complete('name', id)
-
-        if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_ARRAY
-
-        if type.isArray and not type.size?
-            throw Error.ALL_BOUNDS_EXCEPT_FIRST.complete('id', id)
-
-        type = new Array(dimension, type, { isValueConst: specifiers?.const or (type.isArray and type.isValueConst) })
-
-        innerDeclarationAst.compile state, { type, id }
-
 @IdDeclaration = class IdDeclaration extends Ast
     compile: (state, { specifiers, type, id }) ->
         if type is PRIMITIVE_TYPES.VOID
@@ -90,6 +71,36 @@ module.exports = @
             state.defineVariable(new Variable id, type, { specifiers })
 
         { instructions: [], id }
+
+@ArrayDeclaration = class ArrayDeclaration extends Ast
+    compile: (state, { specifiers, type, id }) ->
+        [ innerDeclarationAst, dimensionAst ] = @children
+
+        if dimensionAst?
+            { staticValue: dimension, type: dimensionType } = dimensionAst.compile state
+
+            unless dimension?
+                throw Error.STATIC_SIZE_ARRAY.complete('id', id)
+
+            unless dimensionType.isIntegral
+                throw Error.NONINTEGRAL_DIMENSION.complete('id', id, 'type', dimensionType.getSymbol())
+
+            if dimension < 0
+                throw Error.ARRAY_SIZE_NEGATIVE.complete('id', id)
+
+        if type is PRIMITIVE_TYPES.VOID
+            throw Error.VOID_ARRAY_DECLARATION.complete('name', id)
+
+        if type is PRIMITIVE_TYPES.STRING
+            throw Error.STRING_ARRAY
+
+        if type.isArray and not type.size?
+            throw Error.ALL_BOUNDS_EXCEPT_FIRST.complete('id', id)
+
+        # TODO: Should check that the size is below the implementation limit
+        type = new Array(dimension, type, { isValueConst: specifiers?.const or (type.isArray and type.isValueConst) })
+
+        innerDeclarationAst.compile state, { type, id }
 
 @PointerDeclaration = class PointerDeclaration extends Ast
     compile: (state, { specifiers, type, id }) ->

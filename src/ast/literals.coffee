@@ -20,7 +20,7 @@ module.exports = @
 
         @setChild 0, @type.tipify(@parse s)
 
-        { @type, instructions: [], result: this, exprType: EXPR_TYPES.RVALUE }
+        { @type, instructions: [], result: this, exprType: EXPR_TYPES.RVALUE, staticValue: @child() }
 
     read: -> @child()
 

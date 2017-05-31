@@ -113,6 +113,9 @@ lexRules = [
 
     r /#/,                                       '#'
 
+    r /new\b/,                                   'NEW'
+    r /delete\b/,                                'DELETE'
+
     r /return\b/,                                'RETURN'
 
     r /cin\b/,                                   'CIN'
@@ -163,7 +166,7 @@ operators = [
     [ 'right',   'THEN', 'ELSE' ],
     [ 'left',    '[' ],
     [ 'nonassoc', '++', '--' ]
-    [ 'right',   '!', 'u+', 'u-', 'deref', 'ref' ],
+    [ 'right',   '!', 'u+', 'u-', 'deref', 'ref', 'NEW', 'DELETE' ],
     [ 'left',    '*', '/', '%' ],
     [ 'left',    '+', '-' ],
     [ 'left',    '>>', '<<' ],
@@ -173,6 +176,8 @@ operators = [
     [ 'left',    '||' ],
     [ 'right',   '+=', '-=', '*=', '/=', '%=', '=' ]
     [ 'left', 'CIN' ]
+    [ 'right', 'type_decl' ] # In order to avoid conflicts such as: new int * i, which should be (new int *) i and not (new int)*i
+
 ]
 
 # Grammatical Rules
@@ -361,8 +366,25 @@ bnf =
             o '( decl_var_reference )',                                           -> $2
         ]
 
+        nonpointer_type_decl: [
+            o 'dimension',                                                        -> new NewArrayDeclaration(new NewDeclaration, $1)
+            o 'nonpointer_type_decl dimension',                                   -> new NewArrayDeclaration $1, $2
+        ]
+
+        type_decl_imm: [
+            o '',                                                                 (-> new NewDeclaration), prec: "type_decl"
+            o 'nonpointer_type_decl',                                             (-> $1), prec: "type_decl"
+            o '* type_decl_imm',                                                  -> new NewPointerDeclaration $2
+            o '* CONST type_decl_imm',                                            -> new NewPointerDeclaration(new NewConstDeclaration($3))
+        ]
+
+        type_decl: [
+            o 'type_decl_imm',                                                    -> $1
+            o '( type_decl_imm )',                                                -> $2
+        ]
+
         dimension: [
-            o '[ INT_LIT ]',                                                      -> $2
+            o '[ expr ]',                                                         -> $2
             o '[ ]',                                                              -> null
         ]
 
@@ -404,6 +426,16 @@ bnf =
             o 'NULLPTR',                                                          -> new NullPtr
         ]
 
+        new_expr: [
+            o 'NEW type type_decl',                                               -> new New $2, $3
+            o 'NEW ( type type_decl )',                                           -> new New $3, $4
+        ]
+
+        delete_expr: [
+            o 'DELETE [] expr',                                                   -> new Delete $1, $2
+            o 'DELETE expr',                                                      -> new Delete $1
+        ]
+
         expr: [
             o 'expr + expr',                                                      -> new Add $1, $3
             o 'expr - expr',                                                      -> new Sub $1, $3
@@ -439,6 +471,8 @@ bnf =
             o 'expr ++',                                                          -> new PostInc $1
             o 'expr --',                                                          -> new PostDec $1
             o 'cin'
+            o 'new_expr'
+            o 'delete_expr'
         ]
 
         id: [
