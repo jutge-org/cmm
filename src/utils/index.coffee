@@ -60,3 +60,5 @@ module.exports = @
         s + padding
     else
         padding + s
+
+@alignTo = (address, bytes) -> (((address/bytes) | 0) + ((address&(bytes-1)) isnt 0))*bytes

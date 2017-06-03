@@ -54,7 +54,7 @@ module.exports = @
         vm.pointers.temporaries = temporariesOffset
         vm.pointers.instruction = instruction
 
-        vm.finished = vm.func.id is MAIN_FUNCTION
+        vm.finished or= vm.func.id is MAIN_FUNCTION and vm.controlStack.length is 0
 
         vm.func = func
         vm.pointers.stack -= vm.func.stackSize

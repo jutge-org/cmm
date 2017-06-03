@@ -7,6 +7,21 @@ Error = require '../error'
 ASCII_MAP = (String.fromCharCode(char) for char in [0...128]).join("") + # ASCII
             "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ" # Extended ASCII
 
+digits = (x) ->
+    x = Math.floor x
+    c = 0
+    while x > 0
+        ++c
+        x //= 10
+    c
+
+roundCout = (x) ->
+    d = digits(x)
+    decimalPlacesRounder = 10**(6 - d)
+    x = Math.round(x*decimalPlacesRounder)/decimalPlacesRounder
+
+identity = (x) -> x
+
 class Type extends Ast
     constructor: (@id, {
                     @castings = {}
@@ -31,6 +46,8 @@ class Type extends Ast
         (strict and otherType.id is @id) or (not strict and @castings[otherType.id]?)
 
     instructionsForCast: (otherType, result, memoryReference) -> [ @castingGenerator[otherType.id](result, memoryReference) ]
+
+    requiredAlignment: -> if @bytes is 0 then 1 else @bytes
 
 isVoidPointer = (type) -> type.isPointer and type.getElementType() is PRIMITIVE_TYPES.VOID
 isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isValueConst
@@ -76,7 +93,11 @@ isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isV
         else
             return false
 
-    instructionsForCast: (otherType, result, memoryReference) -> []
+    instructionsForCast: (otherType, result, memoryReference) ->
+        if result isnt memoryReference
+            [ new Casting identity, result, memoryReference ]
+        else
+            []
 
 class NullPtr extends Type
     constructor: ->
@@ -86,7 +107,11 @@ class NullPtr extends Type
 
     canCastTo: (otherType) -> otherType.isPointer
 
-    instructionsForCast: -> []
+    instructionsForCast: (otherType, result, memoryReference) ->
+        if result isnt memoryReference
+            [ new Casting identity, result, memoryReference ]
+        else
+            []
 
 @Array = class Array extends Type
     constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
@@ -119,9 +144,17 @@ class NullPtr extends Type
             return false
 
 
-    instructionsForCast: (otherType, result, memoryReference) -> [ ]
+    instructionsForCast: (otherType, result, memoryReference) -> []
 
     getElementType: -> @elementType
+
+    getBaseElementType: ->
+        elementType = @getElementType()
+        while elementType.isArray
+            elementType = elementType.getElementType()
+        elementType
+
+    requiredAlignment: -> @getBaseElementType().requiredAlignment()
 
     isArray: yes
 
@@ -134,21 +167,6 @@ class NullPtr extends Type
     getSymbol: -> "#{@returnType}(#{(argType for argType in @argTypes).join(', ') })"
 
     isFunction: yes
-
-digits = (x) ->
-    x = Math.floor x
-    c = 0
-    while x > 0
-        ++c
-        x //= 10
-    c
-
-roundCout = (x) ->
-    d = digits(x)
-    decimalPlacesRounder = 10**(6 - d)
-    x = Math.round(x*decimalPlacesRounder)/decimalPlacesRounder
-
-identity = (x) -> x
 
 
 @EXPR_TYPES = {
@@ -261,7 +279,6 @@ class Casting extends Ast
 
         dest.write(memory, @cast(src.read(memory)))
 
-        yes
 
 for typeId, type of PRIMITIVE_TYPES
     type.castingGenerator = {}
@@ -280,7 +297,9 @@ for typeId, type of PRIMITIVE_TYPES
         if actualType.canCastTo(expectedType)
             state.releaseTemporaries memoryReference if releaseReference
             result = onReference ? state.getTemporary expectedType
-            { instructions: actualType.instructionsForCast(expectedType, result, memoryReference), result }
+            instructions = actualType.instructionsForCast(expectedType, result, memoryReference)
+
+            { instructions, result }
         else
             throw Error.INVALID_CAST.complete('origin', actualType.getSymbol(), 'dest', expectedType.getSymbol())
     else

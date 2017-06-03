@@ -10,6 +10,8 @@ CODE = "code.cc"
 INPUT = "input.txt"
 OUTPUT = "output.txt"
 
+memory = new cmm.Memory
+
 # Helpers
 readFile = (filePath) -> fs.readFileSync(filePath, 'utf-8')
 printSeparator = -> console.log "-------------------------------------"
@@ -44,6 +46,8 @@ runTest = (testSetName, testName, testPath) ->
         { program, ast } = cmm.compile code
     catch error
         return # Probably not valid code for C--
+
+    program.attachMemory memory
 
     try
         { output } =  cmm.runSync program, input

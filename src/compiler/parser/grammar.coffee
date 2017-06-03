@@ -216,7 +216,7 @@ bnf =
         ]
 
         function: [
-            o 'declaration_specifier_seq id ( arg_seq ) { block_instr }',         -> new Function $1,$2,$4,$7
+            o 'type_specifier_seq id ( arg_seq ) { block_instr }',         -> new Function $1,$2,$4,$7
         ]
 
         arg_seq: [
@@ -226,11 +226,12 @@ bnf =
         ]
 
         arg: [
-            o 'declaration_specifier_seq decl_var_reference',                     -> new FuncArg $1, $2
+            o 'type_specifier_seq decl_var_reference',                     -> new FuncArg $1, $2
         ]
 
         block_instr: [
             o 'block_instr instruction',                                          -> $$.addChild $2
+            o 'block_instr { block_instr }',                                      -> $$.addChild new ScopedList($3)
             o '',                                                                 -> new List
         ]
 
@@ -338,15 +339,15 @@ bnf =
         ###
 
         declaration: [
-            o 'declaration_specifier_seq declaration_body',                       -> new DeclarationGroup $1, $2
+            o 'type_specifier_seq declaration_body',                       -> new DeclarationGroup $1, $2
         ]
         
-        declaration_specifier_seq: [
-            o 'declaration_specifier_seq declaration_specifier',                  -> $$.push $2
-            o 'declaration_specifier',                                            -> [$1]
+        type_specifier_seq: [
+            o 'type_specifier_seq type_specifier',                  -> $$.push $2
+            o 'type_specifier',                                            -> [$1]
         ]
         
-        declaration_specifier: [
+        type_specifier: [
             o 'CONST'
             o 'type'
         ]
@@ -367,7 +368,7 @@ bnf =
         ]
 
         nonpointer_type_decl: [
-            o 'dimension',                                                        -> new NewArrayDeclaration(new NewDeclaration, $1)
+            o 'nonnull_dimension',                                                -> new NewArrayDeclaration(new NewDeclaration, $1)
             o 'nonpointer_type_decl dimension',                                   -> new NewArrayDeclaration $1, $2
         ]
 
@@ -375,7 +376,7 @@ bnf =
             o '',                                                                 (-> new NewDeclaration), prec: "type_decl"
             o 'nonpointer_type_decl',                                             (-> $1), prec: "type_decl"
             o '* type_decl_imm',                                                  -> new NewPointerDeclaration $2
-            o '* CONST type_decl_imm',                                            -> new NewPointerDeclaration(new NewConstDeclaration($3))
+            o '* CONST type_decl_imm',                                            -> new NewPointerDeclaration(new ConstDeclaration($3))
         ]
 
         type_decl: [
@@ -386,6 +387,10 @@ bnf =
         dimension: [
             o '[ expr ]',                                                         -> $2
             o '[ ]',                                                              -> null
+        ]
+
+        nonnull_dimension: [
+            o '[ expr ]',                                                         -> $2
         ]
 
         ###
@@ -427,13 +432,13 @@ bnf =
         ]
 
         new_expr: [
-            o 'NEW type type_decl',                                               -> new New $2, $3
-            o 'NEW ( type type_decl )',                                           -> new New $3, $4
+            o 'NEW type_specifier_seq type_decl',                                 -> new New $2, $3
+            o 'NEW ( type_specifier_seq type_decl )',                             -> new New $3, $4
         ]
 
         delete_expr: [
-            o 'DELETE [] expr',                                                   -> new Delete $1, $2
-            o 'DELETE expr',                                                      -> new Delete $1
+            o 'DELETE [ ] expr',                                                   -> new Delete $2, $4
+            o 'DELETE expr',                                                      -> new Delete $2
         ]
 
         expr: [

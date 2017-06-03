@@ -11,3 +11,5 @@ module.exports = @
             console.log funcId + ":"
             for instruction in func.instructions
                 console.log instruction.toString().split("\n").map((x) -> "    " + x).join("\n")
+
+    attachMemory: (@memory) ->

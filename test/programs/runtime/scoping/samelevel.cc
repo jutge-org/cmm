@@ -23,6 +23,11 @@ int main() {
         cout << y << endl;
     }
 
+    {
+        int y = 25;
+        cout << y << endl;
+    }
+
 
     if (true) {
         int y = 7;

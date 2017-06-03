@@ -3,6 +3,8 @@ assert = require 'assert'
 utils = require '../../utils'
 Error = require '../../error'
 { MemoryReference } = require '../../ast/memory-reference'
+{ alignTo } = require '../../utils'
+{ Memory } = require '../../runtime/memory'
 
 module.exports = @
 
@@ -34,6 +36,7 @@ module.exports = @
         assert not @functionId?
         assert @scopeLevel is 0
 
+        @maxTmpSize = 0
         @defineVariable func, Error.FUNCTION_REDEFINITION.complete('name', func.id)
         @addressOffsetCopy = @addressOffset
         @addressOffset = 0
@@ -45,7 +48,14 @@ module.exports = @
     endFunction: ->
         assert @functionId?
 
-        @variables[@functionId][0].stackSize = @addressOffset
+        stackSize = alignTo(@addressOffset, 16)
+
+        if stackSize > Memory.SIZES.stack
+            throw Error.MAX_STACK_SIZE_EXCEEDED.complete('id', @functionId, 'size', stackSize, 'limit', Memory.SIZES.stack)
+
+        @variables[@functionId][0].stackSize = alignTo(@addressOffset, 16)
+        @variables[@functionId][0].maxTmpSize = @maxTmpSize
+
         @addressOffset = @addressOffsetCopy
         delete @functionId
 
@@ -68,8 +78,12 @@ module.exports = @
             @variables[id] = {}
 
         if variable.type.isReferenceable
-            variable.memoryReference = MemoryReference.from(variable.type, @addressOffset, if @scopeLevel > 0 then 1 else 0)
-            @addressOffset += variable.type.bytes
+            requiredAlignment = variable.type.requiredAlignment()
+
+            desiredAddressOffset = alignTo(@addressOffset, requiredAlignment)
+
+            variable.memoryReference = MemoryReference.from(variable.type, desiredAddressOffset, if @scopeLevel > 0 then 1 else 0)
+            @addressOffset = desiredAddressOffset + variable.type.bytes
 
         @variables[id][@scopeLevel] = variable
 
@@ -92,17 +106,23 @@ module.exports = @
 
     getTemporary: (type) ->
         #console.log "Get #{type.bytes}"
-        ret = MemoryReference.from(type, @temporaryAddressOffset, MemoryReference.TMP)
-        @temporaryAddressOffset += type.bytes # TODO: Check that it doesn't go over 4096
+        desiredAddressOffset = alignTo(@temporaryAddressOffset, type.requiredAlignment())
+        previousOffset = @temporaryAddressOffset
+        @temporaryAddressOffset = desiredAddressOffset + type.bytes
+        @maxTmpSize = Math.max(@temporaryAddressOffset, @maxTmpSize)
+
+        if @temporaryAddressOffset > Memory.SIZES.tmp
+            throw Error.TEMPORARY_ADDRESS_LIMIT
+
+        ret = MemoryReference.from(type, desiredAddressOffset, MemoryReference.TMP, @temporaryAddressOffset - previousOffset)
         ret
 
     # HACK: This assumes that the released temporary is the one that was last requested
     releaseTemporaries: (references...) ->
-
         for reference in references
             if reference.isTemporary
                 #console.log "Release #{reference.getType().bytes}, on #{reference.getAddress()}"
-                @temporaryAddressOffset -= reference.getType().bytes
+                @temporaryAddressOffset -= reference.getOccupation()
                 assert @temporaryAddressOffset >= 0
 
     iAmInsideFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions

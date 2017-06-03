@@ -1,11 +1,14 @@
 assert = require 'assert'
+Allocator = require 'malloc'
 
 { IO } = require './io'
-
 { Program: { ENTRY_FUNCTION } } = require '../compiler/program'
 { Memory } = require './memory'
 { MemoryReference } = require '../ast/memory-reference'
-{ PRIMITIVE_TYPES } = require '../ast/type'
+{ PRIMITIVE_TYPES, Pointer } = require '../ast/type'
+utils = require '../utils'
+
+CmmError = require '../error'
 
 module.exports = @
 
@@ -20,7 +23,15 @@ class VM
         @io = new IO
         @io.setInput IO.STDIN, input if input?
 
-        @memory = new Memory @pointers
+        @memory = program.memory ? new Memory
+        @memory.setPointers @pointers
+
+        @allocator = new Allocator @memory.heapBuffer
+
+        @allocatedPointers = {}
+
+        if program.globalsSize > 0
+            @staticHeapAddress = @allocator.calloc(program.globalsSize)
 
         @controlStack = []
 
@@ -40,12 +51,45 @@ class VM
         @stderr = @io.getStream IO.STDERR
         @output = @io.getStream IO.INTERLEAVED
 
+        @allocator.free(@staticHeapAddress) if @staticHeapAddress?
+
     executionError: (error) ->
         @finished = yes
         @io.output(IO.STDERR, error.message)
         @status = error.code
 
     input: (string) -> @io.setInput(IO.STDIN, string)
+
+    alloc: (size) ->
+        try
+            initialPointer = @allocator.calloc(size)
+
+            throw new Error() if initialPointer is 0
+            pointer = new Pointer(PRIMITIVE_TYPES.VOID).tipify(initialPointer | 0x80000000) # Add heap mark
+            @allocatedPointers[pointer] = yes
+        catch error
+            @executionError CmmError.CANNOT_ALLOCATE.complete("size", size)
+
+        pointer
+
+
+    free: (offset) ->
+        error = not @allocatedPointers[offset]?
+
+        offsetMalloc = offset&0x7FFFFFFF # Remove heap mark
+
+        unless error
+            try
+                result = @allocator.free(offsetMalloc)
+            catch err
+                error = yes
+
+        if error
+            @executionError CmmError.INVALID_FREE_POINTER.complete('pointer', "0x" + utils.pad(offset.toString(16), '0', 8))
+
+        delete @allocatedPointers[offset]
+
+        result
 
 @run = (program, input) ->
     vm = new VM program, input

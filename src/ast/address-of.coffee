@@ -23,7 +23,7 @@ module.exports = @
 
         result = state.getTemporary type
 
-        instructions = [ valueInstructions..., new AddressOf result, valueResult ]
+        instructions = [ valueInstructions..., new AddressOf(result, valueResult) ]
 
         { instructions, result, type, exprType: EXPR_TYPES.RVALUE }
 

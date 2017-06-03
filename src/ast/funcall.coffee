@@ -1,8 +1,14 @@
+assert = require 'assert'
+
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
 Error = require '../error'
 { MemoryReference, StackReference } = require './memory-reference'
 { Assign } = require './assign'
+{ alignTo } = require '../utils'
+{ Memory } = require '../runtime/memory'
+
+CALL_DEPTH_LIMIT = 20000000
 
 module.exports = @
 
@@ -40,8 +46,9 @@ module.exports = @
         offset = 0
         for paramPushResult in paramPushResults
             state.releaseTemporaries paramPushResult
-            instructions.push new ParamPush paramPushResult, offset
-            offset += paramPushResult.getType().bytes
+            desiredOffset = alignTo(offset, paramPushResult.getType().requiredAlignment())
+            instructions.push new ParamPush paramPushResult, desiredOffset
+            offset = desiredOffset + paramPushResult.getType().bytes
 
     
         # Need to copy the temporaries that are currently being used because otherwise
@@ -69,7 +76,17 @@ module.exports = @
         vm.controlStack.push { func: vm.func, instruction: vm.pointers.instruction, temporariesOffset: vm.pointers.temporaries }
 
         vm.pointers.temporaries += temporaryOffset
+
+        unless vm.pointers.temporaries + vm.func.maxTmpSize <= Memory.SIZES.tmp
+            vm.executionError Error.TEMPORARIES_OVERFLOW.complete('id', funcId)
+
         vm.pointers.stack += vm.func.stackSize
+
+        unless vm.pointers.stack + vm.func.stackSize <= Memory.SIZES.stack and vm.controlStack.length < CALL_DEPTH_LIMIT
+            vm.executionError Error.STACK_OVERFLOW.complete('id', funcId)
+
+        assert (vm.pointers.stack&(16-1)) is 0
+
         vm.pointers.instruction = -1 # It will be incremented after the funcall instruction is executed
 
         vm.func = vm.functions[funcId]

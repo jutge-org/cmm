@@ -4,6 +4,8 @@ assert = require 'assert'
 
 cmm = require '../../'
 
+memory = new cmm.Memory
+
 testio = (code, expectedCompilationError, expectedStatus, input = "", expectedOutput) ->
     try
         { program } = cmm.compile code
@@ -18,6 +20,7 @@ testio = (code, expectedCompilationError, expectedStatus, input = "", expectedOu
     if compilationErrorCode isnt 0
         return
 
+    program.attachMemory memory
 
     { output, status } = cmm.runSync(program, input)
 
@@ -73,7 +76,7 @@ testFolder = (cPath) ->
         inputs = []
         outputs = []
 
-        @timeout(500)
+        @timeout(5000)
 
         for element in fs.readdirSync(cPath)
             fPath = path.join(cPath, element)

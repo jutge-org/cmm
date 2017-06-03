@@ -12,7 +12,10 @@ module.exports = @
 
         { type: destType, result: destReference, exprType, lvalueId, instructions: destInstructions, isConst } = destAst.compile state
 
-        { instructions: castInstructions, result } = ensureType valueReference, valueType, destType, state, { onReference: destReference }
+        { instructions: castInstructions, result } = ensureType valueReference, valueType, destType, state, { onReference: destReference, releaseReference: no }
+
+        if valueType is PRIMITIVE_TYPES.VOID
+            throw VOID_NOT_IGNORED
 
         unless exprType is EXPR_TYPES.LVALUE
             throw Error.LVALUE_ASSIGN
@@ -26,7 +29,7 @@ module.exports = @
         if not isFromDeclaration and isConst
             throw Error.CONST_MODIFICATION.complete("name", lvalueId)
 
-        state.releaseTemporaries destReference
+        state.releaseTemporaries valueReference
 
         instructions = [ valueInstructions..., destInstructions..., castInstructions... ]
 
@@ -46,5 +49,6 @@ module.exports = @
     execute: ({ memory }) ->
         [ dest, src ] = @children
         dest.write(memory, src.read(memory))
+
 
 

@@ -1,11 +1,12 @@
 assert = require 'assert'
+Allocator = require 'malloc'
 
 { Ast } = require './ast'
 { PRIMITIVE_TYPES } = require './type'
 
 module.exports = @
 
-MALLOC_HEADER_SIZE = 272 # Needed for the malloc library
+@MALLOC_HEADER_SIZE = MALLOC_HEADER_SIZE = (new Allocator(new ArrayBuffer(1024)).alloc(4)) # Needed for the malloc library
 HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
 @MemoryReference = class MemoryReference extends Ast
@@ -23,14 +24,14 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
         super type, address
 
-    @from: (type, value, store) ->
+    @from: (type, value, store, occupation) ->
         if type is PRIMITIVE_TYPES.STRING
             new StringReference value
         else
             switch store
                 when @HEAP then new HeapReference(type, value)
                 when @STACK then new StackReference(type, value)
-                when @TMP then new TmpReference(type, value)
+                when @TMP then new TmpReference(type, value, occupation)
                 when @RETURN then new ReturnReference(type)
                 else assert false
 
@@ -60,6 +61,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     read: (memory) ->
         address = @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
         memory[address >>> 31][@get](address & 0x7FFFFFFF)
+
     write: (memory, value) ->
         address = @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
         memory[address >>> 31][@set](address & 0x7FFFFFFF, value)
@@ -72,17 +74,22 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
 @StackReference = class StackReference extends MemoryReference
     read: (memory) -> memory[@address >>> 31][@get]((@address & 0x7FFFFFFF) + memory.pointers.stack)
-    write: (memory, value) -> memory[@address >>> 31][@set]((@address & 0x7FFFFFFF) + memory.pointers.stack, value)
+    write: (memory, value) ->
+        memory[@address >>> 31][@set]((@address & 0x7FFFFFFF) + memory.pointers.stack, value)
 
 @HeapReference = class HeapReference extends MemoryReference
     constructor: (type, address) ->
         super type, address + HEAP_INITIAL_ADDRESS
 
 @TmpReference = class TmpReference extends MemoryReference
+    constructor: (type, address, @occupation) -> super type, address
+
     isTemporary: true
 
     read: (memory) -> memory.tmp[@get](@address + memory.pointers.temporaries)
     write: (memory, value) -> memory.tmp[@set](@address + memory.pointers.temporaries, value)
+
+    getOccupation: -> @occupation
 
 @StringReference = class StringReference extends Ast
     constructor: (string) -> super string

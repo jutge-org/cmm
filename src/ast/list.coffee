@@ -12,3 +12,13 @@ module.exports = @
 
 
         { instructions }
+
+@ScopedList = class ScopedList extends List
+    compile: (state, args...) ->
+        state.openScope()
+
+        result = super state, args...
+
+        state.closeScope()
+
+        result

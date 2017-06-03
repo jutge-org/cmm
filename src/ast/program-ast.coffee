@@ -7,6 +7,7 @@ Error = require '../error'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Funcall } = require './funcall'
 { Program } = require '../compiler/program'
+{ Memory } = require '../runtime/memory'
 
 module.exports = @
 
@@ -31,6 +32,9 @@ module.exports = @
         { instructions } = topDeclarationList.compile state
 
         { functions, variables, addressOffset: globalsSize } = state
+
+        if globalsSize > Memory.SIZES.heap
+            throw Error.MAX_HEAP_SIZE_EXCEEDED.complete('size', globalsSize, 'limit', Memory.SIZES.heap)
 
         checkMainIsDefined functions
 

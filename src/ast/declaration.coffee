@@ -7,31 +7,32 @@ Error = require '../error'
 
 module.exports = @
 
-@DeclarationGroup = class DeclarationGroup extends Ast
-    getSpecifiers: ->
-        [ specifiersList ] = @children
-        specifiers = {}
+@getSpecifiers = getSpecifiers = (specifiersList) ->
+    specifiers = {}
 
-        for specifier in specifiersList
-            if typeof specifier is "string"
-                name = specifier
-                v = yes
-            else
-                name = "TYPE"
-                v = specifier
-
-            if specifiers[name]?
-                throw Error.DUPLICATE_SPECIFIER.complete('specifier', name)
-            else
-                specifiers[name] = v
-
-        unless specifiers.TYPE?
-            throw Error.NO_TYPE_SPECIFIER
+    for specifier in specifiersList
+        if typeof specifier is "string"
+            name = specifier
+            v = yes
         else
-            type = specifiers.TYPE
-            delete specifiers.TYPE
+            name = "TYPE"
+            v = specifier
 
-        { specifiers, type }
+        if specifiers[name]?
+            throw Error.DUPLICATE_SPECIFIER.complete('specifier', name)
+        else
+            specifiers[name] = v
+
+    unless specifiers.TYPE?
+        throw Error.NO_TYPE_SPECIFIER
+    else
+        type = specifiers.TYPE
+        delete specifiers.TYPE
+
+    { specifiers, type }
+
+@DeclarationGroup = class DeclarationGroup extends Ast
+    getSpecifiers: -> getSpecifiers @children[0]
 
     findId = (declarationAst) ->
         # Here typedeclaration is for new expressions
@@ -79,11 +80,11 @@ module.exports = @
         if dimensionAst?
             { staticValue: dimension, type: dimensionType } = dimensionAst.compile state
 
-            unless dimension?
+            if @checkIsStatic and not dimension?
                 throw Error.STATIC_SIZE_ARRAY.complete('id', id)
 
             unless dimensionType.isIntegral
-                throw Error.NONINTEGRAL_DIMENSION.complete('id', id, 'type', dimensionType.getSymbol())
+                throw Error.NONINTEGRAL_DIMENSION.complete('type', dimensionType.getSymbol(), 'id', id)
 
             if dimension < 0
                 throw Error.ARRAY_SIZE_NEGATIVE.complete('id', id)
@@ -101,6 +102,7 @@ module.exports = @
         type = new Array(dimension, type, { isValueConst: specifiers?.const or (type.isArray and type.isValueConst) })
 
         innerDeclarationAst.compile state, { type, id }
+
 
 @PointerDeclaration = class PointerDeclaration extends Ast
     compile: (state, { specifiers, type, id }) ->
