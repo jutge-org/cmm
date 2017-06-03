@@ -80,7 +80,7 @@ module.exports = @
         if dimensionAst?
             { staticValue: dimension, type: dimensionType } = dimensionAst.compile state
 
-            if @checkIsStatic and not dimension?
+            unless dimension?
                 throw Error.STATIC_SIZE_ARRAY.complete('id', id)
 
             unless dimensionType.isIntegral
