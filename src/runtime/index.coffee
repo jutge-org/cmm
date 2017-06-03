@@ -28,7 +28,9 @@ class VM
 
         @allocator = new Allocator @memory.heapBuffer
 
-        @allocatedPointers = {}
+        @allocatedPointers = {} # Turns out the malloc library doesn't always check on whether the pointer being
+                                # free'd was previously allocated, and could lead to a hang on posterior allocations,
+                                # so we need to keep track of it
 
         if program.globalsSize > 0
             @staticHeapAddress = @allocator.calloc(program.globalsSize)
@@ -52,6 +54,9 @@ class VM
         @output = @io.getStream IO.INTERLEAVED
 
         @allocator.free(@staticHeapAddress) if @staticHeapAddress?
+
+        for address of @allocatedPointers
+            @allocator.free address&0x7FFFFFF # TODO: Should warn user of memory leakage
 
     executionError: (error) ->
         @finished = yes

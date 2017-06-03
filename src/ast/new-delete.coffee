@@ -17,7 +17,7 @@ module.exports = @
 
         { instructions, result, type } = pointerAst.compile state
 
-        unless type.isPointer
+        unless type.isPointer or type.isArray
             throw Error.INVALID_DELETE_TYPE.complete("type", type.getSymbol())
 
         { type: PRIMITIVE_TYPES.VOID, instructions: [ instructions..., new Delete(result) ]}

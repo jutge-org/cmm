@@ -40,4 +40,18 @@ int main() {
     cout << x << endl; // INITIAL + 10*4
 
     delete x;
+
+    int n;
+
+    cin >> n;
+
+    double (*arr)[20] = new double[n][20];
+
+    x = new int;
+
+    cout << x << endl; // INITIAL + n*20*8
+
+    delete x;
+
+    delete arr;
 }
