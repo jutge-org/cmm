@@ -17,6 +17,8 @@ module.exports = @
 
         { instructions, result, type } = pointerAst.compile state
 
+        state.releaseTemporaries result
+
         unless type.isPointer or type.isArray
             throw Error.INVALID_DELETE_TYPE.complete("type", type.getSymbol())
 
