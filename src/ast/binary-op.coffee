@@ -106,7 +106,7 @@ class MaybePointerArithmetic extends SimpleArithmetic
 
         instructions = [ ref[ref.left].instructions..., ref[ref.right].instructions..., new @constructor(result, ref[ref.left].result, ref[ref.right].result) ]
 
-        { result, instructions, type, lvalueId: 'unknown', exprType: EXPR_TYPES.LVALUE, isConst }
+        { result, instructions, type, lvalueId: null, exprType: EXPR_TYPES.LVALUE, isConst }
 
 
 @Add = class Add extends MaybePointerArithmetic

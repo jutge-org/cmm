@@ -20,7 +20,7 @@ class CmmError extends Error
             unless isLiteral
                 bracedPlaceHolder =  "<<#{placeHolder}>>"
                 index = ret.message.indexOf bracedPlaceHolder
-                text = " '#{text}'"
+                text = if text? then " '#{text}'" else " "
 
             assert index >= 0
             assert text?
