@@ -471,7 +471,7 @@ bnf =
             o '* expr',                                                          (-> new Dereference $2), prec: "deref"
             o 'funcall'
             o 'id'
-            o 'expr accessor',                                                    -> new Dereference(new Add($1, $2))
+            o 'expr accessor',                                                    -> new ArraySubscript($1, $2)
             o '( expr )',                                                         -> $2
             o 'literal'
             o 'expr ++',                                                          -> new PostInc $1
