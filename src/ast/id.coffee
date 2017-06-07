@@ -15,7 +15,7 @@ module.exports = @
             throw Error.REF_VARIABLE_NOT_DEFINED.complete('name', id)
 
         if variable.type.isArray
-            result = state.getTemporary new Pointer(variable.type.getElementType())
+            result = state.getTemporary variable.type.getPointerType()
             instructions = [ new AddressOf result, variable.memoryReference ]
         else
             result = variable.memoryReference

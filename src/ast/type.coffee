@@ -52,6 +52,40 @@ class Type extends Ast
 isVoidPointer = (type) -> type.isPointer and type.getElementType() is PRIMITIVE_TYPES.VOID
 isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isValueConst
 
+
+@Reference = class Reference extends Type
+    constructor: (@elementType, { @isValueConst = no }) ->
+        super 'REFERENCE', {
+
+        }
+
+    getSymbol: ->
+        if @isValueConst
+            "const #{@elementType.getSymbol()}&"
+        else if @elementType.isArray
+            "(&)(#{elementType.getSymbol()})"
+        else
+            "#{elementType.getSymbol()}&"
+
+    isReference: yes
+
+    getElementType: -> @elementType
+
+    ### NOT NECESSARY, A REFERENCE HAS THE TYPE OF ITS ELEMENT
+    canCastTo: (otherType) ->
+        if otherType.isReference
+            return otherType.getElementType().canCastTo(@elementType)
+        else
+            return otherType.canCastTo(@elementType)
+
+
+    instructionsForCast: (otherType, result, memoryReference) ->
+        if result isnt memoryReference
+            [ new Casting identity, result, memoryReference ]
+        else
+            []
+    ###
+
 @Pointer = class Pointer extends Type
     @bytes: 4
 
@@ -124,10 +158,13 @@ class NullPtr extends Type
 
 
     getSymbol: (sizesCarry = []) ->
-        if @elementType.isArray
-            @elementType.getSymbol(sizesCarry.concat([@size]))
-        else
-            "#{@elementType.getSymbol()} #{(('[' + (size ? '') + ']') for size in sizesCarry.concat(@size)).join("")}"
+        main =
+            if @elementType.isArray
+                @elementType.getSymbol(sizesCarry.concat([@size]))
+            else
+                "#{@elementType.getSymbol()} #{(('[' + (size ? '') + ']') for size in sizesCarry.concat(@size)).join("")}"
+
+        (if @isValueConst then "const " else "") + main
 
     canCastTo: (otherType, { strict = no } = {}) ->
         #console.log "#{@getSymbol()} -> #{otherType.getSymbol()}"
@@ -156,7 +193,10 @@ class NullPtr extends Type
 
     requiredAlignment: -> @getBaseElementType().requiredAlignment()
 
+    getPointerType: -> new Pointer(@getElementType(), { @isValueConst })
+
     isArray: yes
+
 
 
 @FunctionType = class FunctionType extends Type

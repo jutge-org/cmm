@@ -29,7 +29,7 @@ module.exports = @
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
-        unless operandType.isNumeric or operandType.isPointer
+        unless operandType.isNumeric or operandType.isPointer or operandType.isArray
             { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.INT, state
             type = PRIMITIVE_TYPES.INT
         else
@@ -46,7 +46,7 @@ module.exports = @
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
-        if operandType.isPointer
+        if operandType.isPointer or operandType.isArray
             throw Error.WRONG_ARGUMENT_UNARY_MINUS
 
         unless operandType.isNumeric

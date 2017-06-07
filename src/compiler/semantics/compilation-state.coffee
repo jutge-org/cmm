@@ -17,6 +17,7 @@ module.exports = @
         @temporaryAddressOffset = 0
         @variablesCopyStack = []
         @insideFunctionArgumentDefinitions = no
+        @insideFunctionReturnDefinition = no
 
     openScope: ->
         variablesCopy = {}
@@ -119,8 +120,16 @@ module.exports = @
 
     # HACK: This assumes that the released temporary is the one that was last requested
     releaseTemporaries: (references...) ->
-        for reference in references
-            if reference.isTemporary
+        #console.log arguments.callee.caller.toString()
+        i = 0
+        while i < references.length
+            reference = references[i++]
+
+            if reference.containsTemporaries?()
+                references = references.concat(reference.getTemporaries())
+
+            if reference.isTemporary and not reference.alreadyReleased
+                reference.alreadyReleased = yes
                 #console.log "Release #{reference.getType().bytes}, on #{reference.getAddress()}"
                 @temporaryAddressOffset -= reference.getOccupation()
                 assert @temporaryAddressOffset >= 0
@@ -130,3 +139,9 @@ module.exports = @
     beginFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions = yes
 
     endFunctionArgumentDefinitions: -> @insideFunctionArgumentDefinitions = no
+
+    iAmInsideFunctionReturnDefinition: -> @insideFunctionReturnDefinition
+
+    beginFunctionReturnDefinition: -> @insideFunctionReturnDefinition = yes
+
+    endFunctionReturnDefinition: -> @insideFunctionReturnDefinition = no

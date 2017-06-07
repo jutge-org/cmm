@@ -66,6 +66,10 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
         address = @baseAddressRef.read(memory) + @indexAddressRef.read(memory)*@elementBytes
         memory[address >>> 31][@set](address & 0x7FFFFFFF, value)
 
+    containsTemporaries: -> @baseAddressRef.isTemporary or @indexAddressRef.isTemporary
+
+    getTemporaries: -> [ @baseAddressRef, @indexAddressRef ]
+
 @ReturnReference = class ReturnReference extends MemoryReference
     constructor: (type) -> super type, 0
 
@@ -73,9 +77,10 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     write: (memory, value) -> memory.return[@set](0, value)
 
 @StackReference = class StackReference extends MemoryReference
-    read: (memory) -> memory[@address >>> 31][@get]((@address & 0x7FFFFFFF) + memory.pointers.stack)
-    write: (memory, value) ->
-        memory[@address >>> 31][@set]((@address & 0x7FFFFFFF) + memory.pointers.stack, value)
+    read: (memory) -> memory.stack[@get](@address + memory.pointers.stack)
+    write: (memory, value) -> memory.stack[@set](@address + memory.pointers.stack, value)
+
+    getAddress: (memory) -> @address + memory.pointers.stack
 
 @HeapReference = class HeapReference extends MemoryReference
     constructor: (type, address) ->

@@ -31,5 +31,5 @@ module.exports = @
     execute: ({ memory }) ->
         [ destReference, reference ] = @children
 
-        destReference.write(memory, reference.getAddress())
+        destReference.write(memory, reference.getAddress(memory))
 

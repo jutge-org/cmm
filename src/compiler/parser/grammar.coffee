@@ -215,8 +215,8 @@ bnf =
             o 'USING NAMESPACE STD ;',                                            ->
         ]
 
-        function: [
-            o 'type_specifier_seq id ( arg_seq ) { block_instr }',         -> new Function $1,$2,$4,$7
+        function: [ # TODO: Pointer and reference return!
+            o 'type_specifier_seq decl_var_reference ( arg_seq ) { block_instr }',  -> new Function new DeclarationGroup($1, [$2]),$4,$7
         ]
 
         arg_seq: [
@@ -226,7 +226,7 @@ bnf =
         ]
 
         arg: [
-            o 'type_specifier_seq decl_var_reference',                     -> new FuncArg $1, $2
+            o 'type_specifier_seq decl_var_reference',                            -> new FuncArg $1, $2
         ]
 
         block_instr: [
@@ -364,6 +364,7 @@ bnf =
             o 'decl_var_reference dimension',                                     -> new ArrayDeclaration $1, $2
             o '* decl_var_reference',                                            (-> new PointerDeclaration $2), prec: "deref"
             o '* CONST decl_var_reference',                                      (-> new PointerDeclaration(new ConstDeclaration($3))), prec: "deref"
+            o '& decl_var_reference',                                            (-> new ReferenceDeclaration $2), prec: "ref"
             o '( decl_var_reference )',                                           -> $2
         ]
 
@@ -470,7 +471,7 @@ bnf =
             o '* expr',                                                          (-> new Dereference $2), prec: "deref"
             o 'funcall'
             o 'id'
-            o 'expr accessor',                                                    -> new ArraySubscript $1, $2
+            o 'expr accessor',                                                    -> new Dereference(new Add($1, $2))
             o '( expr )',                                                         -> $2
             o 'literal'
             o 'expr ++',                                                          -> new PostInc $1

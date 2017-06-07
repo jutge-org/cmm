@@ -20,7 +20,7 @@ invalidOperands = (left, right) ->
     compile: (state) ->
         [ left, right ] = @children.map((x) -> x.compile(state))
 
-        if left.type.isPointer or right.type.isPointer
+        if left.type.isPointer or right.type.isPointer or left.type.isArray or right.type.isArray
             return @pointerCase(left, right, state)
 
         operands = [ left, right ]
@@ -31,6 +31,7 @@ invalidOperands = (left, right) ->
             state.releaseTemporaries left.result
         unless right.result is results[1]
             state.releaseTemporaries right.result
+
 
         state.releaseTemporaries(results...)
 
@@ -74,7 +75,7 @@ class SimpleArithmetic extends Arithmetic
 class MaybePointerArithmetic extends SimpleArithmetic
     pointerCase: (left, right, state) ->
         ref =
-            if left.type.isPointer
+            if left.type.isPointer or left.type.isArray
                 { pointer: left, left: 'pointer', nonPointer: right, right: 'nonPointer'}
             else
                 { pointer: right, left: 'nonPointer', nonPointer: left, right: 'pointer'}
@@ -93,11 +94,19 @@ class MaybePointerArithmetic extends SimpleArithmetic
 
         state.releaseTemporaries ref[ref.left].result, ref[ref.right].result
 
-        result = state.getTemporary ref.pointer.type
+        type =
+            if ref.pointer.type.isArray
+                ref.pointer.type.getPointerType()
+            else
+                ref.pointer.type
+
+        isConst = type.isValueConst
+
+        result = state.getTemporary type
 
         instructions = [ ref[ref.left].instructions..., ref[ref.right].instructions..., new @constructor(result, ref[ref.left].result, ref[ref.right].result) ]
 
-        { result, instructions, type: ref.pointer.type, lvalueId: 'unknown', exprType: EXPR_TYPES.LVALUE }
+        { result, instructions, type, lvalueId: 'unknown', exprType: EXPR_TYPES.LVALUE, isConst }
 
 
 @Add = class Add extends MaybePointerArithmetic

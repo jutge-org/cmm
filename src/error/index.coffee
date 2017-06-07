@@ -55,6 +55,7 @@ c "LVALUE_ASSIGN", 190, "lvalue required as left operand of assignment"
 c "ASSIGN_TO_ARRAY", 191, "invalid array assignment"
 c "INVALID_ARRAY_SUBSCRIPT", 192, "invalid types '<<<type>>>[<<<typeSubscript>>>]' for array subscript"
 c "LVALUE_CIN", 193, "lvalue required as operand of cin"
+c "ARRAY_OF_FUNCTION", 194, "Declaration of<<id>> as array of functions" # Functions cannot return arrayts
 
 
 c "INVALID_OPERANDS", 194, "Invalid operands<<typel>> and<<typer>> to operation"
@@ -64,9 +65,10 @@ c "WRONG_ARGUMENT_UNARY_MINUS", 195, "Wrong type argument to unary minus"
 c "NO_RETURN_TYPE", 21, "Function<<function>> declared with no return type"
 
 c "VOID_DECLARATION", 30, "Variable or field<<name>> declared void"
-c "VOID_ARRAY_DECLARATION", 31, "Declaration of<<name>> as array of void"
+c "ARRAY_DECLARATION", 31, "Cannot declare<<name>> as array of<<type>>"
 c "VOID_NOT_IGNORED", 32, "Void value not ignored as it ought to be"
-
+c "REFERENCE_TO", 34, "Cannot declare<<id>> as reference to<<type>>"
+c "POINTER_TO", 35, "Cannot declare<<id>> as pointer to<<type>>"
 
 c "INVALID_CAST", 20, "Cannot cast type<<origin>> to type<<dest>>"
 
@@ -112,6 +114,9 @@ c "UNINITIALIZED_CONST_NEW", 102, "Uninitialized const in 'new'"
 c "NEW_ARRAY_SIZE_CONSTANT", 103, "Array size in new-expression must be constant"
 
 c "INVALID_DELETE_TYPE", 104, "type<<type>> argument given to 'delete', expected pointer"
+
+c "UNINITIALIZED_REFEFENCE", 111, "'<<<id>>>' declared as reference but not initialized"
+
 
 c "STRING_POINTER", 201, "String pointers are not supported"
 c "STRING_ARRAY", 202, "String arrays are not supported"

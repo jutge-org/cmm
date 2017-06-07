@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES, FunctionType } = require './type'
+{ PRIMITIVE_TYPES } = require './type'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
 Error = require '../error'
@@ -22,16 +22,12 @@ lastLocations = (locations) ->
 
 @Function = class Function extends Ast
     compile: (state) ->
-        [ returnSpecifiers, { children: [ functionId ] }, argList, instructionList ] = @children
 
-        for specifier in returnSpecifiers
-            if typeof specifier isnt "string"
-                returnType = specifier
+        [ declaration, argList, instructionList ] = @children
 
-        unless returnType
-            throw Error.NO_RETURN_TYPE.complete("function", functionId)
-
-        state.newFunction(new FunctionVar(functionId, new FunctionType(returnType)))
+        state.beginFunctionReturnDefinition()
+        declaration.compile(state)
+        state.endFunctionReturnDefinition()
 
         state.beginFunctionArgumentDefinitions() # Array declaration checks are different (first dimension can be ommited)
         argList.compile state
@@ -39,7 +35,9 @@ lastLocations = (locations) ->
         
         { instructions: instructionsBody } = instructionList.compile state
 
-        functionVariable = state.getFunction functionId
+        functionVariable = state.getFunction()
+
+        functionId = functionVariable.id
 
         # Main returns 0 by default
         if functionId is MAIN_FUNCTION
