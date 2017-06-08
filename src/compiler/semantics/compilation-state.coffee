@@ -49,6 +49,8 @@ module.exports = @
     endFunction: ->
         assert @functionId?
 
+        assert @temporaryAddressOffset is 0
+
         stackSize = alignTo(@addressOffset, 16)
 
         if stackSize > Memory.SIZES.stack
