@@ -1,6 +1,6 @@
 /*
 
-    description{Checks that deleting a stack pointer with the same offset as a alloc'd heap pointer still throws an error}
+    description{Checks that deleting a stack pointer with the same offset as an alloc'd heap pointer still throws an error}
     status{142}
 
 */
