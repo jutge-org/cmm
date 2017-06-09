@@ -466,7 +466,7 @@ assert = require 'assert'
 
     ASSIGN_TO_ARRAY:
         code: 5003
-        message: "invalid array assignment"
+        message: "Invalid array assignment"
         description: """
             This error occurs when trying to assign something to an array, instead of one of its elements.
 
