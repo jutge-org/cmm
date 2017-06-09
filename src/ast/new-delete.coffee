@@ -1,7 +1,7 @@
 { PRIMITIVE_TYPES, Pointer, Array } = require './type'
 { Ast } = require './ast'
 { getSpecifiers } = require './declaration'
-{ compilationError, executionError } = require '../messages'
+{ executionError } = require '../messages'
 
 module.exports = @
 
@@ -20,7 +20,7 @@ module.exports = @
         state.releaseTemporaries result
 
         unless type.isPointer or type.isArray
-            compilationError 'INVALID_DELETE_TYPE', "type", type.getSymbol()
+            @compilationError 'INVALID_DELETE_TYPE', "type", type.getSymbol()
 
         { type: PRIMITIVE_TYPES.VOID, instructions: [ instructions..., new Delete(result) ]}
 
@@ -39,10 +39,10 @@ module.exports = @
         { type, specifiers } = getSpecifiers(specifiersList)
 
         if type is PRIMITIVE_TYPES.STRING
-            compilationError 'STRING_ADDRESSING'
+            @compilationError 'STRING_ADDRESSING'
 
         if type is PRIMITIVE_TYPES.VOID
-            compilationError 'VOID_INVALID_USE'
+            @compilationError 'VOID_INVALID_USE'
 
         { instructions: declarationInstructions, type, dimensionResult } = declarationAst.compile state, { specifiers, type }
 
@@ -85,27 +85,27 @@ module.exports = @
 
 
 @NewArrayDeclaration = class NewArrayDeclaration extends Ast
-    compile: (state, { type, specifiers }) ->
+    compile: (state, { type, specifiers, parentAstDimension }) ->
         [ innerDeclarationAst, dimensionAst ] = @children
 
         { staticValue: dimension, type: dimensionType, result: dimensionResult, instructions: dimensionInstructions } =
             dimensionAst.compile state
 
         unless dimensionType.isIntegral
-            compilationError 'NONINTEGRAL_DIMENSION'
+            dimensionAst.compilationError 'NONINTEGRAL_DIMENSION'
 
         if type.isArray and not type.size?
-            compilationError 'NEW_ARRAY_SIZE_CONSTANT'
+            parentAstDimension.compilationError 'NEW_ARRAY_SIZE_CONSTANT'
 
         if dimension? # Is static dimension
             if dimension < 0
-                compilationError 'ARRAY_SIZE_NEGATIVE'
+                dimensionAst.compilationError 'ARRAY_SIZE_NEGATIVE'
         else # Dynamic dimension
             state.releaseTemporaries dimensionResult
 
         type = new Array(dimension, type, { isValueConst: specifiers?.const })
 
-        { instructions: innerInstructions, dimensionResult: secondDimensionResult, type } = innerDeclarationAst.compile(state, { type, specifiers: { const: type.isValueConst } })
+        { instructions: innerInstructions, dimensionResult: secondDimensionResult, type } = innerDeclarationAst.compile(state, { type, specifiers: { const: type.isValueConst }, parentAstDimension: dimensionAst })
 
         { type, instructions: [ dimensionInstructions..., innerInstructions... ], dimensionResult: if dimension? then secondDimensionResult else dimensionResult }
 
@@ -121,6 +121,6 @@ module.exports = @
 @NewDeclaration = class NewDeclaration extends Ast
     compile: (state, { specifiers, type }) ->
         if specifiers?.const
-            compilationError 'UNINITIALIZED_CONST_NEW'
+            @compilationError 'UNINITIALIZED_CONST_NEW'
 
         { instructions: [], type }

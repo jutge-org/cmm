@@ -29,7 +29,7 @@ module.exports = @
             conditionType = PRIMITIVE_TYPES.BOOL
             conditionResult = new BoolLit 1
 
-        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, PRIMITIVE_TYPES.BOOL, state
+        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, PRIMITIVE_TYPES.BOOL, state, this
 
         state.releaseTemporaries castingResult if castingResult?
 

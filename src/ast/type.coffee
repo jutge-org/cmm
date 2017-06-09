@@ -2,7 +2,6 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 utils = require '../utils'
-{ compilationError } = require '../messages'
 
 ASCII_MAP = (String.fromCharCode(char) for char in [0...128]).join("") + # ASCII
             "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ" # Extended ASCII
@@ -307,7 +306,7 @@ for typeId, type of PRIMITIVE_TYPES
 # Returns a list of instructions necessary to cast memoryReference from
 # actualType to expectedType. Could be empty
 # The result is written in the same memory location as the input memoryReference
-@ensureType = (memoryReference, actualType, expectedType, state, { releaseReference = yes, onReference } = {}) ->
+@ensureType = (memoryReference, actualType, expectedType, state, ast, { releaseReference = yes, onReference } = {}) ->
     assert actualType instanceof Type
     assert expectedType instanceof Type
 
@@ -319,6 +318,6 @@ for typeId, type of PRIMITIVE_TYPES
 
             { instructions, result }
         else
-            compilationError 'INVALID_CAST', 'origin', actualType.getSymbol(), 'dest', expectedType.getSymbol()
+            ast.compilationError 'INVALID_CAST', 'origin', actualType.getSymbol(), 'dest', expectedType.getSymbol()
     else
         { instructions: [], result: memoryReference }

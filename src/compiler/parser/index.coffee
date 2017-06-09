@@ -10,6 +10,6 @@ parser.yy = astModule
     try
         ast = parser.parse code
     catch error
-        compilationError('PARSING_ERROR', 'error', error.message)
+        compilationError('PARSING_ERROR', null, 'error', error.message)
 
     ast

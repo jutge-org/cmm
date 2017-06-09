@@ -1,4 +1,3 @@
-{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { EXPR_TYPES, PRIMITIVE_TYPES, Pointer } = require './type'
 { Assign } = require './assign'
@@ -12,13 +11,13 @@ module.exports = @
         { exprType, type: valueType, result: valueResult, instructions: valueInstructions, isConst } = valueAst.compile state
 
         if valueType is PRIMITIVE_TYPES.STRING
-            compilationError 'STRING_ADDRESSING'
+            @compilationError 'STRING_ADDRESSING'
 
         unless valueType.isReferenceable
-            compilationError 'ASSIGNABLE_ADDRESSING'
+            @compilationError 'ASSIGNABLE_ADDRESSING'
 
         if exprType isnt EXPR_TYPES.LVALUE
-            compilationError 'LVALUE_ADDRESSING'
+            @compilationError 'LVALUE_ADDRESSING'
 
         state.releaseTemporaries valueResult
 

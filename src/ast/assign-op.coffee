@@ -3,7 +3,6 @@
 { Add, Sub, Mul, Div, Mod } = require './binary-op'
 { IntLit } = require './literals'
 { Assign } = require './assign'
-{ compilationError } = require '../messages'
 utils = require '../utils'
 
 module.exports = @
@@ -19,7 +18,16 @@ class PreOp extends Ast
         resultAstAdd = utils.clone resultAst
         resultAstAdd.instructions = []
 
-        (new Assign({ compile: -> resultAst }, new Add({ compile: -> resultAstAdd }, new IntLit(@incr)))).compile(state)
+        intLitAst = new IntLit(@incr)
+        intLitAst.locations = @locations
+
+        addAst = new Add({ compile: -> resultAstAdd }, intLitAst)
+        addAst.locations = @locations
+
+        assignAst = new Assign({ compile: -> resultAst }, addAst)
+        assignAst.locations = @locations
+
+        assignAst.compile(state)
 
 @PreInc = class PreInc extends PreOp
     incr: "1"
@@ -29,7 +37,7 @@ class PreOp extends Ast
 
     checkType: (type) ->
         if type is PRIMITIVE_TYPES.BOOL
-            compilationError 'INVALID_BOOL_DEC'
+            @compilationError 'INVALID_BOOL_DEC'
 
 
 class PostOp extends Ast
@@ -45,7 +53,16 @@ class PostOp extends Ast
         resultAstAdd = utils.clone resultAst
         resultAstAdd.instructions = []
 
-        { instructions: assignInstructions, result: assignResult } = (new Assign({ compile: -> resultAst }, new Add({ compile: -> resultAstAdd }, new IntLit(@incr)))).compile(state)
+        intLitAst = new IntLit(@incr)
+        intLitAst.locations = @locations
+
+        addAst = new Add({ compile: -> resultAstAdd }, intLitAst)
+        addAst.locations = @locations
+
+        assignAst = new Assign({ compile: -> resultAst }, addAst)
+        assignAst.locations = @locations
+
+        { instructions: assignInstructions, result: assignResult } = assignAst.compile(state)
 
         state.releaseTemporaries assignResult
 
@@ -59,7 +76,7 @@ class PostOp extends Ast
 
     checkType: (type) ->
         if type is PRIMITIVE_TYPES.BOOL
-            compilationError 'INVALID_BOOL_DEC'
+            @compilationError 'INVALID_BOOL_DEC'
 
 
 class OpAssign extends Ast
@@ -70,7 +87,14 @@ class OpAssign extends Ast
         resultOp = utils.clone result
         resultOp.instructions = []
 
-        (new Assign({ compile: -> result }, new @op({ compile: -> resultOp }, valueAst))).compile(state)
+
+        opAst = new @op({ compile: -> resultOp }, valueAst)
+        opAst.locations = @locations
+
+        assignAst = new Assign({ compile: -> result }, opAst)
+        assignAst.locations = @locations
+
+        assignAst.compile(state)
 
 @AddAssign = class AddAssign extends OpAssign
     op: Add

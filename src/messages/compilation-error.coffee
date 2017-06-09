@@ -102,7 +102,7 @@ assert = require 'assert'
 
     NO_RETURN_TYPE:
         code: 2004
-        message: "Function<<function>> declared with no return type"
+        message: "Function declared with no return type"
         description: """
             This error occurs when no type has been specified in the return section of a function declaration.
 
@@ -146,7 +146,7 @@ assert = require 'assert'
 
     DUPLICATE_SPECIFIER:
         code: 2007
-        message: "Duplicate specifier<<specifier>> for<<id>> declaration"
+        message: "Duplicate specifier<<specifier>> for declaration"
         description: """
             This error occurs when a variable, member or function declaration has more than one specifier,
             such as a const or a type specifier;
@@ -161,7 +161,7 @@ assert = require 'assert'
 
     NO_TYPE_SPECIFIER:
         code: 2008
-        message: "No type specifier for<<id>> declaration"
+        message: "No type specifier for declaration"
         description: """
             This error occurs when a variable or member declaration has no type specifier.
 
@@ -409,7 +409,7 @@ assert = require 'assert'
 
                 f2(); // Error, f2 has 2 parameters, called with 0 parameters
 
-                f2(x, y); // Correc, f2 has 2 parameters, called with 2 parameters
+                f2(x, y); // Correct, f2 has 2 parameters, called with 2 parameters
             }
         """
 }
@@ -468,7 +468,7 @@ assert = require 'assert'
         code: 5003
         message: "Invalid array assignment"
         description: """
-            This error occurs when trying to assign something to an array, instead of one of its elements.
+            This error occurs when trying to assign something to an array instead of one of its elements.
 
             Example:
 
@@ -771,7 +771,7 @@ assert = require 'assert'
 
     ASSIGNABLE_ADDRESSING:
         code: 9003
-        message: "Assignable type required as unary '&' operand"
+        message: "Assignable type required for unary '&' operand"
         description: """
             This error occurs when trying to take the address of some expression which doesn't have assignable type,
             such as void or function.
@@ -1000,7 +1000,7 @@ assert = require 'assert'
         code: 13002
         message: "Function<<id>> with stack size <<<size>>> bytes exceeds the maximum stack size limit of <<<limit>>> bytes. Try moving array declarations to the global scope"
         description: """
-            This error occurs when you define very big local variables inside a function. Tipically it is
+            This error occurs when you define very big local variables inside a function. Typically it is
             due to declaring big arrays.
 
             Example:
@@ -1016,7 +1016,7 @@ assert = require 'assert'
         code: 13003
         message: "Heap size of <<<size>>> bytes exceeds the maximum <<<limit>>> bytes limit."
         description: """
-            This error occurs when you define a very big global variable. Tipically it is due to declaring big arrays.
+            This error occurs when you define a very big global variable. Typically it is due to declaring big arrays.
 
             Example:
 

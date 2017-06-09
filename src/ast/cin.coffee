@@ -1,6 +1,5 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
-{ compilationError } = require '../messages'
 { Read } = require './read'
 { BranchFalse } = require './branch'
 
@@ -15,13 +14,13 @@ module.exports = @
             { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions, isConst } = destAst.compile state
 
             unless type in [PRIMITIVE_TYPES.STRING, PRIMITIVE_TYPES.INT, PRIMITIVE_TYPES.DOUBLE, PRIMITIVE_TYPES.CHAR, PRIMITIVE_TYPES.BOOL]
-                compilationError 'INVALID_CIN_OPERAND', 'type', type.getSymbol()
+                destAst.compilationError 'INVALID_CIN_OPERAND', 'type', type.getSymbol()
 
             unless exprType is EXPR_TYPES.LVALUE
-                compilationError 'LVALUE_CIN'
+                destAst.compilationError 'LVALUE_CIN'
 
             if isConst
-                compilationError 'CONST_MODIFICATION', "name", lvalueId
+                destAst.compilationError 'CONST_MODIFICATION', "name", lvalueId
 
             state.releaseTemporaries memoryReference
 

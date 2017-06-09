@@ -3,7 +3,7 @@
 { BranchFalse, BranchTrue } = require './branch'
 { Assign } = require './assign'
 { IntLit } = require './literals'
-{ compilationError, executionError } = require '../messages'
+{ @compilationError, executionError } = require '../messages'
 utils = require '../utils'
 module.exports = @
 
@@ -11,8 +11,8 @@ module.exports = @
 # TODO: Also, when a pointer/array is within the operation, the returned value IS an lvalue
 # TODO: Check if pointer has incomplete type, in that case operations cannot be performed
 
-invalidOperands = (left, right) ->
-    compilationError 'INVALID_OPERANDS', "typel", left.type, "typer", right.type
+invalidOperands = (left, right, state, ast) ->
+    ast.compilationError 'INVALID_OPERANDS', "typel", left.type, "typer", right.type
 
 @BinaryOp = class BinaryOp extends Ast
     pointerCase: invalidOperands
@@ -21,7 +21,7 @@ invalidOperands = (left, right) ->
         [ left, right ] = @children.map((x) -> x.compile(state))
 
         if left.type.isPointer or right.type.isPointer or left.type.isArray or right.type.isArray
-            return @pointerCase(left, right, state)
+            return @pointerCase(left, right, state, this)
 
         operands = [ left, right ]
 
@@ -61,7 +61,7 @@ class Arithmetic extends BinaryOp
 
         for { type: operandType, result: operandResult }, i in operands
             { result: castingResult, instructions: castingInstructions } =
-                ensureType operandResult, operandType, expectedType, state, { releaseReference: no }
+                ensureType operandResult, operandType, expectedType, state, this, { releaseReference: no }
 
             instructions = instructions.concat(castingInstructions)
             results.push castingResult
@@ -81,16 +81,22 @@ class MaybePointerArithmetic extends SimpleArithmetic
                 { pointer: right, left: 'nonPointer', nonPointer: left, right: 'pointer'}
 
         unless ref.nonPointer.type.isIntegral
-            invalidOperands(ref[ref.left], ref[ref.right])
+            invalidOperands(ref[ref.left], ref[ref.right], null, this)
 
         elementType = ref.pointer.type.getElementType()
 
         if elementType.isIncomplete
-            compilationError 'UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE', "type", elementType
+            @compilationError 'UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE', "type", elementType
 
         { bytes } = elementType
 
-        ref.nonPointer = (new Mul({ compile: -> { type: PRIMITIVE_TYPES.INT, result: ref.nonPointer.result, instructions: ref.nonPointer.instructions } }, new IntLit(bytes))).compile(state)
+        intLitAst = new IntLit(bytes)
+        intLitAst.locations = @locations
+
+        mulAst = new Mul({ compile: -> { type: PRIMITIVE_TYPES.INT, result: ref.nonPointer.result, instructions: ref.nonPointer.instructions } }, intLitAst)
+        mulAst.locations = @locations
+
+        ref.nonPointer = mulAst.compile(state)
 
         state.releaseTemporaries ref[ref.left].result, ref[ref.right].result
 
@@ -143,7 +149,7 @@ class DoubleDiv extends BinaryOp
 @Mod = class Mod extends Arithmetic
     castType: ([ typeLeft, typeRight ]) ->
         unless typeLeft.isIntegral and typeRight.isIntegral
-            compilationError 'NON_INTEGRAL_MODULO'
+            @compilationError 'NON_INTEGRAL_MODULO'
 
         PRIMITIVE_TYPES.INT
 
@@ -156,12 +162,12 @@ class LazyOperator extends Ast
     compile: (state) ->
 
         left = @left().compile(state)
-        { result: resultLeft, instructions: castingInstructionsLeft } = ensureType left.result, left.type, PRIMITIVE_TYPES.BOOL, state
+        { result: resultLeft, instructions: castingInstructionsLeft } = ensureType left.result, left.type, PRIMITIVE_TYPES.BOOL, state, this
 
         state.releaseTemporaries resultLeft
 
         right = @right().compile(state)
-        { result: resultRight, instructions: castingInstructionsRight } = ensureType right.result, right.type, PRIMITIVE_TYPES.BOOL, state
+        { result: resultRight, instructions: castingInstructionsRight } = ensureType right.result, right.type, PRIMITIVE_TYPES.BOOL, state, this
 
         state.releaseTemporaries resultRight
 
@@ -185,13 +191,13 @@ class LazyOperator extends Ast
 class MaybePointerComparison extends BinaryOp
     pointerCase: (left, right, state) ->
         unless (left.type.isPointer or left.type.isArray) and (right.type.isPointer or right.type.isArray)
-            invalidOperands(left, right)
+            invalidOperands(left, right, null, this)
 
         left.type = left.type.getPointerType() if left.type.isArray
         right.type = right.type.getPointerType() if right.type.isArray
 
         unless left.type.equalsNoConst(right.type)
-            compilationError 'POINTER_COMPARISON_DIFFERENT_TYPE', 'typeL', left.type.getSymbol(), 'typeR', right.type.getSymbol()
+            @compilationError 'POINTER_COMPARISON_DIFFERENT_TYPE', 'typeL', left.type.getSymbol(), 'typeR', right.type.getSymbol()
 
         state.releaseTemporaries left.result, right.result
 
@@ -208,7 +214,7 @@ class Comparison extends MaybePointerComparison
         if typeLeft isnt typeRight
             for { type: operandType, result: operandResult } in operands
                 { result: castingResult, instructions: castingInstructions } =
-                    ensureType operandResult, operandType, utils.max(actualTypes, (t) -> t.size).arg, state, { releaseReference: no }
+                    ensureType operandResult, operandType, utils.max(actualTypes, (t) -> t.size).arg, state, this, { releaseReference: no }
 
                 instructions = instructions.concat(castingInstructions)
                 results.push castingResult

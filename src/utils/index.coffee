@@ -62,3 +62,47 @@ module.exports = @
         padding + s
 
 @alignTo = (address, bytes) -> (((address/bytes) | 0) + ((address&(bytes-1)) isnt 0))*bytes
+
+
+markLineFrom = (line, start, end) ->
+    unless start?
+        start = line.search(/\S/) - 1
+
+    unless end?
+        end = line.length - 1
+
+    Array(start + 2).join(" ") + Array(end - start + 1).join("~")
+
+@locationsMessage = (code, locations) ->
+    locations = clone locations
+
+    { lines, columns } = locations
+
+    lineColumnSpec = "code.cc:#{lines.first}:#{columns.first}: "
+
+    # We want zero-based numbers
+    --lines.first
+    --lines.last
+    --columns.first
+    --columns.last
+
+    codeLines = code.split('\n')
+
+    relevantCodeLines = codeLines[lines.first..lines.last]
+
+    markLines = []
+
+    if relevantCodeLines.length is 1
+        markLines.push markLineFrom(relevantCodeLines[0], columns.first, columns.last)
+    else
+        markLines.push markLineFrom(relevantCodeLines[0], columns.first)
+        markLines.push markLineFrom(relevantCodeLines[lineNumber], null, null) for lineNumber in [1...relevantCodeLines.length - 1]
+        markLines.push markLineFrom(relevantCodeLines[relevantCodeLines.length - 1], null, columns.last)
+
+
+    {
+        lineColumnSpec,
+        relevantCode: [0...relevantCodeLines.length*2].map((x, i) -> if i&1 then markLines[i >> 1] else relevantCodeLines[i >> 1]).join("\n")
+    }
+
+@indent = (text, spaces) -> text.split('\n').map((x) -> Array(spaces + 1).join(" ") + x).join("\n")

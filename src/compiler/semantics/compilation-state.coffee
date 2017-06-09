@@ -34,12 +34,12 @@ module.exports = @
 
         --@scopeLevel
 
-    newFunction: (func) ->
+    newFunction: (func, ast) ->
         assert not @functionId?
         assert @scopeLevel is 0
 
         @maxTmpSize = 0
-        @defineVariable func
+        @defineVariable func, ast
         @addressOffsetCopy = @addressOffset
         @addressOffset = 0
         @functionId = func.id # Necessary for a return statement or funcarg to know its function id
@@ -55,7 +55,7 @@ module.exports = @
         stackSize = alignTo(@addressOffset, 16)
 
         if stackSize > Memory.SIZES.stack
-            compilationError('MAX_STACK_SIZE_EXCEEDED', 'id', @functionId, 'size', stackSize, 'limit', Memory.SIZES.stack)
+            compilationError('MAX_STACK_SIZE_EXCEEDED', null, 'id', @functionId, 'size', stackSize, 'limit', Memory.SIZES.stack)
 
         @functions[@functionId].stackSize = alignTo(@addressOffset, 16)
         @functions[@functionId].maxTmpSize = @maxTmpSize
@@ -65,7 +65,7 @@ module.exports = @
 
         @closeScope()
 
-    defineVariable: (variable) ->
+    defineVariable: (variable, ast) ->
         { id } = variable
 
         variable.isFunctionArgument = @insideFunctionArgumentDefinitions
@@ -77,7 +77,7 @@ module.exports = @
 
         if @variables[id]?
             if @variables[id][@scopeLevel]?
-                compilationError('VARIABLE_REDEFINITION', "name", id)
+                ast.compilationError('VARIABLE_REDEFINITION', "name", id)
         else
             @variables[id] = {}
 

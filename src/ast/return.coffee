@@ -1,6 +1,5 @@
 assert = require 'assert'
 
-{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Assign } = require './assign'
@@ -25,14 +24,14 @@ module.exports = @
 
         if value? # return (something);
             { type: actualType, instructions: valueInstructions, result: valueResult } = value.compile state
-            { result, instructions: castingInstructions } = ensureType valueResult, actualType, expectedType, state   
+            { result, instructions: castingInstructions } = ensureType valueResult, actualType, expectedType, state, this
             state.releaseTemporaries result
             instructions = [ valueInstructions..., castingInstructions..., new Assign(MemoryReference.from(expectedType, null, MemoryReference.RETURN), result) ]
         else # return;
             actualType = PRIMITIVE_TYPES.VOID
 
             if actualType isnt expectedType
-                compilationError 'NO_RETURN', "expected", expectedType.getSymbol(), "name", functionId
+                @compilationError 'NO_RETURN', "expected", expectedType.getSymbol(), "name", functionId
 
             instructions = []
 

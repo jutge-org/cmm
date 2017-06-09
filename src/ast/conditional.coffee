@@ -14,7 +14,7 @@ module.exports = @
 
         { type: conditionType, result: conditionResult, instructions: conditionInstructions } = conditionAst.compile state
 
-        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, PRIMITIVE_TYPES.BOOL, state
+        { instructions: castingInstructions, result: castingResult } = ensureType conditionResult, conditionType, PRIMITIVE_TYPES.BOOL, state, conditionAst
 
         state.releaseTemporaries castingResult
 

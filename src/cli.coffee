@@ -2,6 +2,7 @@
 
 fs = require 'fs'
 
+utils = require './utils'
 cmm = require '.'
 
 [ code, input ] = process.argv[2..]
@@ -33,10 +34,11 @@ try
 catch error
     unless error?
         throw "Invalid error thrown. Check error names"
-    error.message = "Semantic error:\n#{error.message}" if error.code isnt 100
-    console.log error.message
-    console.log "Description:\n#{error.description}" if error.description?
+
+    console.log error.toString(code)
+
     console.log error.stack if error.stack?
+
     process.exit error.code
 
 console.log "Compilation successful:"

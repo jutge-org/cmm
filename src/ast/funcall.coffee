@@ -6,7 +6,7 @@ assert = require 'assert'
 { Assign } = require './assign'
 { alignTo } = require '../utils'
 { Memory } = require '../runtime/memory'
-{ compilationError, executionError } = require '../messages'
+{ executionError } = require '../messages'
 
 CALL_DEPTH_LIMIT = 20000000
 
@@ -24,22 +24,22 @@ module.exports = @
         func = state.getVariable funcId
 
         unless func?
-            compilationError 'CALL_FUNCTION_NOT_DEFINED', 'name', funcId
+            @compilationError 'CALL_FUNCTION_NOT_DEFINED', 'name', funcId
 
         { type, type: { returnType, argTypes: expectedParamTypes } } = func
 
         unless type.isFunction
-            compilationError 'CALL_NON_FUNCTION','name', funcId
+            @compilationError 'CALL_NON_FUNCTION','name', funcId
 
         if paramList.length isnt expectedParamTypes.length
-            compilationError 'INVALID_PARAMETER_COUNT_CALL', 'name', funcId, 'good', expectedParamTypes.length, 'wrong', paramList.length
+            @compilationError 'INVALID_PARAMETER_COUNT_CALL', 'name', funcId, 'good', expectedParamTypes.length, 'wrong', paramList.length
 
         instructions = []
 
         paramPushResults = []
         for param, i in paramList
             { type: actualType, instructions: paramInstructions, result: paramResult } = param.compile state 
-            { instructions: castingInstructions, result: castingResult } = ensureType paramResult, actualType, expectedParamTypes[i], state
+            { instructions: castingInstructions, result: castingResult } = ensureType paramResult, actualType, expectedParamTypes[i], state, this
             paramPushResults.push castingResult
             instructions = instructions.concat([ paramInstructions..., castingInstructions... ])
 

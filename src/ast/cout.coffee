@@ -1,7 +1,6 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Write } = require './write'
-{ compilationError } = require '../messages'
 
 module.exports = @
 
@@ -13,7 +12,7 @@ module.exports = @
             { result, instructions: valueInstructions, type } = value.compile state
 
             unless type.canCastTo(PRIMITIVE_TYPES.COUT)
-                compilationError 'CANNOT_COUT_TYPE', "type", type.getSymbol()
+                value.compilationError 'CANNOT_COUT_TYPE', "type", type.getSymbol()
 
             state.releaseTemporaries result
 

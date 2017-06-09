@@ -1,7 +1,7 @@
 assert = require 'assert'
 asciitree = require 'ascii-tree'
 utils = require '../utils'
-
+{ compilationError } = require '../messages'
 module.exports = @
 
 @Ast = class Ast
@@ -40,6 +40,9 @@ module.exports = @
     getChildCount: -> @children.length
 
     @copyOf: (other) -> utils.cloneDeep(other)
+
+    compilationError: (name, others...) ->
+        compilationError(name, @locations, others...)
 
     toObject:  ->
         parent = {}

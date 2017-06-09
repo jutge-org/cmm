@@ -386,7 +386,7 @@ bnf =
 
         dimension: [
             o '[ expr ]',                                                         -> $2
-            o '[ ]',                                                              -> null
+            o '[ ]',                                                              -> new EmptyDimension
         ]
 
         nonnull_dimension: [

@@ -1,6 +1,5 @@
 assert = require 'assert'
 
-{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, FunctionType } = require './type'
 { CompilationState } = require '../compiler/semantics/compilation-state'
@@ -8,6 +7,7 @@ assert = require 'assert'
 { Funcall } = require './funcall'
 { Program } = require '../compiler/program'
 { Memory } = require '../runtime/memory'
+{ compilationError } = require '../messages'
 
 module.exports = @
 
@@ -34,7 +34,7 @@ module.exports = @
         { functions, variables, addressOffset: globalsSize } = state
 
         if globalsSize > Memory.SIZES.heap
-            compilationError 'MAX_HEAP_SIZE_EXCEEDED', 'size', globalsSize, 'limit', Memory.SIZES.heap
+            compilationError 'MAX_HEAP_SIZE_EXCEEDED', null, 'size', globalsSize, 'limit', Memory.SIZES.heap
 
         checkMainIsDefined functions
 

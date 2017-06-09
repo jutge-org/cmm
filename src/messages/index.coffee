@@ -6,10 +6,12 @@ compilationErrors = require './compilation-error'
 executionErrors = require './execution-error'
 compilationWarnings = require './compilation-warning'
 
-@compilationError = (name, others...) ->
+@compilationError = (name, locations, others...) ->
     assert compilationErrors[name]?, "Invalid compilation error #{name}"
 
     error = compilationErrors[name]
+
+    error.locations = locations
 
     if others.length
         error = error.complete(others...)
