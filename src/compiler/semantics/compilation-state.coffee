@@ -1,7 +1,7 @@
 assert = require 'assert'
 
 utils = require '../../utils'
-Error = require '../../error'
+{ compilationError } = require '../../messages'
 { MemoryReference } = require '../../ast/memory-reference'
 { alignTo } = require '../../utils'
 { Memory } = require '../../runtime/memory'
@@ -18,6 +18,7 @@ module.exports = @
         @variablesCopyStack = []
         @insideFunctionArgumentDefinitions = no
         @insideFunctionReturnDefinition = no
+        @warnings = []
 
     openScope: ->
         variablesCopy = {}
@@ -38,7 +39,7 @@ module.exports = @
         assert @scopeLevel is 0
 
         @maxTmpSize = 0
-        @defineVariable func, Error.FUNCTION_REDEFINITION.complete('name', func.id)
+        @defineVariable func
         @addressOffsetCopy = @addressOffset
         @addressOffset = 0
         @functionId = func.id # Necessary for a return statement or funcarg to know its function id
@@ -54,17 +55,17 @@ module.exports = @
         stackSize = alignTo(@addressOffset, 16)
 
         if stackSize > Memory.SIZES.stack
-            throw Error.MAX_STACK_SIZE_EXCEEDED.complete('id', @functionId, 'size', stackSize, 'limit', Memory.SIZES.stack)
+            compilationError('MAX_STACK_SIZE_EXCEEDED', 'id', @functionId, 'size', stackSize, 'limit', Memory.SIZES.stack)
 
-        @variables[@functionId][0].stackSize = alignTo(@addressOffset, 16)
-        @variables[@functionId][0].maxTmpSize = @maxTmpSize
+        @functions[@functionId].stackSize = alignTo(@addressOffset, 16)
+        @functions[@functionId].maxTmpSize = @maxTmpSize
 
         @addressOffset = @addressOffsetCopy
         delete @functionId
 
         @closeScope()
 
-    defineVariable: (variable, onError) ->
+    defineVariable: (variable) ->
         { id } = variable
 
         variable.isFunctionArgument = @insideFunctionArgumentDefinitions
@@ -76,7 +77,7 @@ module.exports = @
 
         if @variables[id]?
             if @variables[id][@scopeLevel]?
-                throw (onError ? Error.VARIABLE_REDEFINITION.complete("name", id))
+                compilationError('VARIABLE_REDEFINITION', "name", id)
         else
             @variables[id] = {}
 
@@ -109,13 +110,14 @@ module.exports = @
 
     getTemporary: (type) ->
         #console.log "Get #{type.bytes}"
+
         desiredAddressOffset = alignTo(@temporaryAddressOffset, type.requiredAlignment())
         previousOffset = @temporaryAddressOffset
         @temporaryAddressOffset = desiredAddressOffset + type.bytes
         @maxTmpSize = Math.max(@temporaryAddressOffset, @maxTmpSize)
 
         if @temporaryAddressOffset > Memory.SIZES.tmp
-            throw Error.TEMPORARY_ADDRESS_LIMIT
+            compilationError 'TEMPORARY_ADDRESS_LIMIT'
 
         ret = MemoryReference.from(type, desiredAddressOffset, MemoryReference.TMP, @temporaryAddressOffset - previousOffset)
         ret
@@ -123,6 +125,7 @@ module.exports = @
     # HACK: This assumes that the released temporary is the one that was last requested
     releaseTemporaries: (references...) ->
         #console.log arguments.callee.caller.toString()
+
         i = 0
         while i < references.length
             reference = references[i++]
@@ -147,3 +150,5 @@ module.exports = @
     beginFunctionReturnDefinition: -> @insideFunctionReturnDefinition = yes
 
     endFunctionReturnDefinition: -> @insideFunctionReturnDefinition = no
+
+    warn: (warning) -> warnings.push warning

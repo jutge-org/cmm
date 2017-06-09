@@ -1,8 +1,10 @@
 { Ast } = require './ast'
-{ PRIMITIVE_TYPES } = require './type'
-{ Add } = require './binary-op'
+{ PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
+{ Add, Sub, Mul, Div, Mod } = require './binary-op'
 { IntLit } = require './literals'
 { Assign } = require './assign'
+{ compilationError } = require '../messages'
+utils = require '../utils'
 
 module.exports = @
 
@@ -10,11 +12,14 @@ class PreOp extends Ast
     compile: (state) ->
         [ destAst ] = @children
 
-        { type: destType, result: destReference, exprType, lvalueId } = destAst.compile state
+        resultAst = destAst.compile state
 
-        @checkType?(destType)
+        @checkType?(resultAst.type)
 
-        (new Assign(destAst, new Add(destAst, new IntLit(@incr)))).compile(state)
+        resultAstAdd = utils.clone resultAst
+        resultAstAdd.instructions = []
+
+        (new Assign({ compile: -> resultAst }, new Add({ compile: -> resultAstAdd }, new IntLit(@incr)))).compile(state)
 
 @PreInc = class PreInc extends PreOp
     incr: "1"
@@ -24,24 +29,27 @@ class PreOp extends Ast
 
     checkType: (type) ->
         if type is PRIMITIVE_TYPES.BOOL
-            throw Error.INVALID_BOOL_DEC
+            compilationError 'INVALID_BOOL_DEC'
 
 
 class PostOp extends Ast
     compile: (state) ->
         [ destAst ] = @children
 
-        { type: destType, result: destReference } = destAst.compile state
+        resultAst = destAst.compile state
 
-        @checkType?(destType)
+        @checkType?(resultAst.type)
 
-        result = state.getTemporary destType
+        result = state.getTemporary resultAst.type
 
-        { instructions: assignInstructions, result: assignResult } = (new Assign(destAst, new Add(destAst, new IntLit(@incr)))).compile(state)
+        resultAstAdd = utils.clone resultAst
+        resultAstAdd.instructions = []
+
+        { instructions: assignInstructions, result: assignResult } = (new Assign({ compile: -> resultAst }, new Add({ compile: -> resultAstAdd }, new IntLit(@incr)))).compile(state)
 
         state.releaseTemporaries assignResult
 
-        { instructions: [ new Assign(result, destReference), assignInstructions... ], result, type: destType }
+        { instructions: [ new Assign(result, resultAst.result), assignInstructions... ], result, type: resultAst.type, exprType: EXPR_TYPES.RVALUE }
 
 @PostInc = class PostInc extends PostOp
     incr: "1"
@@ -51,4 +59,26 @@ class PostOp extends Ast
 
     checkType: (type) ->
         if type is PRIMITIVE_TYPES.BOOL
-            throw Error.INVALID_BOOL_DEC
+            compilationError 'INVALID_BOOL_DEC'
+
+
+class OpAssign extends Ast
+    compile: (state) ->
+        [ destAst, valueAst ] = @children
+
+        result = destAst.compile state
+        resultOp = utils.clone result
+        resultOp.instructions = []
+
+        (new Assign({ compile: -> result }, new @op({ compile: -> resultOp }, valueAst))).compile(state)
+
+@AddAssign = class AddAssign extends OpAssign
+    op: Add
+@SubAssign = class SubAssign extends OpAssign
+    op: Sub
+@MulAssign = class MulAssign extends OpAssign
+    op: Mul
+@DivAssign = class DivAssign extends OpAssign
+    op: Div
+@ModAssign = class ModAssign extends OpAssign
+    op: Mod

@@ -2,6 +2,9 @@
     description{Checks lazy-evaluation with side effects on different contexts}
 */
 
+#include <iostream>
+using namespace std;
+
 int global = -5;
 
 int f() {

@@ -4,17 +4,16 @@
 
  */
 
- #include <iostream>
- using namespace std;
+#include <iostream>
+using namespace std;
 
- int x = 2;
+int x = 2;
 
+int f(int x) {
+    return x + 2;
+}
 
- int f(int x) {
-     return x + 2;
- }
-
- int main() {
+int main() {
      cout << x << endl; // 2
      int x = 3;
      cout << x << endl; // 3
@@ -77,4 +76,4 @@
      }
 
      cout << x << endl; // 5
- }
+}

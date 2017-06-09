@@ -1,6 +1,6 @@
 /*
     description{Checks that the compiler outputs an error when the static stack size limit is exceeded}
-    compilation-error{302}
+    compilation-error{13002}
 */
 
 int main() {

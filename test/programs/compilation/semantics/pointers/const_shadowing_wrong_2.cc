@@ -1,7 +1,7 @@
 /*
 
     description{Tests that shadowing const pointers inside non-const pointers is not allowed}
-    compilation-error{20}
+    compilation-error{9002}
 
 */
 

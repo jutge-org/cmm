@@ -1,6 +1,6 @@
 assert = require 'assert'
 
-Error = require '../error'
+{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, FunctionType } = require './type'
 { CompilationState } = require '../compiler/semantics/compilation-state'
@@ -19,9 +19,9 @@ module.exports = @
     checkMainIsDefined = (functions) ->
         { main } = functions
         unless main? and main.type.isFunction
-            throw Error.MAIN_NOT_DEFINED
+            compilationError 'MAIN_NOT_DEFINED'
         else if main.type.returnType not in ALLOWED_MAIN_RETURN_TYPES
-            throw Error.INVALID_MAIN_TYPE
+            compilationError 'INVALID_MAIN_TYPE'
 
     compile: ->
         [ topDeclarationList ] = @children
@@ -34,7 +34,7 @@ module.exports = @
         { functions, variables, addressOffset: globalsSize } = state
 
         if globalsSize > Memory.SIZES.heap
-            throw Error.MAX_HEAP_SIZE_EXCEEDED.complete('size', globalsSize, 'limit', Memory.SIZES.heap)
+            compilationError 'MAX_HEAP_SIZE_EXCEEDED', 'size', globalsSize, 'limit', Memory.SIZES.heap
 
         checkMainIsDefined functions
 

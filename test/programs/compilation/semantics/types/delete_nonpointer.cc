@@ -1,7 +1,7 @@
 /*
 
     description{Checks that delete only accepts pointer types}
-    compilation-error{104}
+    compilation-error{9006}
   
 */
 

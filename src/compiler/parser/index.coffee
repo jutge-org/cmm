@@ -1,6 +1,6 @@
 { parser } = require './grammar'
 astModule = require '../../ast'
-Error = require '../../error'
+{ compilationError } = require '../../messages'
 
 module.exports = @
 
@@ -10,6 +10,6 @@ parser.yy = astModule
     try
         ast = parser.parse code
     catch error
-        throw Error.PARSE_ERROR.complete('error', error.message)
+        compilationError('PARSING_ERROR', 'error', error.message)
 
     ast

@@ -7,9 +7,6 @@
 
 int a[20];
 
-#include <iostream>
-using namespace std;
-
 int main() {
     int* x = a;
 

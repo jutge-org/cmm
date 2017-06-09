@@ -2,11 +2,11 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
-Error = require '../error'
 { MemoryReference, StackReference } = require './memory-reference'
 { Assign } = require './assign'
 { alignTo } = require '../utils'
 { Memory } = require '../runtime/memory'
+{ compilationError, executionError } = require '../messages'
 
 CALL_DEPTH_LIMIT = 20000000
 
@@ -21,18 +21,18 @@ module.exports = @
         # Comprovar/castejar que tots els paràmetres de la crida tenen el tipus que toca
         # Retorna el tipus de la funció
 
-        func = state.getFunction funcId
+        func = state.getVariable funcId
 
         unless func?
-            throw Error.FUNCTION_UNDEFINED.complete('name', funcId)
+            compilationError 'CALL_FUNCTION_NOT_DEFINED', 'name', funcId
 
         { type, type: { returnType, argTypes: expectedParamTypes } } = func
 
         unless type.isFunction
-            throw Error.CALL_NON_FUNCTION.complete('name', funcId)
+            compilationError 'CALL_NON_FUNCTION','name', funcId
 
         if paramList.length isnt expectedParamTypes.length
-            throw Error.INVALID_PARAMETER_COUNT_CALL.complete('name', funcId, 'good', expectedParamTypes.length, 'wrong', paramList.length)
+            compilationError 'INVALID_PARAMETER_COUNT_CALL', 'name', funcId, 'good', expectedParamTypes.length, 'wrong', paramList.length
 
         instructions = []
 
@@ -78,12 +78,12 @@ module.exports = @
         vm.pointers.temporaries += temporaryOffset
 
         unless vm.pointers.temporaries + vm.func.maxTmpSize <= Memory.SIZES.tmp
-            vm.executionError Error.TEMPORARIES_OVERFLOW.complete('id', funcId)
+            executionError vm, 'TEMPORARIES_OVERFLOW', 'id', funcId
 
         vm.pointers.stack += vm.func.stackSize
 
         unless vm.pointers.stack + vm.func.stackSize <= Memory.SIZES.stack and vm.controlStack.length < CALL_DEPTH_LIMIT
-            vm.executionError Error.STACK_OVERFLOW.complete('id', funcId)
+            executionError vm, 'STACK_OVERFLOW', 'id', funcId
 
         assert (vm.pointers.stack&(16-1)) is 0
 

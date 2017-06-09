@@ -1,6 +1,6 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, EXPR_TYPES } = require './type'
-Error = require '../error'
+{ compilationError } = require '../messages'
 { Read } = require './read'
 { BranchFalse } = require './branch'
 
@@ -14,14 +14,14 @@ module.exports = @
         for destAst, i in @children
             { exprType, type, result: memoryReference, lvalueId, instructions: destInstructions, isConst } = destAst.compile state
 
-            unless type.isAssignable
-                throw Error.CIN_OF_NON_ASSIGNABLE
+            unless type in [PRIMITIVE_TYPES.STRING, PRIMITIVE_TYPES.INT, PRIMITIVE_TYPES.DOUBLE, PRIMITIVE_TYPES.CHAR, PRIMITIVE_TYPES.BOOL]
+                compilationError 'INVALID_CIN_OPERAND', 'type', type.getSymbol()
 
             unless exprType is EXPR_TYPES.LVALUE
-                throw Error.LVALUE_CIN
+                compilationError 'LVALUE_CIN'
 
             if isConst
-                throw Error.CONST_MODIFICATION.complete("name", lvalueId)
+                compilationError 'CONST_MODIFICATION', "name", lvalueId
 
             state.releaseTemporaries memoryReference
 

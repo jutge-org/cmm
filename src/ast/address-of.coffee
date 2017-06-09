@@ -1,6 +1,7 @@
-Error = require '../error'
+{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { EXPR_TYPES, PRIMITIVE_TYPES, Pointer } = require './type'
+{ Assign } = require './assign'
 
 module.exports = @
 
@@ -8,22 +9,27 @@ module.exports = @
     compile: (state) ->
         [ valueAst ] = @children
 
-        { exprType, type, result: valueResult, instructions: valueInstructions, isConst } = valueAst.compile state
+        { exprType, type: valueType, result: valueResult, instructions: valueInstructions, isConst } = valueAst.compile state
 
-        if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_ADDRESSING
+        if valueType is PRIMITIVE_TYPES.STRING
+            compilationError 'STRING_ADDRESSING'
 
-        unless type.isAssignable
-            throw Error.ASSIGNABLE_ADDRESSING
+        unless valueType.isReferenceable
+            compilationError 'ASSIGNABLE_ADDRESSING'
 
         if exprType isnt EXPR_TYPES.LVALUE
-            throw Error.LVALUE_ADDRESSING
+            compilationError 'LVALUE_ADDRESSING'
 
-        type = new Pointer type, { isValueConst: isConst }
+        state.releaseTemporaries valueResult
+
+        type = new Pointer valueType, { isValueConst: isConst }
 
         result = state.getTemporary type
 
-        instructions = [ valueInstructions..., new AddressOf(result, valueResult) ]
+        if valueType.isArray
+            instructions = [ valueInstructions..., new Assign(result, valueResult) ]
+        else
+            instructions = [ valueInstructions..., new AddressOf(result, valueResult) ]
 
         { instructions, result, type, exprType: EXPR_TYPES.RVALUE }
 

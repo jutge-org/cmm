@@ -1,4 +1,4 @@
-Error = require '../error'
+{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType, EXPR_TYPES } = require './type'
 
@@ -47,7 +47,7 @@ module.exports = @
         { type: operandType, result: operandResult } = operand
 
         if operandType.isPointer or operandType.isArray
-            throw Error.WRONG_ARGUMENT_UNARY_MINUS
+            compilationError 'WRONG_ARGUMENT_UNARY_MINUS', 'type', operandType.getSymbol()
 
         unless operandType.isNumeric
             { result, instructions } = ensureType operandResult, operandType, PRIMITIVE_TYPES.INT, state

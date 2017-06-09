@@ -1,6 +1,5 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
-utils = require '../utils'
 { Branch, BranchFalse } = require './branch'
 { BoolLit } = require './literals'
 

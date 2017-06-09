@@ -1,7 +1,7 @@
 { PRIMITIVE_TYPES, Pointer, Array } = require './type'
 { Ast } = require './ast'
 { getSpecifiers } = require './declaration'
-Error = require '../error'
+{ compilationError, executionError } = require '../messages'
 
 module.exports = @
 
@@ -20,7 +20,7 @@ module.exports = @
         state.releaseTemporaries result
 
         unless type.isPointer or type.isArray
-            throw Error.INVALID_DELETE_TYPE.complete("type", type.getSymbol())
+            compilationError 'INVALID_DELETE_TYPE', "type", type.getSymbol()
 
         { type: PRIMITIVE_TYPES.VOID, instructions: [ instructions..., new Delete(result) ]}
 
@@ -39,10 +39,10 @@ module.exports = @
         { type, specifiers } = getSpecifiers(specifiersList)
 
         if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_ADDRESSING
+            compilationError 'STRING_ADDRESSING'
 
         if type is PRIMITIVE_TYPES.VOID
-            throw Error.VOID_INVALID_USE
+            compilationError 'VOID_INVALID_USE'
 
         { instructions: declarationInstructions, type, dimensionResult } = declarationAst.compile state, { specifiers, type }
 
@@ -74,7 +74,7 @@ module.exports = @
                     dimension
 
             if elements < 0
-                vm.executionError Error.INVALID_NEW_ARRAY_LENGTH
+                executionError vm, 'INVALID_NEW_ARRAY_LENGTH'
                 return
 
             reserve *= elements
@@ -92,14 +92,14 @@ module.exports = @
             dimensionAst.compile state
 
         unless dimensionType.isIntegral
-            throw Error.NONINTEGRAL_DIMENSION
+            compilationError 'NONINTEGRAL_DIMENSION'
 
         if type.isArray and not type.size?
-            throw Error.NEW_ARRAY_SIZE_CONSTANT
+            compilationError 'NEW_ARRAY_SIZE_CONSTANT'
 
         if dimension? # Is static dimension
             if dimension < 0
-                throw Error.ARRAY_SIZE_NEGATIVE
+                compilationError 'ARRAY_SIZE_NEGATIVE'
         else # Dynamic dimension
             state.releaseTemporaries dimensionResult
 
@@ -121,6 +121,6 @@ module.exports = @
 @NewDeclaration = class NewDeclaration extends Ast
     compile: (state, { specifiers, type }) ->
         if specifiers?.const
-            throw Error.UNINITIALIZED_CONST_NEW
+            compilationError 'UNINITIALIZED_CONST_NEW'
 
         { instructions: [], type }

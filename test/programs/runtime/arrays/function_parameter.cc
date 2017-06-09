@@ -2,6 +2,9 @@
     description{Checks arrays as function parameters}
 */
 
+#include <iostream>
+using namespace std;
+
 int f(int x[13][25]) {
     cout << x << endl;
     return 0;

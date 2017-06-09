@@ -1,6 +1,6 @@
 /*
 
-    description{Tests that missing first dimension in a parameter does compile}
+    description{Tests that missing first dimension in a function parameter array declaration does compile}
 
 */
 

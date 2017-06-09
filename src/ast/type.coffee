@@ -2,7 +2,7 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 utils = require '../utils'
-Error = require '../error'
+{ compilationError } = require '../messages'
 
 ASCII_MAP = (String.fromCharCode(char) for char in [0...128]).join("") + # ASCII
             "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü†°¢£§•¶ß®©™´¨≠ÆØ∞±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ" # Extended ASCII
@@ -49,42 +49,10 @@ class Type extends Ast
 
     requiredAlignment: -> if @bytes is 0 then 1 else @bytes
 
+    equalsNoConst: (other) -> @id is other.id
+
 isVoidPointer = (type) -> type.isPointer and type.getElementType() is PRIMITIVE_TYPES.VOID
 isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isValueConst
-
-
-@Reference = class Reference extends Type
-    constructor: (@elementType, { @isValueConst = no }) ->
-        super 'REFERENCE', {
-
-        }
-
-    getSymbol: ->
-        if @isValueConst
-            "const #{@elementType.getSymbol()}&"
-        else if @elementType.isArray
-            "(&)(#{elementType.getSymbol()})"
-        else
-            "#{elementType.getSymbol()}&"
-
-    isReference: yes
-
-    getElementType: -> @elementType
-
-    ### NOT NECESSARY, A REFERENCE HAS THE TYPE OF ITS ELEMENT
-    canCastTo: (otherType) ->
-        if otherType.isReference
-            return otherType.getElementType().canCastTo(@elementType)
-        else
-            return otherType.canCastTo(@elementType)
-
-
-    instructionsForCast: (otherType, result, memoryReference) ->
-        if result isnt memoryReference
-            [ new Casting identity, result, memoryReference ]
-        else
-            []
-    ###
 
 @Pointer = class Pointer extends Type
     @bytes: 4
@@ -133,6 +101,8 @@ isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isV
         else
             []
 
+    equalsNoConst: (other) -> other.isPointer and @getElementType().equalsNoConst(other.getElementType())
+
 class NullPtr extends Type
     constructor: ->
         super 'NULLPTR', { isAssignable: no }
@@ -149,7 +119,11 @@ class NullPtr extends Type
 
 @Array = class Array extends Type
     constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
-        super 'ARRAY', { isAssignable: no, isReferenceable: yes }
+        super 'ARRAY', {
+            isAssignable: no, isReferenceable: yes
+            castings:
+                COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
+        }
 
         if not @size?
             @isIncomplete = yes
@@ -195,6 +169,8 @@ class NullPtr extends Type
 
     getPointerType: -> new Pointer(@getElementType(), { @isValueConst })
 
+    equalsNoConst: (other) -> other.isArray and other.size is @size and @getElementType().equalsNoConst(other.getElementType())
+
     isArray: yes
 
 
@@ -205,6 +181,8 @@ class NullPtr extends Type
     canCastTo: -> no
 
     getSymbol: -> "#{@returnType}(#{(argType for argType in @argTypes).join(', ') })"
+
+    equalsNoConst: (other) -> no
 
     isFunction: yes
 
@@ -341,6 +319,6 @@ for typeId, type of PRIMITIVE_TYPES
 
             { instructions, result }
         else
-            throw Error.INVALID_CAST.complete('origin', actualType.getSymbol(), 'dest', expectedType.getSymbol())
+            compilationError 'INVALID_CAST', 'origin', actualType.getSymbol(), 'dest', expectedType.getSymbol()
     else
         { instructions: [], result: memoryReference }

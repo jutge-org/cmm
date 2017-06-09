@@ -1,14 +1,14 @@
-Error = require '../error'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, Array, Pointer, Reference, FunctionType } = require './type'
 { Id } = require './id'
 { Variable } = require '../compiler/semantics/variable'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Assign } = require './assign'
+{ compilationError } = require '../messages'
 
 module.exports = @
 
-@getSpecifiers = getSpecifiers = (specifiersList) ->
+@getSpecifiers = getSpecifiers = (specifiersList, state) ->
     specifiers = {}
 
     for specifier in specifiersList
@@ -20,12 +20,16 @@ module.exports = @
             v = specifier
 
         if specifiers[name]?
-            throw Error.DUPLICATE_SPECIFIER.complete('specifier', name)
+            compilationError 'DUPLICATE_SPECIFIER', 'specifier', name
         else
             specifiers[name] = v
 
     unless specifiers.TYPE?
-        throw Error.NO_TYPE_SPECIFIER
+        if state?.iAmInsideFunctionReturnDefinition()
+            compilationError 'NO_RETURN_TYPE'
+        else
+            compilationError 'NO_TYPE_SPECIFIER'
+
     else
         type = specifiers.TYPE
         delete specifiers.TYPE
@@ -33,7 +37,7 @@ module.exports = @
     { specifiers, type }
 
 @DeclarationGroup = class DeclarationGroup extends Ast
-    getSpecifiers: -> getSpecifiers @children[0]
+    getSpecifiers: (id, state) -> getSpecifiers @children[0], id, state
 
     findId = (declarationAst) ->
         # Here typedeclaration is for new expressions
@@ -47,7 +51,7 @@ module.exports = @
     compile: (state) ->
         [ _, declarations ] = @children
 
-        { specifiers, type } = @getSpecifiers()
+        { specifiers, type } = @getSpecifiers(state)
 
         instructions = []
 
@@ -60,14 +64,18 @@ module.exports = @
 @IdDeclaration = class IdDeclaration extends Ast
     compile: (state, { specifiers, type, id }) ->
         isReturnDefinition = state.iAmInsideFunctionReturnDefinition()
-
-        if not isReturnDefinition and type is PRIMITIVE_TYPES.VOID
-            throw Error.VOID_DECLARATION.complete('name', id)
-
         insideFunctionArgumentDefinitions = state.iAmInsideFunctionArgumentDefinitions()
 
+        if not isReturnDefinition and type is PRIMITIVE_TYPES.VOID
+            if insideFunctionArgumentDefinitions
+                compilationError 'VOID_FUNCTION_ARGUMENT', 'argument', id, 'function', state.functionId
+            else
+                compilationError 'VOID_DECLARATION', 'name', id
+
+
+
         if type.isArray and not type.size? and not insideFunctionArgumentDefinitions
-            throw Error.STORAGE_UNKNOWN.complete('id', id)
+            compilationError 'STORAGE_UNKNOWN', 'id', id
 
         if type.isArray and insideFunctionArgumentDefinitions
             state.defineVariable(new Variable id, new Pointer(type.getElementType()), { specifiers })
@@ -83,28 +91,28 @@ module.exports = @
         [ innerDeclarationAst, dimensionAst ] = @children
 
         if state.iAmInsideFunctionReturnDefinition()
-            throw Error.ARRAY_OF_FUNCTION.complete('id', id)
+            compilationError 'ARRAY_OF_FUNCTIONS', 'id', id
 
         if dimensionAst?
             { staticValue: dimension, type: dimensionType } = dimensionAst.compile state
 
             unless dimension?
-                throw Error.STATIC_SIZE_ARRAY.complete('id', id)
+                compilationError 'STATIC_SIZE_ARRAY', 'id', id
 
             unless dimensionType.isIntegral
-                throw Error.NONINTEGRAL_DIMENSION.complete('type', dimensionType.getSymbol(), 'id', id)
+                compilationError 'NONINTEGRAL_DIMENSION', 'type', dimensionType.getSymbol(), 'id', id
 
             if dimension < 0
-                throw Error.ARRAY_SIZE_NEGATIVE.complete('id', id)
+                compilationError 'ARRAY_SIZE_NEGATIVE', 'id', id
 
-        if type is PRIMITIVE_TYPES.VOID or type.isReference
-            throw Error.ARRAY_DECLARATION.complete('name', id, 'type', type.getSymbol())
+        if type is PRIMITIVE_TYPES.VOID
+            compilationError 'INVALID_ARRAY_DECLARATION_TYPE', 'name', id, 'type', type.getSymbol()
 
         if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_ARRAY
+            compilationError 'STRING_ARRAY'
 
         if type.isArray and not type.size?
-            throw Error.ALL_BOUNDS_EXCEPT_FIRST.complete('id', id)
+            compilationError 'ALL_BOUNDS_EXCEPT_FIRST', 'id', id
 
         # TODO: Should check that the size is below the implementation limit
         type = new Array(dimension, type, { isValueConst: specifiers?.const or (type.isArray and type.isValueConst) })
@@ -115,13 +123,10 @@ module.exports = @
 @PointerDeclaration = class PointerDeclaration extends Ast
     compile: (state, { specifiers, type, id }) ->
         if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_POINTER
+            compilationError 'STRING_POINTER'
 
         if type.isArray and not type.size? and state.iAmInsideFunctionArgumentDefinitions()
-            throw Error.POINTER_UNBOUND_SIZE.complete("type", type.getSymbol(), "id", id)
-
-        if type.isReference
-            throw Error.POINTER_TO.complete("type", type.getSymbol(), "id", id)
+            compilationError 'POINTER_UNBOUND_SIZE', "type", type.getSymbol(), "id", id
 
         type = new Pointer type, { isValueConst: specifiers?.const }
 
@@ -132,13 +137,13 @@ module.exports = @
 @ReferenceDeclaration = class ReferenceDeclaration extends Ast
     compile: (state, { type, id, specifiers, isInitialized }) ->
         if type is PRIMITIVE_TYPES.STRING
-            throw Error.STRING_ADDRESSING
+            compilationError 'STRING_ADDRESSING'
 
         if type is PRIMITIVE_TYPES.VOID or type.isReference
-            throw Error.REFERENCE_TO.complete('type', type.getSymbol(), "id", id)
+            compilationError 'REFERENCE_TO', 'type', type.getSymbol(), "id", id
 
         unless state.iAmInsideFunctionArgumentDefinitions() or state.iAmInsideFunctionReturnDefinition() or isInitialized
-            throw Error.UNINITIALIZED_REFERENCE.complete('id', id)
+            compilationError 'UNINITIALIZED_REFERENCE', 'id', id
 
         type = new Reference type, { isValueConst: specifiers?.const }
 

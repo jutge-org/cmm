@@ -2,6 +2,7 @@
 { PointerMemoryReference } = require './memory-reference'
 { IntLit } = require './literals'
 { EXPR_TYPES } = require './type'
+{ compilationError } = require '../messages'
 
 module.exports = @
 
@@ -13,7 +14,7 @@ module.exports = @
             valueAst.compile state
 
         unless type.isPointer or type.isArray
-            throw INVALID_DEREFERENCE_TYPE.complete("type", type.getSymbol())
+            compilationError 'INVALID_DEREFERENCE_TYPE', "type", type.getSymbol()
 
         type = type.getPointerType() if type.isArray
 

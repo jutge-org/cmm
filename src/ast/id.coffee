@@ -1,5 +1,5 @@
 { Ast } = require './ast'
-Error = require '../error'
+{ compilationError } = require '../messages'
 { EXPR_TYPES, Pointer } = require './type'
 { AddressOf } = require './address-of'
 
@@ -12,7 +12,7 @@ module.exports = @
         variable = state.getVariable id
 
         unless variable?
-            throw Error.REF_VARIABLE_NOT_DEFINED.complete('name', id)
+            compilationError 'REF_VARIABLE_NOT_DEFINED', 'name', id
 
         if variable.type.isArray
             result = state.getTemporary variable.type.getPointerType()

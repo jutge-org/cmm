@@ -8,7 +8,7 @@ Allocator = require 'malloc'
 { PRIMITIVE_TYPES, Pointer } = require '../ast/type'
 utils = require '../utils'
 
-CmmError = require '../error'
+{ executionError } = require '../messages'
 
 module.exports = @
 
@@ -73,7 +73,7 @@ class VM
             pointer = new Pointer(PRIMITIVE_TYPES.VOID).tipify(initialPointer | 0x80000000) # Add heap mark
             @allocatedPointers[pointer] = yes
         catch error
-            @executionError CmmError.CANNOT_ALLOCATE.complete("size", size)
+            executionError(this, 'CANNOT_ALLOCATE', "size", size)
 
         pointer
 
@@ -90,7 +90,7 @@ class VM
                 error = yes
 
         if error
-            @executionError CmmError.INVALID_FREE_POINTER.complete('pointer', "0x" + utils.pad(offset.toString(16), '0', 8))
+            executionError(this, 'INVALID_FREE_POINTER', 'pointer', "0x" + utils.pad(offset.toString(16), '0', 8))
 
         delete @allocatedPointers[offset]
 

@@ -1,7 +1,7 @@
 { Ast } = require './ast'
 { ensureType, PRIMITIVE_TYPES, EXPR_TYPES, Pointer } = require './type'
 { PointerMemoryReference, Leal } = require './memory-reference'
-Error = require '../error'
+{ compilationError } = require '../messages'
 
 module.exports = @
 
@@ -13,14 +13,12 @@ module.exports = @
 
         { result: indexResult, instructions: indexInstructions, type: indexType } = index.compile state
 
-        unless type.isArray or type.isPointer
-            throw Error.INVALID_ARRAY_SUBSCRIPT.complete("type", type.getSymbol(), "typeSubscript", indexType.getSymbol())
+        unless (type.isArray or type.isPointer) and indexType.isIntegral
+            compilationError 'INVALID_ARRAY_SUBSCRIPT', "type", type.getSymbol(), "typeSubscript", indexType.getSymbol()
 
         { instructions: indexCastInstructions, result: indexCastResult } = ensureType indexResult, indexType, PRIMITIVE_TYPES.INT, state
 
         state.releaseTemporaries indexCastResult
-
-        state.releaseTemporaries variableResult
 
         isConst = type.isValueConst
 
@@ -29,6 +27,8 @@ module.exports = @
         instructions = [ variableInstructions..., indexInstructions..., indexCastInstructions... ]
 
         if type.isArray
+            state.releaseTemporaries variableResult
+
             result = state.getTemporary new Pointer(type.getElementType())
 
             instructions.push(new Leal(result, variableResult, indexCastResult, type.bytes))

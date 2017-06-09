@@ -1,6 +1,6 @@
 assert = require 'assert'
 
-Error = require '../error'
+{ compilationError } = require '../messages'
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Assign } = require './assign'
@@ -17,9 +17,7 @@ module.exports = @
         # Si la funció en la que estem retorna void sa danar al tanto
         # Retorna void
 
-        { functionId } = state
-
-        func = state.getFunction functionId
+        func = state.getFunction()
 
         assert func?
 
@@ -34,7 +32,7 @@ module.exports = @
             actualType = PRIMITIVE_TYPES.VOID
 
             if actualType isnt expectedType
-                throw Error.NO_RETURN.complete("expected", expectedType.getSymbol(), "name", functionId)
+                compilationError 'NO_RETURN', "expected", expectedType.getSymbol(), "name", functionId
 
             instructions = []
 

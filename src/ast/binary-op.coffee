@@ -3,7 +3,7 @@
 { BranchFalse, BranchTrue } = require './branch'
 { Assign } = require './assign'
 { IntLit } = require './literals'
-Error = require '../error'
+{ compilationError, executionError } = require '../messages'
 utils = require '../utils'
 module.exports = @
 
@@ -12,7 +12,7 @@ module.exports = @
 # TODO: Check if pointer has incomplete type, in that case operations cannot be performed
 
 invalidOperands = (left, right) ->
-    throw Error.INVALID_OPERANDS.complete("typel", left.type, "typer", right.type)
+    compilationError 'INVALID_OPERANDS', "typel", left.type, "typer", right.type
 
 @BinaryOp = class BinaryOp extends Ast
     pointerCase: invalidOperands
@@ -86,7 +86,7 @@ class MaybePointerArithmetic extends SimpleArithmetic
         elementType = ref.pointer.type.getElementType()
 
         if elementType.isIncomplete
-            throw Error.UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE.complete("type", elementType)
+            compilationError 'UNALLOWED_ARITHMETIC_INCOMPLETE_TYPE', "type", elementType
 
         { bytes } = elementType
 
@@ -121,8 +121,8 @@ class MaybePointerArithmetic extends SimpleArithmetic
     f: (x, y) -> x*y
 
 class IntDiv extends BinaryOp
-    f: (x, y, state) ->
-        state.executionError Error.DIVISION_BY_ZERO if y is 0
+    f: (x, y, vm) ->
+        executionError(vm, 'DIVISION_BY_ZERO') if y is 0
         x/y
 
 class DoubleDiv extends BinaryOp
@@ -143,12 +143,12 @@ class DoubleDiv extends BinaryOp
 @Mod = class Mod extends Arithmetic
     castType: ([ typeLeft, typeRight ]) ->
         unless typeLeft.isIntegral and typeRight.isIntegral
-            throw Error.NON_INTEGRAL_MODULO
+            compilationError 'NON_INTEGRAL_MODULO'
 
         PRIMITIVE_TYPES.INT
 
-    f: (x, y, state) ->
-        state.executionError Error.MODULO_BY_ZERO if y is 0
+    f: (x, y, vm) ->
+        executionError(vm, 'MODULO_BY_ZERO') if y is 0
         x%y
 
 
@@ -182,7 +182,24 @@ class LazyOperator extends Ast
     branch: BranchTrue
 
 
-class Comparison extends BinaryOp
+class MaybePointerComparison extends BinaryOp
+    pointerCase: (left, right, state) ->
+        unless (left.type.isPointer or left.type.isArray) and (right.type.isPointer or right.type.isArray)
+            invalidOperands(left, right)
+
+        left.type = left.type.getPointerType() if left.type.isArray
+        right.type = right.type.getPointerType() if right.type.isArray
+
+        unless left.type.equalsNoConst(right.type)
+            compilationError 'POINTER_COMPARISON_DIFFERENT_TYPE', 'typeL', left.type.getSymbol(), 'typeR', right.type.getSymbol()
+
+        state.releaseTemporaries left.result, right.result
+
+        result = state.getTemporary PRIMITIVE_TYPES.BOOL
+
+        { type: PRIMITIVE_TYPES.BOOL, result, instructions: [ left.instructions..., right.instructions..., new @constructor(result, left.result, right.result) ]}
+
+class Comparison extends MaybePointerComparison
     casting: (operands, state) ->
         [ typeLeft, typeRight ] = actualTypes = operands.map((x) -> x.type)
 
@@ -201,6 +218,8 @@ class Comparison extends BinaryOp
 
         return { type: PRIMITIVE_TYPES.BOOL, results, instructions }
 
+
+# TODO: Comparison between pointers!
 @Lt = class Lt extends Comparison
     f: (x, y) -> x < y
 @Lte = class Lte extends Comparison

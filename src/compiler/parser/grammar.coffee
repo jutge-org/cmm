@@ -364,7 +364,6 @@ bnf =
             o 'decl_var_reference dimension',                                     -> new ArrayDeclaration $1, $2
             o '* decl_var_reference',                                            (-> new PointerDeclaration $2), prec: "deref"
             o '* CONST decl_var_reference',                                      (-> new PointerDeclaration(new ConstDeclaration($3))), prec: "deref"
-            o '& decl_var_reference',                                            (-> new ReferenceDeclaration $2), prec: "ref"
             o '( decl_var_reference )',                                           -> $2
         ]
 
@@ -456,11 +455,11 @@ bnf =
             o 'expr >= expr',                                                     -> new Gte $1, $3
             o 'expr == expr',                                                     -> new Eq $1, $3
             o 'expr != expr',                                                     -> new Neq $1, $3
-            o 'expr += expr',                                                     -> new Assign $1, new Add(Ast.copyOf($1), $3) # HACK: Note this should be changed when implementing operator overload
-            o 'expr -= expr',                                                     -> new Assign $1, new Sub(Ast.copyOf($1), $3)
-            o 'expr *= expr',                                                     -> new Assign $1, new Mul(Ast.copyOf($1), $3)
-            o 'expr /= expr',                                                     -> new Assign $1, new Div(Ast.copyOf($1), $3)
-            o 'expr %= expr',                                                     -> new Assign $1, new Mod(Ast.copyOf($1), $3)
+            o 'expr += expr',                                                     -> new AddAssign $1, $3
+            o 'expr -= expr',                                                     -> new SubAssign $1, $3
+            o 'expr *= expr',                                                     -> new MulAssign $1, $3
+            o 'expr /= expr',                                                     -> new DivAssign $1, $3
+            o 'expr %= expr',                                                     -> new ModAssign $1, $3
             o 'expr = expr',                                                      -> new Assign $1, $3
             o '- expr',                                                          (-> new Usub $2), prec: "u-"
             o '+ expr',                                                          (-> new Uadd $2), prec: "u+"

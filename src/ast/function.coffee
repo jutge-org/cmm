@@ -2,9 +2,8 @@ assert = require 'assert'
 
 { Ast } = require './ast'
 { PRIMITIVE_TYPES } = require './type'
-{ FunctionVar } = require '../compiler/semantics/function-var'
 { Program: { MAIN_FUNCTION } } = require '../compiler/program'
-Error = require '../error'
+{ compilationError } = require '../messages'
 utils = require '../utils'
 { Return } = require './return'
 { IntLit } = require './literals'
@@ -68,6 +67,6 @@ lastLocations = (locations) ->
         { type } = @getSpecifiers()
 
         if type is PRIMITIVE_TYPES.STRING # TODO: Remove when strings are properly implemented
-            throw { generated: yes }
+            compilationError 'STRING_ARGUMENT'
 
         super state
