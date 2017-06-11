@@ -489,7 +489,7 @@ start = "prog"
 
 bnf[start][0][1] = "return #{bnf[start][0][1]}"
 
-parser = new Parser {
+exports.parser = new Parser {
     lex: {rules: lexRules}
     operators: operators.reverse()
     start
