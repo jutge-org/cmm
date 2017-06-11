@@ -20,6 +20,7 @@
   "dependencies": {
     "ascii-tree": "^0.3.0",
     "coffeeify": "^2.0.1",
+    "is-travis-ci-build": "^1.1.1",
     "jison": "^0.4.17",
     "malloc": "^1.1.0",
     "vinyl-buffer": "^1.0.0",

@@ -44,6 +44,7 @@ test/real-programs/pro1-set/
 
 **/*.js
 **/*.js.map
+#!src/compiler/parser/parser.js
 
 quicktest/
 qtest

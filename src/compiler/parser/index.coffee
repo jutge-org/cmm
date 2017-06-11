@@ -1,4 +1,10 @@
-{ parser } = require './parser'
+isTravisCiBuild = require 'is-travis-ci-build'
+
+if isTravisCiBuild()
+    { parser } = require './grammar'
+else
+    { parser } = require './parser'
+    
 astModule = require '../../ast'
 { compilationError } = require '../../messages'
 
