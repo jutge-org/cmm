@@ -116,25 +116,31 @@ class MaybePointerArithmetic extends SimpleArithmetic
 
 
 @Add = class Add extends MaybePointerArithmetic
+    name: "Add"
     f: (x, y) -> x+y
 
 
 @Sub = class Sub extends MaybePointerArithmetic
+    name: "Sub"
     f: (x, y) -> x-y
 
 
 @Mul = class Mul extends SimpleArithmetic
+    name: "Mul"
     f: (x, y) -> x*y
 
 class IntDiv extends BinaryOp
+    name: "IntDiv"
     f: (x, y, vm) ->
         executionError(vm, 'DIVISION_BY_ZERO') if y is 0
         x/y
 
 class DoubleDiv extends BinaryOp
+    name: "DoubleDiv"
     f: (x, y) -> x/y
 
 @Div = class Div extends SimpleArithmetic
+    name: "Div"
     castType: (operandTypes) ->
         resultType = super operandTypes
 
@@ -147,6 +153,7 @@ class DoubleDiv extends BinaryOp
         return resultType
 
 @Mod = class Mod extends Arithmetic
+    name: "Mod"
     castType: ([ typeLeft, typeRight ]) ->
         unless typeLeft.isIntegral and typeRight.isIntegral
             @compilationError 'NON_INTEGRAL_MODULO'
@@ -183,20 +190,22 @@ class LazyOperator extends Ast
 
 
 @And = class And extends LazyOperator
+    name: "And"
     branch: BranchFalse
 @Or = class Or extends LazyOperator
+    name: "Or"
     branch: BranchTrue
 
 
 class MaybePointerComparison extends BinaryOp
     pointerCase: (left, right, state) ->
-        unless (left.type.isPointer or left.type.isArray) and (right.type.isPointer or right.type.isArray)
+        unless (left.type.isPointer or left.type.isArray or left.type.isNullPtr) and (right.type.isPointer or right.type.isArray or right.type.isNullPtr)
             invalidOperands(left, right, null, this)
 
         left.type = left.type.getPointerType() if left.type.isArray
         right.type = right.type.getPointerType() if right.type.isArray
 
-        unless left.type.equalsNoConst(right.type)
+        unless left.type.isNullPtr or right.type.isNullPtr or left.type.equalsNoConst(right.type)
             @compilationError 'POINTER_COMPARISON_DIFFERENT_TYPE', 'typeL', left.type.getSymbol(), 'typeR', right.type.getSymbol()
 
         state.releaseTemporaries left.result, right.result
@@ -227,15 +236,20 @@ class Comparison extends MaybePointerComparison
 
 # TODO: Comparison between pointers!
 @Lt = class Lt extends Comparison
+    name: "Lt"
     f: (x, y) -> x < y
 @Lte = class Lte extends Comparison
+    name: "Lte"
     f: (x, y) -> x <= y
 @Gt = class Gt extends Comparison
+    name: "Gt"
     f: (x, y) -> x > y
 @Gte = class Gte extends Comparison
+    name: "Gte"
     f: (x, y) -> x >= y
 @Eq = class Eq extends Comparison
+    name: "Eq"
     f: (x, y) -> x is y
 @Neq = class Neq extends Comparison
+    name: "Neq"
     f: (x, y) -> x isnt y
-

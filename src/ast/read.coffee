@@ -5,6 +5,7 @@
 module.exports = @
 
 @Read = class Read extends Ast
+    name: "Read"
     execute: ({ memory, io }) ->
         [ booleanReference, idReference ] = @children
 

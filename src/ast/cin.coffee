@@ -6,6 +6,7 @@
 module.exports = @
 
 @Cin = class Cin extends Ast
+    name: "Cin"
     compile: (state) ->
         instructions = []
         result = state.getTemporary PRIMITIVE_TYPES.BOOL

@@ -4,6 +4,7 @@
 module.exports = @
 
 @Assign = class Assign extends Ast
+    name: "Assign"
     compile: (state, { isFromDeclaration = no } = {}) ->
         [ destAst, valueAst ] = @children
 
@@ -48,6 +49,3 @@ module.exports = @
     execute: ({ memory }) ->
         [ dest, src ] = @children
         dest.write(memory, src.read(memory))
-
-
-

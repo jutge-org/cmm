@@ -3,6 +3,7 @@
 module.exports = @
 
 @List = class List extends Ast
+    name: "List"
     compile: (state, args...) ->
         instructions = []
         for child in @children
@@ -14,6 +15,7 @@ module.exports = @
         { instructions }
 
 @ScopedList = class ScopedList extends List
+    name: "ScopedList"
     compile: (state, args...) ->
         state.openScope()
 

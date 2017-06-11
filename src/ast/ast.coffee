@@ -11,7 +11,7 @@ module.exports = @
         @children = (child for child in @children when child isnt null)
         assert @constructor.name isnt "Ast", "Ast should only be instantiated via subclass"
 
-    getSymbol: -> @constructor.name # Returns a representation of the Ast node type (While/+=/- etc.)
+    getSymbol: -> @name # Returns a representation of the Ast node type (While/+=/- etc.)
 
     addParent: (ast) ->
         thisCopy = new @constructor()

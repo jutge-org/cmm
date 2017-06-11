@@ -1,3 +1,5 @@
+{ IO } = require '../runtime/io'
+
 module.exports = @
 
 @Program = class Program
@@ -5,6 +7,16 @@ module.exports = @
     @MAIN_FUNCTION: "main"
 
     constructor: (@variables, @functions, @globalsSize) ->
+        @outputListeners = []
+
+    instructionsToString: ->
+        s = ""
+        for funcId, func of @functions
+            s += funcId + ":" + "\n"
+            for instruction in func.instructions
+                s += instruction.toString().split("\n").map((x) -> "    " + x).join("\n") + "\n"
+
+        s
 
     writeInstructions: ->
         for funcId, func of @functions
@@ -13,3 +25,4 @@ module.exports = @
                 console.log instruction.toString().split("\n").map((x) -> "    " + x).join("\n")
 
     attachMemory: (@memory) ->
+    attachOutputListener: (fn, stream = IO.INTERLEAVED) -> @outputListeners.push({ fn, stream })

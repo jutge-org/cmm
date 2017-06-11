@@ -15,12 +15,19 @@ module.exports = @
             0: []
             3: ""
 
+        @listeners = {}
+
+        @listeners[stream] = [] for stream of @streams
+
     output: (stream, string) ->
         assert (typeof string is "string")
         assert @streams[stream]?
 
         @streams[IO.INTERLEAVED] += string
         @streams[stream] += string
+
+        listener(string) for listener in @listeners[stream]
+        listener(string) for listener in @listeners[IO.INTERLEAVED]
 
     setInput: (stream, input) ->
         assert (typeof input is "string")
@@ -39,3 +46,9 @@ module.exports = @
         @streams[stream].unshift(word)
 
     getStream: (stream) -> @streams[stream]
+
+    setOutputListeners: (listeners) ->
+        for { fn, stream } in listeners
+            assert stream of @streams
+            @listeners[stream] ?= []
+            @listeners[stream].push fn

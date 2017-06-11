@@ -5,6 +5,7 @@
 module.exports = @
 
 @Cout = class Cout extends Ast
+    name: "Cout"
     compile: (state) ->
         instructions = []
 

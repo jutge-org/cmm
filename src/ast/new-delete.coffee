@@ -6,6 +6,7 @@
 module.exports = @
 
 @Delete = class Delete extends Ast
+    name: "Delete"
     compile: (state) ->
         [ maybeArr, pointerAst ] = @children
 
@@ -33,6 +34,7 @@ module.exports = @
             vm.free(value)
 
 @New = class New extends Ast
+    name: "New"
     compile: (state) ->
         [ specifiersList, declarationAst ] =  @children
 
@@ -85,6 +87,7 @@ module.exports = @
 
 
 @NewArrayDeclaration = class NewArrayDeclaration extends Ast
+    name: "NewArrayDeclaration"
     compile: (state, { type, specifiers, parentAstDimension }) ->
         [ innerDeclarationAst, dimensionAst ] = @children
 
@@ -92,7 +95,7 @@ module.exports = @
             dimensionAst.compile state
 
         unless dimensionType.isIntegral
-            dimensionAst.compilationError 'NONINTEGRAL_DIMENSION'
+            dimensionAst.compilationError 'NONINTEGRAL_DIMENSION', 'id', null, 'type', dimensionType.getSymbol()
 
         if type.isArray and not type.size?
             parentAstDimension.compilationError 'NEW_ARRAY_SIZE_CONSTANT'
@@ -111,6 +114,7 @@ module.exports = @
 
 
 @NewPointerDeclaration = class NewPointerDeclaration extends Ast
+    name: "NewPointerDeclaration"
     compile: (state, { specifiers, type }) ->
         [ innerDeclarationAst ] = @children
 
@@ -119,6 +123,7 @@ module.exports = @
         innerDeclarationAst.compile state, { type }
 
 @NewDeclaration = class NewDeclaration extends Ast
+    name: "NewDeclaration"
     compile: (state, { specifiers, type }) ->
         if specifiers?.const
             @compilationError 'UNINITIALIZED_CONST_NEW'

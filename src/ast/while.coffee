@@ -6,6 +6,7 @@ utils = require '../utils'
 module.exports = @
 
 @While = class While extends Ast
+    name: "While"
     compile: (state) ->
         [ conditionAst, body ] = @children
 

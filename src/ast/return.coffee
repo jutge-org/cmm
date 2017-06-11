@@ -9,6 +9,7 @@ assert = require 'assert'
 module.exports = @
 
 @Return = class Return extends Ast
+    name: "Return"
     compile: (state) ->
         [ value ] = @children
 
@@ -56,5 +57,5 @@ module.exports = @
         vm.func = func
         vm.pointers.stack -= vm.func.stackSize
         vm.instructions = vm.func.instructions
-        
+
     isReturn: yes

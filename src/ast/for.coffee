@@ -6,6 +6,7 @@
 module.exports = @
 
 @For = class For extends Ast
+    name: "For"
     compile: (state) ->
         [ init, condition, afterIteration, body ] = @children
 

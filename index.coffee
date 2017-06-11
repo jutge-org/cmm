@@ -1,1 +1,3 @@
-module.exports = require './src'
+cmm = require './src'
+self?.cmm = cmm
+module.exports = cmm

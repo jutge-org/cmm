@@ -5,6 +5,7 @@
 module.exports = @
 
 @AddressOf = class AddressOf extends Ast
+    name: "AddressOf"
     compile: (state) ->
         [ valueAst ] = @children
 
@@ -37,4 +38,3 @@ module.exports = @
         [ destReference, reference ] = @children
 
         destReference.write(memory, reference.getAddress(memory))
-

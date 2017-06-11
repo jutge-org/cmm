@@ -27,18 +27,22 @@ module.exports = @
     getType: -> @type
 
 @DoubleLit = class DoubleLit extends Literal
+    name: "DoubleLit"
     parse: parseFloat
     type: PRIMITIVE_TYPES.DOUBLE
 
 @IntLit = class IntLit extends Literal
+    name: "IntLit"
     parse: parseInt
     type: PRIMITIVE_TYPES.INT
 
 @StringLit = class StringLit extends Literal # Should only accept ascii strings
+    name: "StringLit"
     parse: (s) -> JSON.parse("{ \"s\": #{s} }").s
     type: PRIMITIVE_TYPES.STRING
 
 @CharLit = class CharLit extends Literal
+    name: "CharLit"
     parse: (s) ->
         s = s[1...-1]
         if s is "\\'"
@@ -49,9 +53,11 @@ module.exports = @
     type: PRIMITIVE_TYPES.CHAR
 
 @BoolLit = class BoolLit extends Literal
+    name: "BoolLit"
     parse: (s) -> s is "true"
     type: PRIMITIVE_TYPES.BOOL
 
 @NullPtr = class NullPtr extends Literal
+    name: "NullPtr"
     parse: -> 0
     type: PRIMITIVE_TYPES.NULLPTR

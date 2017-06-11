@@ -5,6 +5,7 @@
 module.exports = @
 
 @ArraySubscript = class ArraySubscript extends Ast
+    name: "ArraySubscript"
     compile: (state) ->
         [ variable, index ] = @children
 
@@ -42,8 +43,3 @@ module.exports = @
             type,
             isConst
         }
-
-
-
-
-

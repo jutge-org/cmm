@@ -26,8 +26,14 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "devDependencies": {
+    "browserify": "^14.4.0",
     "chai": "^3.5.0",
+    "coffeeify": "^2.1.0",
+    "gulp": "^3.9.1",
+    "gulp-minify": "^1.0.0",
     "istanbul": "^0.4.5",
-    "mocha": "^3.3.0"
+    "mocha": "^3.3.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }

@@ -5,6 +5,7 @@
 module.exports = @
 
 @IfThen = class IfThen extends Ast
+    name: "IfThen"
     compile: (state) ->
         [ conditionAst, thenBody ] = @children
 
@@ -34,6 +35,7 @@ module.exports = @
         return { type: PRIMITIVE_TYPES.VOID, branch, instructions }
 
 @IfThenElse = class IfThenElse extends @IfThen
+    name: "IfThenElse"
     compile: (state) ->
         [ _, _, elseBody ] = @children
 

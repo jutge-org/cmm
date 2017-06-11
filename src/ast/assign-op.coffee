@@ -30,9 +30,11 @@ class PreOp extends Ast
         assignAst.compile(state)
 
 @PreInc = class PreInc extends PreOp
+    name: "PreInc"
     incr: "1"
 
-@PreDec = class PreDec extends PreOp
+@PreDec = class  PreDec extends PreOp
+    name: "PreDec"
     incr: "-1"
 
     checkType: (type) ->
@@ -69,9 +71,11 @@ class PostOp extends Ast
         { instructions: [ new Assign(result, resultAst.result), assignInstructions... ], result, type: resultAst.type, exprType: EXPR_TYPES.RVALUE }
 
 @PostInc = class PostInc extends PostOp
+    name: "PostInc"
     incr: "1"
 
 @PostDec = class PostDec extends PostOp
+    name: "PostDec"
     incr: "-1"
 
     checkType: (type) ->
@@ -97,12 +101,17 @@ class OpAssign extends Ast
         assignAst.compile(state)
 
 @AddAssign = class AddAssign extends OpAssign
+    name: "AddAssign"
     op: Add
 @SubAssign = class SubAssign extends OpAssign
+    name: "SubAssign"
     op: Sub
 @MulAssign = class MulAssign extends OpAssign
+    name: "MulAssign"
     op: Mul
 @DivAssign = class DivAssign extends OpAssign
+    name: "DivAssign"
     op: Div
 @ModAssign = class ModAssign extends OpAssign
+    name: "ModAssign"
     op: Mod

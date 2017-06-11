@@ -10,6 +10,7 @@ module.exports = @
 HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
 @MemoryReference = class MemoryReference extends Ast
+    name: "MemoryReference"
     @HEAP: 0
     @STACK: 1
     @TMP: 2
@@ -45,6 +46,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
 
 @PointerMemoryReference = class PointerMemoryReference extends Ast
+    name: "PointerMemoryReference"
     constructor: (type, @baseAddressRef, @indexAddressRef) ->
         #assert type.isAssignable
 
@@ -71,22 +73,26 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     getTemporaries: -> [ @baseAddressRef, @indexAddressRef ]
 
 @ReturnReference = class ReturnReference extends MemoryReference
+    name: "ReturnReference"
     constructor: (type) -> super type, 0
 
     read: (memory) -> memory.return[@get](0)
     write: (memory, value) -> memory.return[@set](0, value)
 
 @StackReference = class StackReference extends MemoryReference
+    name: "StackReference"
     read: (memory) -> memory.stack[@get](@address + memory.pointers.stack)
     write: (memory, value) -> memory.stack[@set](@address + memory.pointers.stack, value)
 
     getAddress: (memory) -> @address + memory.pointers.stack
 
 @HeapReference = class HeapReference extends MemoryReference
+    name: "HeapReference"
     constructor: (type, address) ->
         super type, address + HEAP_INITIAL_ADDRESS
 
 @TmpReference = class TmpReference extends MemoryReference
+    name: "TmpReference"
     constructor: (type, address, @occupation) -> super type, address
 
     isTemporary: true
@@ -97,6 +103,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     getOccupation: -> @occupation
 
 @StringReference = class StringReference extends Ast
+    name: "StringReference"
     constructor: (string) -> super string
 
     read: -> @child()
@@ -105,6 +112,7 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
     getType: -> PRIMITIVE_TYPES.STRING
 
 @Leal = class Leal extends Ast
+    name: "Leal"
     execute: ({ memory }) ->
         [ destReference, baseReference, indexReference, elementSize ] = @children
 

@@ -25,6 +25,7 @@ module.exports = @
         variable.write memory, @f(value.read(memory))
 
 @Uadd = class Uadd extends UnaryOp
+    name: "Uadd"
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
@@ -42,6 +43,7 @@ module.exports = @
 
 
 @Usub = class Usub extends UnaryOp
+    name: "Usub"
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 
@@ -62,6 +64,7 @@ module.exports = @
 
 
 @Not = class Not extends UnaryOp
+    name: "Not"
     casting: (operand, state) ->
         { type: operandType, result: operandResult } = operand
 

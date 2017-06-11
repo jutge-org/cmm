@@ -8,6 +8,7 @@
 module.exports = @
 
 @EmptyDimension = class EmptyDimension extends Ast
+    name: "EmptyDimension"
     isEmptyDimension: yes
 
 @getSpecifiers = getSpecifiers = (specifiersList, state, ast) ->
@@ -39,6 +40,7 @@ module.exports = @
     { specifiers, type }
 
 @DeclarationGroup = class DeclarationGroup extends Ast
+    name: "DeclarationGroup"
     getSpecifiers: (state) -> getSpecifiers @children[0], state, this
 
     findId = (declarationAst) ->
@@ -65,6 +67,7 @@ module.exports = @
         return { type: PRIMITIVE_TYPES.VOID, instructions }
 
 @IdDeclaration = class IdDeclaration extends Ast
+    name: "IdDeclaration"
     compile: (state, { specifiers, type, id, idAst }) ->
         isReturnDefinition = state.iAmInsideFunctionReturnDefinition()
         insideFunctionArgumentDefinitions = state.iAmInsideFunctionArgumentDefinitions()
@@ -90,6 +93,7 @@ module.exports = @
         { instructions: [], id }
 
 @ArrayDeclaration = class ArrayDeclaration extends Ast
+    name: "ArrayDeclaration"
     compile: (state, { specifiers, type, id, idAst, parentDimensionAst }) ->
         [ innerDeclarationAst, dimensionAst ] = @children
 
@@ -124,6 +128,7 @@ module.exports = @
 
 
 @PointerDeclaration = class PointerDeclaration extends Ast
+    name: "PointerDeclaration"
     compile: (state, { specifiers, type, id, idAst }) ->
         if type is PRIMITIVE_TYPES.STRING
             @compilationError 'STRING_POINTER'
@@ -137,26 +142,8 @@ module.exports = @
 
         innerDeclarationAst.compile state, { type, id, idAst }
 
-@ReferenceDeclaration = class ReferenceDeclaration extends Ast
-    compile: (state, { type, id, specifiers, isInitialized, idAst }) ->
-        if type is PRIMITIVE_TYPES.STRING
-            @compilationError 'STRING_ADDRESSING'
-
-        if type is PRIMITIVE_TYPES.VOID or type.isReference
-            @compilationError 'REFERENCE_TO', 'type', type.getSymbol(), "id", id
-
-        unless state.iAmInsideFunctionArgumentDefinitions() or state.iAmInsideFunctionReturnDefinition() or isInitialized
-            @compilationError 'UNINITIALIZED_REFERENCE', 'id', id
-
-        type = new Reference type, { isValueConst: specifiers?.const }
-
-        [ innerDeclarationAst ] = @children
-
-        innerDeclarationAst.compile state, { type, id, idAst }
-
-
-
 @ConstDeclaration = class ConstDeclaration extends Ast
+    name: "PointerDeclaration"
     compile: (state, { type, id, idAst }) ->
         [ innerDeclarationAst ] = @children
 
@@ -164,6 +151,7 @@ module.exports = @
 
 
 @DeclarationAssign = class DeclarationAssign extends Ast
+    name: "DeclarationAssign"
     compile: (state, { specifiers, type, id, idAst }) ->
         [ declaration, value ] = @children
 

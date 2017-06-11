@@ -13,6 +13,7 @@ CALL_DEPTH_LIMIT = 20000000
 module.exports = @
 
 @Funcall = class Funcall extends Ast
+    name: "Funcall"
     compile: (state) ->
         [ { children: [ funcId ] }, paramList ] = @children
 
@@ -38,7 +39,7 @@ module.exports = @
 
         paramPushResults = []
         for param, i in paramList
-            { type: actualType, instructions: paramInstructions, result: paramResult } = param.compile state 
+            { type: actualType, instructions: paramInstructions, result: paramResult } = param.compile state
             { instructions: castingInstructions, result: castingResult } = ensureType paramResult, actualType, expectedParamTypes[i], state, this
             paramPushResults.push castingResult
             instructions = instructions.concat([ paramInstructions..., castingInstructions... ])
@@ -50,7 +51,7 @@ module.exports = @
             instructions.push new ParamPush paramPushResult, desiredOffset
             offset = desiredOffset + paramPushResult.getType().bytes
 
-    
+
         # Need to copy the temporaries that are currently being used because otherwise
         # they could be written over by the function being called
         instructions.push new Funcall(funcId, state.temporaryAddressOffset)
@@ -97,6 +98,7 @@ module.exports = @
 
 
 @ParamPush = class ParamPush extends Ast
+    name: "ParamPush"
     execute: ({ memory, func }) ->
         [ value, offset ] = @children
 

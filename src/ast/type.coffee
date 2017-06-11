@@ -22,6 +22,7 @@ roundCout = (x) ->
 identity = (x) -> x
 
 class Type extends Ast
+    name: "Type"
     constructor: (@id, {
                     @castings = {}
                     @bytes
@@ -54,6 +55,8 @@ isVoidPointer = (type) -> type.isPointer and type.getElementType() is PRIMITIVE_
 isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isValueConst
 
 @Pointer = class Pointer extends Type
+    name: "Pointer"
+
     @bytes: 4
 
     constructor: (@elementType, { @isValueConst = no, @isIncomplete = no } = {}) ->
@@ -103,6 +106,7 @@ isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isV
     equalsNoConst: (other) -> other.isPointer and @getElementType().equalsNoConst(other.getElementType())
 
 class NullPtr extends Type
+    name: "NullPtr"
     constructor: ->
         super 'NULLPTR', { isAssignable: no }
 
@@ -116,7 +120,10 @@ class NullPtr extends Type
         else
             []
 
+    isNullPtr: yes
+
 @Array = class Array extends Type
+    name: "Array"
     constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
         super 'ARRAY', {
             isAssignable: no, isReferenceable: yes
@@ -175,6 +182,7 @@ class NullPtr extends Type
 
 
 @FunctionType = class FunctionType extends Type
+    name: "FunctionType"
     constructor: (@returnType, @argTypes = []) ->
 
     canCastTo: -> no
@@ -288,6 +296,7 @@ class NullPtr extends Type
 Object.freeze @PRIMITIVE_TYPES
 
 class Casting extends Ast
+    name: "Casting"
     constructor: (@cast, children...) ->
         super children...
 

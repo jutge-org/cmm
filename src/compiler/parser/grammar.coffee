@@ -341,12 +341,12 @@ bnf =
         declaration: [
             o 'type_specifier_seq declaration_body',                       -> new DeclarationGroup $1, $2
         ]
-        
+
         type_specifier_seq: [
             o 'type_specifier_seq type_specifier',                  -> $$.push $2
             o 'type_specifier',                                            -> [$1]
         ]
-        
+
         type_specifier: [
             o 'CONST'
             o 'type'
@@ -489,9 +489,11 @@ start = "prog"
 
 bnf[start][0][1] = "return #{bnf[start][0][1]}"
 
-exports.parser = new Parser {
+parser = new Parser {
     lex: {rules: lexRules}
     operators: operators.reverse()
     start
     bnf
 }
+
+#require('fs').writeFileSync(__dirname + '/parser.js', parser.generate())

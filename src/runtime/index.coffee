@@ -22,6 +22,7 @@ class VM
 
         @io = new IO
         @io.setInput IO.STDIN, input if input?
+        @io.setOutputListeners program.outputListeners
 
         @memory = program.memory ? new Memory
         @memory.setPointers @pointers
@@ -43,7 +44,10 @@ class VM
 
         @instruction = @instructions[@pointers.instruction]
 
-    isWaitingForInput: -> @instruction.isRead and @io.getStream(IO.STDIN).length is 0
+        @hasEndedInput = no
+
+    isWaitingForInput: -> not @hasEndedInput and @instruction.isRead and @io.getStream(IO.STDIN).length is 0
+    endOfInput: -> @hasEndedInput = yes
 
     computeResults: ->
         assert @finished, "Try to get results from VM which has not finished execution"

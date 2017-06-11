@@ -23,7 +23,7 @@ module.exports = @
             unless isLiteral
                 bracedPlaceHolder =  "<<#{placeHolder}>>"
                 index = ret.message.indexOf bracedPlaceHolder
-                text = if text? then " '#{text}'" else " "
+                text = if text? then " '#{text}'" else ""
 
             assert index >= 0
             assert text?
@@ -33,6 +33,13 @@ module.exports = @
         ret
 
     toString: (code) ->
+        s = @getMessage(code)
+
+        s += "\nDescription:\n\n#{@description}" if @description?
+
+        s
+
+    getMessage: (code) ->
         if @locations?
             { lineColumnSpec, relevantCode } = utils.locationsMessage code, @locations
         else
@@ -47,7 +54,5 @@ module.exports = @
         s = message + "\n"
 
         s += utils.indent(relevantCode, 2) + "\n" if relevantCode?
-
-        s += "\nDescription:\n\n#{@description}" if @description?
 
         s

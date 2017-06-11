@@ -14,6 +14,7 @@ module.exports = @
 { ENTRY_FUNCTION } = Program
 
 @ProgramAst = class ProgramAst extends Ast
+    name: "ProgramAst"
     ALLOWED_MAIN_RETURN_TYPES = [ PRIMITIVE_TYPES.INT ]
 
     checkMainIsDefined = (functions) ->

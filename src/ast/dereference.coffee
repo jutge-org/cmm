@@ -6,6 +6,7 @@
 module.exports = @
 
 @Dereference = class Dereference extends Ast
+    name: "Dereference"
     compile: (state) ->
         [ valueAst ] = @children
 

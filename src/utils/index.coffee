@@ -78,7 +78,7 @@ markLineFrom = (line, start, end) ->
 
     { lines, columns } = locations
 
-    lineColumnSpec = "code.cc:#{lines.first}:#{columns.first}: "
+    lineColumnSpec = "#{lines.first}:#{columns.first}: "
 
     # We want zero-based numbers
     --lines.first

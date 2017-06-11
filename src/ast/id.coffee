@@ -5,6 +5,7 @@
 module.exports = @
 
 @Id = class Id extends Ast
+    name: "Id"
     compile: (state) ->
         [ id ] = @children
 

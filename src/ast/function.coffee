@@ -19,6 +19,7 @@ lastLocations = (locations) ->
     }
 
 @Function = class Function extends Ast
+    name: "Function"
     compile: (state) ->
 
         [ declaration, argList, instructionList ] = @children
@@ -30,7 +31,7 @@ lastLocations = (locations) ->
         state.beginFunctionArgumentDefinitions() # Array declaration checks are different (first dimension can be ommited)
         argList.compile state
         state.endFunctionArgumentDefinitions()
-        
+
         { instructions: instructionsBody } = instructionList.compile state
 
         functionVariable = state.getFunction()
@@ -59,6 +60,7 @@ lastLocations = (locations) ->
 
 
 @FuncArg = class FuncArg extends DeclarationGroup
+    name: "FuncArg"
     constructor: (specifiers, id) ->
         super specifiers, [id] # Switch to declaration format
 

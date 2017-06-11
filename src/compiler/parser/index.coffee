@@ -1,4 +1,4 @@
-{ parser } = require './grammar'
+{ parser } = require './parser'
 astModule = require '../../ast'
 { compilationError } = require '../../messages'
 
