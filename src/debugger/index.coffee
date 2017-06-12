@@ -25,16 +25,19 @@ differLine = (line, other) -> line? and other? and line isnt other
         @started = yes
 
         @addBreakpoints(Object.keys(@breakpointsToAdd)...)
-        @breakpointsToAdd = {}
 
         @iterator = run @program
 
-        @continue()
+        @continue(null, yes)
 
-    continue: (condition = (-> no)) ->
+    continue: (condition = (-> no), initial = false) ->
         assert @started
 
         { value: @vm } = @iterator.next()
+
+        if initial
+            yield @vm
+
         until @vm.finished or @vm.instruction.breakpoint or condition(@vm)
             if @vm.isWaitingForInput()
                 yield @vm
@@ -60,7 +63,9 @@ differLine = (line, other) -> line? and other? and line isnt other
         # A: There was no function call in the current line, just jump to the next line
         # B: There was a function call in the current line. Every function is assumed to start at a different
         #    line, so just jumps inside the called function
-        yield from @continue((vm) -> differLine(vm.instructions.locations?.lines.first, currentLine))
+        yield from @continue((vm) ->
+            differLine(vm.instruction.locations?.lines.first, currentLine)
+        )
 
     stepOut: ->
         assert @started
@@ -70,26 +75,25 @@ differLine = (line, other) -> line? and other? and line isnt other
         # > 0 so that the entry function cannot be debugged
         yield from @continue((vm) -> vm.controlStack.length < currentStackLevel and vm.controlStack.length > 0 and vm.instruction.locations?)
 
+    stepInstruction: ->
+        assert @started
+
+        yield from @continue(-> yes)
+
     addBreakpoints: (lines...) ->
         if @program
             for line in lines
                 instruction = findLineInstruction(@program, line)
                 instruction?.breakpoint = yes
-        else
-            for line in lines
-                @breakpointsToAdd[line] = yes
+
+        for line in lines
+            @breakpointsToAdd[line] = yes
 
     removeBreakpoints: (lines...) ->
         if @program
             for line in lines
                 instruction = findLineInstruction(@program, line)
                 delete instruction?.breakpoint
-        else
-            for line in lines
-                delete @breakpointsToAdd[line]
 
-
-
-
-
-
+        for line in lines
+            delete @breakpointsToAdd[line]
