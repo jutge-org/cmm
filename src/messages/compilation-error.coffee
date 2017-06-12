@@ -615,7 +615,7 @@ assert = require 'assert'
         description: """
             This error occurs when trying to apply the unary minus operation to invalid types
             such as pointers or arrays.
-            
+
             Example:
 
             ```
@@ -998,7 +998,7 @@ assert = require 'assert'
 
     MAX_STACK_SIZE_EXCEEDED:
         code: 13002
-        message: "Function<<id>> with stack size <<<size>>> bytes exceeds the maximum stack size limit of <<<limit>>> bytes. Try moving array declarations to the global scope"
+        message: "Function<<id>> with stack size <<<size>>> bytes exceeds the maximum stack size limit of <<<limit>>> bytes. Try moving array declarations to the global scope."
         description: """
             This error occurs when you define very big local variables inside a function. Typically it is
             due to declaring big arrays.
@@ -1043,5 +1043,3 @@ for errorType, map of @
 
 
 #c "IOSTREAM_LIBRARY_MISSING", 18, "<<name>> not found. iostream library needed." # Not in use right now
-
-
