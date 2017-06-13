@@ -57,7 +57,7 @@ lastLocations = (locations) ->
 
         state.endFunction()
 
-        return type: PRIMITIVE_TYPES.VOID, instructions: [ new FunctionDefinition functionId ], id: functionId # The instructions can be found on state.functions[<function>].instructions
+        return type: PRIMITIVE_TYPES.VOID, instructions: [ new FunctionDefinition(functionId) ], id: functionId # The instructions can be found on state.functions[<function>].instructions
 
 
 @FuncArg = class FuncArg extends DeclarationGroup

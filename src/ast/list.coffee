@@ -24,6 +24,6 @@ module.exports = @
 
         state.closeScope()
 
-        result.instructions = [ new OpenScope, result.instructions..., new CloseScope ]
+        result.instructions = [ new OpenScope(), result.instructions..., new CloseScope() ]
 
         result

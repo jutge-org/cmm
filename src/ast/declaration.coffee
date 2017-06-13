@@ -93,7 +93,7 @@ module.exports = @
             else
                 state.defineVariable(new Variable(id, type, { specifiers }), idAst)
 
-        { instructions: (if variable? then [ new VariableDeclaration variable ] else []), id }
+        { instructions: (if variable? then [ new VariableDeclaration(variable) ] else []), id }
 
 @ArrayDeclaration = class ArrayDeclaration extends Ast
     name: "ArrayDeclaration"

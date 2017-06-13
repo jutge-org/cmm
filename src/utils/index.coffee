@@ -106,3 +106,9 @@ markLineFrom = (line, start, end) ->
     }
 
 @indent = (text, spaces) -> text.split('\n').map((x) -> Array(spaces + 1).join(" ") + x).join("\n")
+
+@countInstructions = (instructions) ->
+    c = 0
+    for instruction in instructions when not instruction.isDebugInfo
+        ++c
+    c

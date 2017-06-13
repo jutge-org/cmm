@@ -3,6 +3,7 @@
 { Branch, BranchFalse } = require './branch'
 { BoolLit } = require './literals'
 { OpenScope, CloseScope } = require './debug-info'
+{ countInstructions } = require '../utils'
 
 module.exports = @
 
@@ -51,16 +52,21 @@ module.exports = @
         topInstructions.forEach((x) -> x.locations = condition.locations)
         afterInstructions.forEach((x) -> x.locations = afterIteration.locations)
 
+        afterInstructionCount = countInstructions afterInstructions
+        bodyInstructionsCount = countInstructions bodyInstructions
+        conditionInstructionsCount = countInstructions conditionInstructions
+        castingInstructionsCount = countInstructions castingInstructions
+
         return {
             type: PRIMITIVE_TYPES.VOID
             instructions: [
-                new OpenScope
+                new OpenScope()
                 instructionsInit...,
                 topInstructions...,
-                new BranchFalse(castingResult, bodyInstructions.length + afterInstructions.length + 1)
+                new BranchFalse(castingResult, bodyInstructionsCount + afterInstructionCount + 1)
                 bodyInstructions...,
                 afterInstructions...,
-                new Branch(-(afterInstructions.length + bodyInstructions.length + 1 + castingInstructions.length + conditionInstructions.length + 1))
-                new CloseScope
+                new Branch(-(afterInstructionCount + bodyInstructionsCount + 1 + castingInstructionsCount + conditionInstructionsCount + 1))
+                new CloseScope()
             ]
         }

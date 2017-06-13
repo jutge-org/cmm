@@ -1,6 +1,6 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
-utils = require '../utils'
+{ countInstructions } = require '../utils'
 { Branch, BranchFalse } = require './branch'
 { OpenScope, CloseScope } = require './debug-info'
 
@@ -30,16 +30,19 @@ module.exports = @
         topInstructions = [conditionInstructions..., castingInstructions...]
         topInstructions.forEach((x) -> x.locations = conditionAst.locations)
 
+        bodyInstructionsCount = countInstructions bodyInstructions
+        topInstructionsCount = countInstructions topInstructions
+
         return {
              type: PRIMITIVE_TYPES.VOID,
              instructions: [
                  topInstructions...
-                 new BranchFalse(castingResult, bodyInstructions.length + 1),
-                 new OpenScope
+                 new BranchFalse(castingResult, bodyInstructionsCount + 1),
+                 new OpenScope()
                  bodyInstructions...,
                  # The first +1 accounts for the branchfalse after the condition check.
                  # The second one is to account for the increase to the next instruction that is always made
-                 new Branch(-(bodyInstructions.length + 1 + topInstructions.length + 1))
-                 new CloseScope
+                 new Branch(-(bodyInstructionsCount + 1 + topInstructionsCount + 1))
+                 new CloseScope()
              ]
         }

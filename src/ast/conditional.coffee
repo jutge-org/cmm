@@ -2,6 +2,7 @@
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Branch, BranchFalse } = require './branch'
 { OpenScope, CloseScope } = require './debug-info'
+{ countInstructions } = require '../utils'
 
 module.exports = @
 
@@ -26,12 +27,12 @@ module.exports = @
 
         state.closeScope()
 
-        branch = new BranchFalse(castingResult, thenInstructions.length)
+        branch = new BranchFalse(castingResult, countInstructions(thenInstructions))
 
         topInstructions = [ conditionInstructions..., castingInstructions...]
         topInstructions.forEach((x) => x.locations = conditionAst.locations)
 
-        instructions = [ topInstructions..., branch, new OpenScope, thenInstructions..., new CloseScope ]
+        instructions = [ topInstructions..., branch, new OpenScope(), thenInstructions..., new CloseScope() ]
 
         return { type: PRIMITIVE_TYPES.VOID, branch, instructions }
 
@@ -52,4 +53,12 @@ module.exports = @
 
         state.closeScope()
 
-        return { type, instructions: [ instructions..., new Branch(elseInstructions.length), new OpenScope, elseInstructions..., new CloseScope ] }
+        return {
+            type,
+            instructions: [
+                instructions...,
+                new Branch(countInstructions(elseInstructions)),
+                new OpenScope(),
+                elseInstructions...,
+                new CloseScope() ]
+        }

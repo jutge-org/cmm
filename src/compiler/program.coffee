@@ -10,8 +10,8 @@ module.exports = @
         @outputListeners = []
 
 
-        #for funcId, func of @functions
-        #    func.instructions = (instruction for instruction in func.instructions when not instruction.isDebugInfo)
+        for funcId, func of @functions
+            func.instructions = (instruction for instruction in func.instructions when not instruction.isDebugInfo)
 
 
 
