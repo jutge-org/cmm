@@ -29,7 +29,7 @@ module.exports = @
         listener(string) for listener in @listeners[stream]
         listener(string) for listener in @listeners[IO.INTERLEAVED]
 
-    setInput: (stream, input) ->
+    input: (stream, input) ->
         assert (typeof input is "string")
         assert @streams[stream]?
 

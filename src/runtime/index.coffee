@@ -21,7 +21,7 @@ class VM
         @pointers = { instruction: 0, stack: 0, temporaries: 0 }
 
         @io = new IO
-        @io.setInput IO.STDIN, input if input?
+        @io.input IO.STDIN, input if input?
         @io.setOutputListeners program.outputListeners
 
         @memory = program.memory ? new Memory
@@ -67,7 +67,7 @@ class VM
         @io.output(IO.STDERR, error.message)
         @status = error.code
 
-    input: (string) -> @io.setInput(IO.STDIN, string)
+    input: (string) -> @io.input(IO.STDIN, string)
 
     alloc: (size) ->
         try
