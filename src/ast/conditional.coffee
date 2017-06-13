@@ -1,6 +1,7 @@
 { Ast } = require './ast'
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Branch, BranchFalse } = require './branch'
+{ OpenScope, CloseScope } = require './debug-info'
 
 module.exports = @
 
@@ -30,7 +31,7 @@ module.exports = @
         topInstructions = [ conditionInstructions..., castingInstructions...]
         topInstructions.forEach((x) => x.locations = conditionAst.locations)
 
-        instructions = [ topInstructions..., branch, thenInstructions... ]
+        instructions = [ topInstructions..., branch, new OpenScope, thenInstructions..., new CloseScope ]
 
         return { type: PRIMITIVE_TYPES.VOID, branch, instructions }
 
@@ -51,4 +52,4 @@ module.exports = @
 
         state.closeScope()
 
-        return { type, instructions: [ instructions..., new Branch(elseInstructions.length), elseInstructions... ] }
+        return { type, instructions: [ instructions..., new Branch(elseInstructions.length), new OpenScope, elseInstructions..., new CloseScope ] }

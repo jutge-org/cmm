@@ -9,6 +9,7 @@ utils = require '../utils'
 { Assign } = require './assign'
 { MemoryReference } = require './memory-reference'
 { DeclarationGroup } = require './declaration'
+{ FunctionDefinition } = require './debug-info'
 
 module.exports = @
 
@@ -56,7 +57,7 @@ lastLocations = (locations) ->
 
         state.endFunction()
 
-        return type: PRIMITIVE_TYPES.VOID, instructions: [], id: functionId # The instructions can be found on state.functions[<function>].instructions
+        return type: PRIMITIVE_TYPES.VOID, instructions: [ new FunctionDefinition functionId ], id: functionId # The instructions can be found on state.functions[<function>].instructions
 
 
 @FuncArg = class FuncArg extends DeclarationGroup

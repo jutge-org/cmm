@@ -9,6 +9,12 @@ module.exports = @
     constructor: (@variables, @functions, @globalsSize) ->
         @outputListeners = []
 
+
+        #for funcId, func of @functions
+        #    func.instructions = (instruction for instruction in func.instructions when not instruction.isDebugInfo)
+
+
+
     instructionsToString: ->
         s = ""
         for funcId, func of @functions

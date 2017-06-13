@@ -4,6 +4,7 @@
 { Variable } = require '../compiler/semantics/variable'
 { FunctionVar } = require '../compiler/semantics/function-var'
 { Assign } = require './assign'
+{ VariableDeclaration } = require './debug-info'
 
 module.exports = @
 
@@ -83,14 +84,16 @@ module.exports = @
         if type.isArray and not type.size? and not insideFunctionArgumentDefinitions
             @compilationError 'STORAGE_UNKNOWN', 'id', id
 
-        if type.isArray and insideFunctionArgumentDefinitions
-            state.defineVariable(new Variable(id, new Pointer(type.getElementType()), { specifiers }), idAst)
-        else if isReturnDefinition
-            state.newFunction(new FunctionVar(id, new FunctionType(type)), idAst)
-        else
-            state.defineVariable(new Variable(id, type, { specifiers }), idAst)
+        variable =
+            if type.isArray and insideFunctionArgumentDefinitions
+                state.defineVariable(new Variable(id, new Pointer(type.getElementType()), { specifiers }), idAst)
+            else if isReturnDefinition
+                state.newFunction(new FunctionVar(id, new FunctionType(type)), idAst)
+                null
+            else
+                state.defineVariable(new Variable(id, type, { specifiers }), idAst)
 
-        { instructions: [], id }
+        { instructions: (if variable? then [ new VariableDeclaration variable ] else []), id }
 
 @ArrayDeclaration = class ArrayDeclaration extends Ast
     name: "ArrayDeclaration"

@@ -2,6 +2,7 @@
 { PRIMITIVE_TYPES, ensureType } = require './type'
 { Branch, BranchFalse } = require './branch'
 { BoolLit } = require './literals'
+{ OpenScope, CloseScope } = require './debug-info'
 
 module.exports = @
 
@@ -53,11 +54,13 @@ module.exports = @
         return {
             type: PRIMITIVE_TYPES.VOID
             instructions: [
+                new OpenScope
                 instructionsInit...,
                 topInstructions...,
                 new BranchFalse(castingResult, bodyInstructions.length + afterInstructions.length + 1)
                 bodyInstructions...,
                 afterInstructions...,
                 new Branch(-(afterInstructions.length + bodyInstructions.length + 1 + castingInstructions.length + conditionInstructions.length + 1))
+                new CloseScope
             ]
         }

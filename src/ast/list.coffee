@@ -1,4 +1,5 @@
 { Ast } = require './ast'
+{ OpenScope, CloseScope } = require './debug-info'
 
 module.exports = @
 
@@ -22,5 +23,7 @@ module.exports = @
         result = super state, args...
 
         state.closeScope()
+
+        result.instructions = [ new OpenScope, result.instructions..., new CloseScope ]
 
         result
