@@ -18,8 +18,6 @@ module.exports = @
 
         { instructions: indexCastInstructions, result: indexCastResult } = ensureType indexResult, indexType, PRIMITIVE_TYPES.INT, this, state
 
-        state.releaseTemporaries indexCastResult
-
         isConst = type.isValueConst
 
         type = type.getElementType()
@@ -28,6 +26,7 @@ module.exports = @
 
         if type.isArray
             state.releaseTemporaries variableResult
+            state.releaseTemporaries indexCastResult
 
             result = state.getTemporary new Pointer(type.getElementType())
 
