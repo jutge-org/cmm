@@ -31,6 +31,7 @@ class Type extends Ast
                     @isNumeric  = no
                     @isAssignable = yes
                     @isReferenceable = @isAssignable
+                    @parse
                  } = {}) ->
         super()
 
@@ -64,6 +65,11 @@ isConstConversionValid = (origin, other) -> not origin.isValueConst or other.isV
             stdTypeName: 'Uint32',
             castings:
                 COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
+            parse: (s) ->
+                if isNaN(s) or s < 0
+                    throw "Invalid value #{s}"
+                else
+                    parseInt s
         }
 
         @bytes = Pointer.bytes
@@ -126,6 +132,7 @@ class NullPtr extends Type
     name: "Array"
     constructor: (@size, @elementType, { @isValueConst = no } = {}) ->
         super 'ARRAY', {
+            stdTypeName: 'Uint32'
             isAssignable: no, isReferenceable: yes
             castings:
                 COUT: (x) -> "0x" + utils.pad(x.toString(16), '0', 8)
@@ -216,6 +223,12 @@ class NullPtr extends Type
             COUT: (x) -> x.toString()
 
         stdTypeName: 'Int32'
+
+        parse: (s) ->
+            if isNaN(s)
+                throw "Invalid value #{s}"
+            else
+                parseInt s
     }
 
     DOUBLE: new Type 'DOUBLE', {
@@ -242,12 +255,20 @@ class NullPtr extends Type
                     x.toString()
 
         stdTypeName: 'Float64'
+
+        parse: (s) ->
+            if isNaN(s)
+                throw "Invalid value #{s}"
+            else
+                parseFloat s
     }
 
     STRING: new Type 'STRING', {
         bytes: 0
         castings:
             COUT: identity
+
+        parse: identity
     }
 
     CHAR: new Type 'CHAR', {
@@ -261,6 +282,12 @@ class NullPtr extends Type
             COUT: (x) -> ASCII_MAP[x&0x000000FF]
 
         stdTypeName: 'Int8'
+
+        parse: (s) ->
+            if s.length isnt 1
+                throw "Invalid length"
+
+            s.charCodeAt(0)
     }
 
     BOOL: new Type 'BOOL', {
@@ -273,6 +300,12 @@ class NullPtr extends Type
             COUT: (x) -> if x then "1" else "0"
 
         stdTypeName: 'Uint8'
+
+        parse: (s) ->
+            if isNaN(s)
+                throw "Invalid value #{s}"
+            else
+                parseInt(s) isnt 0
     }
 
     FUNCTION: new Type 'FUNCTION', {

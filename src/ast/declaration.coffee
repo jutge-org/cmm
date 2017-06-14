@@ -158,7 +158,7 @@ module.exports = @
     compile: (state, { specifiers, type, id, idAst }) ->
         [ declaration, value ] = @children
 
-        { id } = declaration.compile state, { specifiers, type, id, isInitialized: yes, idAst }
+        { id, instructions: declarationInstructions } = declaration.compile state, { specifiers, type, id, isInitialized: yes, idAst }
 
         innerIdAst = new Id(id)
         innerIdAst.locations = idAst.locations
@@ -166,4 +166,6 @@ module.exports = @
         assignAst = new Assign(innerIdAst, value)
         assignAst.locations = @locations
 
-        assignAst.compile(state, { isFromDeclaration: yes })
+        { instructions: assignInstructions } = assignAst.compile(state, { isFromDeclaration: yes })
+
+        { instructions: [ declarationInstructions..., assignInstructions... ] }

@@ -15,7 +15,7 @@ module.exports = @
 @CloseScope = class CloseScope extends DebugInfo
     name: "CloseScope"
 
-    openScope: yes
+    closeScope: yes
 
 
 @VariableDeclaration = class VariableDeclaration extends DebugInfo
