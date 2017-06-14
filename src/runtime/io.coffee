@@ -33,8 +33,10 @@ module.exports = @
         assert (typeof input is "string")
         assert @streams[stream]?
 
-        @streams[stream] = input.trim().split(/\s+/)
-        @streams[stream] = [] if @streams[stream][0] is ""
+        words = input.trim().split(/\s+/)
+
+        if words.length and words[0].length
+            @streams[stream] = @streams[stream].concat(words)
 
     getWord: (stream) ->
         assert @streams[stream]?
