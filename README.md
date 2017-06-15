@@ -24,7 +24,7 @@ The project is in early stages, so things may go wrong.
 * **Global variables**
 * **Const** specifier
 * `new` and `delete` operators
-* `cin` and `cout` (partially, they are simulated as language constructs instead of using objects and operator overloading as in C++)
+* `cin` and `cout` *(partially, they are simulated as language constructs instead of using objects and operator overloading as in C++)*
 
 ## Other features
 
