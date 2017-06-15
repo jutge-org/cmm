@@ -6,7 +6,7 @@ C-- is a C++ interpreter that can be embedded in the browser.
 
 The project is in early stages, so things may go wrong.
 
-## [Try it!](https://c--lang.ml/)
+## [Try it!](http://c--lang.ml/)
 
 ## Supported language features
 
