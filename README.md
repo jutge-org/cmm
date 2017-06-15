@@ -69,7 +69,7 @@ Now you can include this `.js` file in the browser and access the C-- interface 
 Example usage:
 
 ```Javascript
-var compiled = cmm.compile "int main() { int n; cin >> n; cout << n; }";
+var compiled = cmm.compile("int main() { int n; cin >> n; cout << n; }");
 
 var ast = compiled.ast; // Can be printed with console.log(ast.toString())
 var program = compiled.program; // Instructions can be printed with program.writeInstructions()
