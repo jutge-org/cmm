@@ -66,7 +66,15 @@ Run `npm install` followed by `gulp`. The resulting `.min.js` and `.js` files ar
 
 Now you can include this `.js` file in the browser and access the C-- interface by using the `cmm` object exported.
 
-Example usage:
+## Using as an npm package
+
+Use the same exact steps above and instead of including the file in the browser require the resulting `index.js` file.
+
+```Javascript
+var cmm = require('path-to-index.js');
+```
+
+## Example usage
 
 ```Javascript
 var compiled = cmm.compile("int main() { int n; cin >> n; cout << n; }");
@@ -93,12 +101,3 @@ while (!vm.finished) {
 // vm at this point is exactly equal to execResult in the synchronous example
 ```
 
-## Using as an npm package
-
-Use the same exact steps above and instead of including the file in the browser require the resulting `index.js` file.
-
-```Javascript
-var cmm = require('path-to-index.js');
-
-// Use cmm as in the previous example
-```
