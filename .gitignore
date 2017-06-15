@@ -47,6 +47,8 @@ test/real-programs/pro1-set/
 #!src/compiler/parser/parser.js
 !gulpfile.js
 
+package-lock.json
+
 quicktest/
 qtest
 
