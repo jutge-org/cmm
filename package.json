@@ -29,8 +29,10 @@
   "devDependencies": {
     "browserify": "^14.4.0",
     "chai": "^3.5.0",
+    "coffee-coverage": "^2.0.1",
     "coffeeify": "^2.1.0",
     "gulp": "^3.9.1",
+    "gulp-coffee": "^2.3.4",
     "gulp-minify": "^1.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",

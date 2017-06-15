@@ -495,5 +495,3 @@ exports.parser = new Parser {
     start
     bnf
 }
-
-#require('fs').writeFileSync(__dirname + '/parser.js', parser.generate())

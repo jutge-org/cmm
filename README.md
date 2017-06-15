@@ -45,9 +45,17 @@ using Javascript Typed Arrays, with **heap** and **stack** memory 'compartments'
 
 ### Installation
 
-[npm](https://www.npmjs.com/), [node](https://nodejs.org/en/) and [coffeescript](http://coffeescript.org/) are required to run `cmm`.
+[npm](https://www.npmjs.com/), [node](https://nodejs.org/en/), [coffeescript](http://coffeescript.org/) and [gulp](http://gulpjs.com/) are required to run `cmm`.
 
-Once these are installed, run `npm install` and `chmod +x cmm`, and you're all set.
+Once these are installed, run:
+
+```
+npm install
+gulp generate-parser
+chmod +x cmm
+```
+
+and you're all set.
 
 ### Usage
 
@@ -62,9 +70,9 @@ list of instructions. Gives compilation errors in case they occur.
 
 [gulp](http://gulpjs.com/) is required to build the project into a single `.js` file.
 
-Run `npm install` followed by `gulp`. The resulting `.min.js` and `.js` files are written inside the `build` directory.
+Run `npm install` followed by `gulp`. The resulting `index.min.js` and `index.js` files are written inside the `build` directory.
 
-Now you can include this `.js` file in the browser and access the C-- interface by using the `cmm` object exported.
+Now you can include this `index.js` file in the browser and access the C-- interface by using the `cmm` object exported.
 
 Example usage:
 

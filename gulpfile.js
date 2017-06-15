@@ -4,10 +4,37 @@ var gulp = require('gulp'),
     source = require('vinyl-source-stream'),
     minify = require('gulp-minify'),
     buffer = require('vinyl-buffer'),
-    gutil = require('gulp-util');
+    gutil = require('gulp-util')
+    coffee = require('gulp-coffee');
 
+function string_src(filename, string) {
+  var src = require('stream').Readable({ objectMode: true })
+  src._read = function () {
+    this.push(new gutil.File({
+      cwd: "",
+      base: "",
+      path: filename,
+      contents: new Buffer(string)
+    }))
+    this.push(null)
+  }
+  return src
+}
 
-gulp.task('build', function() {
+gulp.task('generate-grammar-js', function() {
+    return gulp.src('./src/compiler/parser/grammar.coffee')
+        .pipe(coffee({ bare: true }))
+        .pipe(gulp.dest('./build/'));
+});
+
+gulp.task('generate-parser', ['generate-grammar-js'], function() {
+    var parserCode = require('./build/grammar.js').parser.generate();
+
+    return string_src("parser.js", parserCode)
+            .pipe(gulp.dest('./src/compiler/parser/'))
+})
+
+gulp.task('build', ['generate-parser'], function() {
     return browserify('./index.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .bundle()
@@ -18,7 +45,7 @@ gulp.task('build', function() {
         .pipe(gulp.dest('./build'))
 });
 
-gulp.task('dev', function() {
+gulp.task('dev', ['generate-parser'], function() {
     return browserify('./index.coffee', {extensions:['.coffee']})
         .transform(coffeeify)
         .bundle()
