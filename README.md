@@ -28,17 +28,17 @@ The project is in early stages, so things may go wrong.
 
 ## Other features
 
-* Step-by-step execution, the program can be paused and resumed as desired
-* Debugger API
+* **Step-by-step execution**, the program can be paused and resumed as desired
+* **Debugger API**
 
 ## How it works
 
-1. The program is parsed using a parser produced with the jison parser generator, which generates an AST
-2. The AST is semantically analised
-3. Each variable is mapped into a memory address. Memory is simulated
-using Javascript Typed Arrays, with heap and stack memory 'compartments'
-4. A list of instructions is produced for each function
-5. The list of instructions is interpreted one by one
+1. The program is **parsed** using a parser produced with the jison parser generator, which generates an **AST**.
+2. The AST is **semantically analysed**.
+3. Each variable is mapped into a **memory address**. Memory is simulated
+using Javascript Typed Arrays, with **heap** and **stack** memory 'compartments'.
+4. A **list of instructions** is produced for each function.
+5. The list of instructions is **interpreted** one by one starting from the `main` function.
 
 
 ## Command Line Interface
