@@ -65,7 +65,7 @@ runTest = (testSetName, testName, testPath) ->
 
 runTestSet = (testSetFolder) ->
     describe "Test set #{testSetFolder}", ->
-        this.timeout(1000)
+        this.timeout(5000)
 
         testsPath = path.join(BASE, testSetFolder)
 
