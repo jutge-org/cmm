@@ -4,8 +4,9 @@ var gulp = require('gulp'),
     source = require('vinyl-source-stream'),
     minify = require('gulp-minify'),
     buffer = require('vinyl-buffer'),
-    gutil = require('gulp-util')
-    coffee = require('gulp-coffee');
+    gutil = require('gulp-util'),
+    coffee = require('gulp-coffee'),
+    through = require('through');
 
 function string_src(filename, string) {
   var src = require('stream').Readable({ objectMode: true })
@@ -32,10 +33,22 @@ gulp.task('generate-parser', ['generate-grammar-js'], function() {
 
     return string_src("parser.js", parserCode)
             .pipe(gulp.dest('./src/compiler/parser/'))
-})
+});
 
 gulp.task('build', ['generate-parser'], function() {
     return browserify('./index.coffee', {extensions:['.coffee']})
+        .transform(function() {
+            var data = '';
+
+            function write(buf) { data +=  buf; }
+            function end() {
+                var newData = data.replace(/(assert[^\n]*\n)/g, "0;#$1\n");
+                this.queue(newData);
+                this.queue(null);
+            }
+
+            return through(write, end);
+        })
         .transform(coffeeify)
         .bundle()
         .pipe(source('index.js')) // gives streaming vinyl file object

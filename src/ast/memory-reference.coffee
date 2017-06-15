@@ -34,7 +34,8 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
                 when @STACK then new StackReference(type, value)
                 when @TMP then new TmpReference(type, value, occupation)
                 when @RETURN then new ReturnReference(type)
-                else assert false
+                else
+                    assert false
 
     getType: -> @children[0]
     getAddress: -> @children[1]

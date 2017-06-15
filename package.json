@@ -36,6 +36,7 @@
     "gulp-minify": "^1.0.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.3.0",
+    "through": "^2.3.8",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }

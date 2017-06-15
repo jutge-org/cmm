@@ -148,7 +148,8 @@ class DoubleDiv extends BinaryOp
             switch resultType
                 when PRIMITIVE_TYPES.INT then IntDiv
                 when PRIMITIVE_TYPES.DOUBLE then DoubleDiv
-                else assert false
+                else
+                    assert false
 
         return resultType
 
