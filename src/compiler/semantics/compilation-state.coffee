@@ -12,31 +12,25 @@ module.exports = @
     constructor: ->
         @variables = {}
         @functions = {}
-        @scopeLevel = 0 # In order to be able to distinguish redefined and override variables
         @addressOffset = 0 # So as to define the offset of each local/global variable in the function stack/heap
         @temporaryAddressOffset = 0
-        @variablesCopyStack = []
+        @scopes = [{}]
+        @scope = @scopes[0]
         @insideFunctionArgumentDefinitions = no
         @insideFunctionReturnDefinition = no
         @warnings = []
 
     openScope: ->
-        variablesCopy = {}
-        for variable, scopes of @variables
-            variablesCopy[variable] = utils.clone scopes
-
-        @variablesCopyStack.push variablesCopy
-
-        ++@scopeLevel
+        @scope = {}
+        @scopes.push(@scope)
 
     closeScope: ->
-        @variables = @variablesCopyStack.pop()
-
-        --@scopeLevel
+        @scopes.pop()
+        @scope = @scopes[@scopes.length - 1]
 
     newFunction: (func, ast) ->
         assert not @functionId?
-        assert @scopeLevel is 0
+        assert @scopes.length is 1
 
         @maxTmpSize = 0
         @defineVariable func, ast
@@ -75,9 +69,8 @@ module.exports = @
             assert func?
             func.type.argTypes.push variable.type
 
-        if @variables[id]?
-            if @variables[id][@scopeLevel]?
-                ast.compilationError('VARIABLE_REDEFINITION', "name", id)
+        if @scope[id]?
+            ast.compilationError('VARIABLE_REDEFINITION', "name", id)
         else
             @variables[id] = {}
 
@@ -86,26 +79,23 @@ module.exports = @
 
             desiredAddressOffset = alignTo(@addressOffset, requiredAlignment)
 
-            variable.memoryReference = MemoryReference.from(variable.type, desiredAddressOffset, if @scopeLevel > 0 then 1 else 0)
+            variable.memoryReference = MemoryReference.from(variable.type, desiredAddressOffset, if @scopes.length > 1 then 1 else 0)
             @addressOffset = desiredAddressOffset + variable.type.bytes
 
-        @variables[id][@scopeLevel] = variable
+        @scope[id] = variable
 
     getVariable: (id) ->
-        if @variables[id]?
-            max = -1
-            for level of @variables[id]
-                if level is @scopeLevel
-                    return @variables[id][level]
-                else if level > max
-                    max = level
+        scopeLevel = @scopes.length
 
-            if max isnt -1
-                return @variables[id][max]
+        while --scopeLevel >= 0
+            if @scopes[scopeLevel][id]?
+                return @scopes[scopeLevel][id]
 
         return null
 
-
+    # WARNING: THIS SHOULD ONLY BE USED FOR SPECIAL CASES, NORMALLY YOU SHOULD USE getVariable instead,
+    # which will return the real currently visible variable with that id, which may or may not be a function because of
+    # declaration shadowing
     getFunction: (id = @functionId) -> @functions[id]
 
     getTemporary: (type) ->

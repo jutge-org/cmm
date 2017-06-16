@@ -11,31 +11,23 @@ module.exports = @
     # Uses debug instructions that are inserted during the compilation step, and removes then after the tagging is
     # complete
     tagInstructionsVariables = (functions) ->
-        definedVariables = {}
-
-        definedVariablesStack = []
+        scopes = [{}]
+        scope = scopes[0]
 
         defineVariable = (defIns) ->
             [ variable ] = defIns.children
-            definedVariables[variable.id] ?= []
-            definedVariables[variable.id][definedVariablesStack.length] = variable
+            scope[variable.id] = variable
 
-        openScope = ->
-            variablesCopy = {}
+        openScope = -> scope = {}; scopes.push scope
 
-            for variable, scopes of definedVariables
-                variablesCopy[variable] = utils.clone scopes
-
-            definedVariablesStack.push variablesCopy
-
-
-        closeScope = -> definedVariables = definedVariablesStack.pop()
+        closeScope = -> scopes.pop(); scope = scopes[scopes.length - 1]
 
         getVisibleVariables = ->
             visibleVariables = {}
 
-            for variable, scopes of definedVariables
-                visibleVariables[variable] = scopes[scopes.length - 1]
+            for scope in scopes
+                for id, variable of scope
+                    visibleVariables[id] = variable # Gets overwritten if there is another defintion on a deeper scope
 
             visibleVariables
 
