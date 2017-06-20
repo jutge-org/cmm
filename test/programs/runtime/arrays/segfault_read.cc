@@ -1,6 +1,6 @@
 /*
 
-    description{Checks that accessing an array for read on a negative value gives a SEGFAULT}
+    description{Checks that accessing an out-of-bounds stack address for read gives SEGFAULT}
     status{11}
 */
 
