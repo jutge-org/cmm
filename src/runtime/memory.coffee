@@ -3,6 +3,16 @@
 
 
 class DataView # Fast implementation of Javascript DataView
+    constructor: (@buffer) ->
+        @int8Array = new Int8Array(@buffer, 0);
+        @uint8Array = new Uint8Array(@buffer, 0);
+        @int16Array = new Int16Array(@buffer, 0);
+        @uint16Array = new Uint16Array(@buffer, 0);
+        @int32Array = new Int32Array(@buffer, 0);
+        @uint32Array = new Uint32Array(@buffer, 0);
+        @float32Array = new Float32Array(@buffer, 0);
+        @float64Array = new Float64Array(@buffer, 0);
+
     genr: (array, shift, address) ->
         v = array[address >> shift]
         if v is undefined
@@ -14,16 +24,6 @@ class DataView # Fast implementation of Javascript DataView
             executionError @vm, 'SEGFAULT'
         else
             array[address >> shift] = value
-
-    constructor: (@buffer) ->
-        @int8Array = new Int8Array(@buffer, 0);
-        @uint8Array = new Uint8Array(@buffer, 0);
-        @int16Array = new Int16Array(@buffer, 0);
-        @uint16Array = new Uint16Array(@buffer, 0);
-        @int32Array = new Int32Array(@buffer, 0);
-        @uint32Array = new Uint32Array(@buffer, 0);
-        @float32Array = new Float32Array(@buffer, 0);
-        @float64Array = new Float64Array(@buffer, 0);
 
     getInt8: (address) -> @genr(@int8Array, 0, address)
     getUint8: (address) -> @genr(@uint8Array, 0, address)
@@ -63,13 +63,14 @@ MB = 1024*1024
         @[0] = @stack
         @[1] = @heap
 
-    setVM: (@vm) ->
+    setVM: (vm) ->
         for memoryCompartment, size of Memory.SIZES
-            @[memoryCompartment].vm = @vm
+            @[memoryCompartment].vm = vm
             
     setPointers: (@pointers) ->
 
     resetHeapBuffer: ->
+        vm = @heap.vm
         @heapBuffer = new ArrayBuffer Memory.SIZES.heap
-        @heap = new DataView @heapBuffer
-        @heap.vm = @vm
+        @[1] = @heap = new DataView @heapBuffer
+        @heap.vm = vm

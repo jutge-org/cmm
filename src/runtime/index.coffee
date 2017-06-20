@@ -32,7 +32,6 @@ class VM
             @allocator = new Allocator @memory.heapBuffer
         catch error
             # This happens when a previous execution has polluted the heapbuffer with a segfault
-            # It causes the malloc library to crash
             # TODO: Should try to avoid having to reset the memory, either
             # TODO: by checking segfaults on the heap, or trying to zero-out pollution
             @memory.resetHeapBuffer()
