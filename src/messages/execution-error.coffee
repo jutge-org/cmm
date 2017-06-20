@@ -128,7 +128,7 @@ assert = require 'assert'
 
     INVALID_FREE_POINTER:
         code: 142
-        message: "Used delete on an already deleted pointer or a pointer not allocated with new: <<pointer>>"
+        message: "Used delete on an already deleted pointer or a pointer not allocated with new:<<pointer>>"
         description: """
             This error occurs when using delete on a pointer or array which has not been previously allocated with new,
             or a pointer which has already been freed with delete before in the program.
@@ -148,6 +148,28 @@ assert = require 'assert'
                     delete p2; // Correct, p2 has been allocated with new
 
                     delete p2; // Error! p2 has already been freed with delete before
+                }
+            ```
+        """
+}
+
+@memoryAccess = {
+    SEGFAULT:
+        code: 11
+        message: "Segmentation fault"
+        description: """
+            This error occurs when reading or writing on an invalid memory address.
+
+            It usually happens when accessing arrays with indices that are outside of its
+            bounds, such as negative indices and indices greater than its dimension.
+
+            Example:
+
+            ```
+                int main() {
+                    char arr[2];
+
+                    arr[-1] = 2; // Error! Accessing arr with negative index
                 }
             ```
         """

@@ -1,6 +1,20 @@
 { PRIMITIVE_TYPES: { LARGEST_ASSIGNABLE: { bytes: largestAssignableBytes } } } = require '../ast/type'
+{ executionError } = require '../messages'
+
 
 class DataView # Fast implementation of Javascript DataView
+    genr: (array, shift, address) ->
+        v = array[address >> shift]
+        if v is undefined
+            executionError @vm, 'SEGFAULT'
+        v
+
+    genw: (array, shift, address, value) ->
+        if address < 0 or address >= array.length
+            executionError @vm, 'SEGFAULT'
+        else
+            array[address >> shift] = value
+
     constructor: (@buffer) ->
         @int8Array = new Int8Array(@buffer, 0);
         @uint8Array = new Uint8Array(@buffer, 0);
@@ -11,23 +25,23 @@ class DataView # Fast implementation of Javascript DataView
         @float32Array = new Float32Array(@buffer, 0);
         @float64Array = new Float64Array(@buffer, 0);
 
-    getInt8: (address) -> @int8Array[address]
-    getUint8: (address) -> @uint8Array[address]
-    getInt16: (address) -> @int16Array[address >> 1]
-    getUint16: (address) -> @uint16Array[address >> 1]
-    getInt32: (address) -> @int32Array[address >> 2]
-    getUint32: (address) -> @uint32Array[address >> 2]
-    getFloat32: (address) -> @float32Array[address >> 2]
-    getFloat64: (address) -> @float64Array[address >> 3]
+    getInt8: (address) -> @genr(@int8Array, 0, address)
+    getUint8: (address) -> @genr(@uint8Array, 0, address)
+    getInt16: (address) -> @genr(@int16Array, 1, address)
+    getUint16: (address) -> @genr(@uint16Array, 1, address)
+    getInt32: (address) -> @genr(@int32Array, 2, address)
+    getUint32: (address) -> @genr(@uint32Array, 2, address)
+    getFloat32: (address) -> @genr(@float32Array, 2, address)
+    getFloat64: (address) -> @genr(@float64Array, 3, address)
 
-    setInt8: (address, value) -> @int8Array[address] =  value
-    setUint8: (address, value) -> @uint8Array[address] =  value
-    setInt16: (address, value) -> @int16Array[address >> 1] =  value
-    setUint16: (address, value) -> @uint16Array[address >> 1] =  value
-    setInt32: (address, value) -> @int32Array[address >> 2] =  value
-    setUint32: (address, value) -> @uint32Array[address >> 2] =  value
-    setFloat32: (address, value) -> @float32Array[address >> 2] =  value
-    setFloat64: (address, value) -> @float64Array[address >> 3] =  value
+    setInt8: (address, value) -> @genw(@int8Array, 0, address, value)
+    setUint8: (address, value) -> @genw(@uint8Array, 0, address, value)
+    setInt16: (address, value) -> @genw(@int16Array, 1, address, value)
+    setUint16: (address, value) -> @genw(@uint16Array, 1, address, value)
+    setInt32: (address, value) -> @genw(@int32Array, 2, address, value)
+    setUint32: (address, value) -> @genw(@uint32Array, 2, address, value)
+    setFloat32: (address, value) -> @genw(@float32Array, 2, address, value)
+    setFloat64: (address, value) -> @genw(@float64Array, 3, address, value)
 
 module.exports = @
 
@@ -49,4 +63,13 @@ MB = 1024*1024
         @[0] = @stack
         @[1] = @heap
 
+    setVM: (@vm) ->
+        for memoryCompartment, size of Memory.SIZES
+            @[memoryCompartment].vm = @vm
+            
     setPointers: (@pointers) ->
+
+    resetHeapBuffer: ->
+        @heapBuffer = new ArrayBuffer Memory.SIZES.heap
+        @heap = new DataView @heapBuffer
+        @heap.vm = @vm

@@ -26,8 +26,17 @@ class VM
 
         @memory = program.memory ? new Memory
         @memory.setPointers @pointers
+        @memory.setVM(this)
 
-        @allocator = new Allocator @memory.heapBuffer
+        try
+            @allocator = new Allocator @memory.heapBuffer
+        catch error
+            # This happens when a previous execution has polluted the heapbuffer with a segfault
+            # It causes the malloc library to crash
+            # TODO: Should try to avoid having to reset the memory, either
+            # TODO: by checking segfaults on the heap, or trying to zero-out pollution
+            @memory.resetHeapBuffer()
+            @allocator = new Allocator @memory.heapBuffer
 
         @allocatedPointers = {} # Turns out the malloc library doesn't always check on whether the pointer being
                                 # free'd was previously allocated, and could lead to a hang on posterior allocations,
@@ -75,7 +84,7 @@ class VM
 
             throw new Error() if initialPointer is 0
             pointer = new Pointer(PRIMITIVE_TYPES.VOID).tipify(initialPointer | 0x80000000) # Add heap mark
-            @allocatedPointers[pointer] = yes
+            @allocatedPointers[pointer] = size
         catch error
             executionError(this, 'CANNOT_ALLOCATE', "size", size)
 
