@@ -25,14 +25,14 @@ HEAP_INITIAL_ADDRESS = 0x80000000 + MALLOC_HEADER_SIZE
 
         super type, address
 
-    @from: (type, value, store, occupation) ->
+    @from: (type, address, store, occupation) ->
         if type is PRIMITIVE_TYPES.STRING
-            new StringReference value
+            new StringReference ""
         else
             switch store
-                when @HEAP then new HeapReference(type, value)
-                when @STACK then new StackReference(type, value)
-                when @TMP then new TmpReference(type, value, occupation)
+                when @HEAP then new HeapReference(type, address)
+                when @STACK then new StackReference(type, address)
+                when @TMP then new TmpReference(type, address, occupation)
                 when @RETURN then new ReturnReference(type)
                 else
                     assert false
