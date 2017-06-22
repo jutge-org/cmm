@@ -76,7 +76,14 @@ Now you can include this `index.js` file in the browser and access the C-- inter
 
 ## Using as an npm package
 
-Use the same exact steps above and instead of including the file in the browser require the resulting `index.js` file.
+Run
+
+```
+gulp generate-parser
+coffee -cb .
+```
+
+Now you can `require()` the index.js file in the root of the project:
 
 ```Javascript
 var cmm = require('path-to-index.js');
