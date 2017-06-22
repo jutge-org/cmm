@@ -93,7 +93,7 @@ assert = require 'assert'
             Example:
 
             ```
-                int f[2]() { // f[2] is not allowed here, f is a function and cannot return an array int[2] f() {} would also be incorrect
+                int f[2]() { // f[2] is not allowed here, f is a function and cannot return an array. int[2] f() {} would also be incorrect
 
                 }
             ```

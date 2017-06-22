@@ -1,4 +1,4 @@
-{ PRIMITIVE_TYPES, Pointer, Array } = require './type'
+{ PRIMITIVE_TYPES, Pointer, Array, EXPR_TYPES } = require './type'
 { Ast } = require './ast'
 { getSpecifiers } = require './declaration'
 { executionError } = require '../messages'
@@ -23,7 +23,7 @@ module.exports = @
         unless type.isPointer or type.isArray
             @compilationError 'INVALID_DELETE_TYPE', "type", type.getSymbol()
 
-        { type: PRIMITIVE_TYPES.VOID, instructions: [ instructions..., new Delete(result) ]}
+        { type: PRIMITIVE_TYPES.VOID, instructions: [ instructions..., new Delete(result) ], exprType: EXPR_TYPES.RVALUE }
 
     execute: (vm) ->
         [ pointerReference ] = @children
@@ -57,7 +57,7 @@ module.exports = @
 
         result = state.getTemporary type
 
-        { instructions: [ declarationInstructions..., new New(result, maybeStaticDimension ? null, dimensionResult ? null) ], type, result }
+        { instructions: [ declarationInstructions..., new New(result, maybeStaticDimension ? null, dimensionResult ? null) ], type, result, exprType: EXPR_TYPES.RVALUE}
 
     execute: (vm) ->
         { memory } = vm
