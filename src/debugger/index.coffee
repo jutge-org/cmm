@@ -73,7 +73,7 @@ differLine = (line, other) -> line? and other? and line isnt other
         currentStackLevel = @vm.controlStack.length
 
         # > 0 so that the entry function cannot be debugged
-        yield from @continue((vm) -> vm.controlStack.length < currentStackLevel and vm.controlStack.length > 0 and vm.instruction.locations?)
+        yield from @continue((vm) -> 0 < vm.controlStack.length < currentStackLevel and vm.instruction.locations?)
 
     stepInstruction: ->
         assert @started
