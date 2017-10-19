@@ -48,7 +48,7 @@ module.exports = @
     newInstance = new obj.constructor()
 
     for key of obj
-        newInstance[key] = cloneDeep obj[key]
+        newInstance[key] = clone obj[key]
 
     return newInstance
 
